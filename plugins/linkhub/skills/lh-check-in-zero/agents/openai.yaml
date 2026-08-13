@@ -1,0 +1,8 @@
+interface:
+  display_name: "LinkHub Check-in Zero"
+  short_description: "Complete every pending LinkHub initiative check-in"
+  default_prompt: "Use $lh-check-in-zero to process all my pending LinkHub initiative check-ins."
+  icon_small: "assets/icon.svg"
+  icon_large: "assets/icon.svg"
+policy:
+  allow_implicit_invocation: true

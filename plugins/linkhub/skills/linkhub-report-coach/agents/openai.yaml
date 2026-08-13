@@ -1,0 +1,6 @@
+interface:
+  display_name: "LinkHub Report Coach"
+  short_description: "Complete monthly LinkHub reports safely via MCP"
+  default_prompt: "Use $linkhub-report-coach to guide my team report from draft through a separately confirmed submission."
+policy:
+  allow_implicit_invocation: true

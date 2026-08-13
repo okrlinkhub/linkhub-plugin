@@ -1,0 +1,8 @@
+interface:
+  display_name: "LinkHub Inbox Zero"
+  short_description: "Process every unread LinkHub conversation safely"
+  default_prompt: "Use $lh-inbox-zero to review and clear my unread LinkHub conversations."
+  icon_small: "assets/icon.svg"
+  icon_large: "assets/icon.svg"
+policy:
+  allow_implicit_invocation: true

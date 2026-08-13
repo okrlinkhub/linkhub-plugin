@@ -1,0 +1,6 @@
+interface:
+  display_name: "LinkHub Indicator Analyst"
+  short_description: "Explain indicators with approved ClickHouse evidence"
+  default_prompt: "Use $linkhub-indicator-analyst to explain this LinkHub indicator and compare its latest period."
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,20 @@
+{
+  "name": "linkhub-private",
+  "interface": {
+    "displayName": "LinkHub"
+  },
+  "plugins": [
+    {
+      "name": "linkhub",
+      "source": {
+        "source": "local",
+        "path": "./plugins/linkhub"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

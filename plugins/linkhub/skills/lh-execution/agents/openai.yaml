@@ -1,0 +1,6 @@
+interface:
+  display_name: "LinkHub Execution"
+  short_description: "Carry out a LinkHub initiative handoff safely"
+  default_prompt: "Use $lh-execution to continue this LinkHub initiative handoff and keep its notes current."
+policy:
+  allow_implicit_invocation: true

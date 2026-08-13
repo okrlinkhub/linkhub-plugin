@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "linkhub": {
+      "type": "http",
+      "url": "https://determined-kudu-49.convex.site/mcp"
+    }
+  }
+}

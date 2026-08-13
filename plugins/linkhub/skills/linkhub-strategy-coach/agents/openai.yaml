@@ -1,0 +1,8 @@
+interface:
+  display_name: "LinkHub Strategy Coach"
+  short_description: "Design measurable LinkHub OKRs, risks, and initiatives"
+  default_prompt: "Use $linkhub-strategy-coach to design a measurable LinkHub strategy for my team."
+  icon_small: "assets/icon.svg"
+  icon_large: "assets/icon.svg"
+policy:
+  allow_implicit_invocation: true
