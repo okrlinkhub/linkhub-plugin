@@ -1,8 +1,8 @@
 # LinkHub per ChatGPT e Codex
 
-Questo repository distribuisce privatamente il plugin LinkHub ai clienti autorizzati. Il bundle è
-raggiungibile tramite link, ma dati e operazioni restano protetti dall'accesso OAuth e dalle
-autorizzazioni del singolo account LinkHub.
+Questo repository è il mirror pubblico generato dalla sorgente canonica LinkHub. Non viene
+modificato manualmente: ogni tag immutabile corrisponde a un deployment production verificato.
+Dati e operazioni restano protetti dall'accesso OAuth e dalle autorizzazioni del singolo account.
 
 ## Requisiti
 
@@ -12,10 +12,10 @@ autorizzazioni del singolo account LinkHub.
 
 ## Installazione
 
-Sostituisci `<versione>` con il tag indicato da LinkHub, per esempio `v0.1.0`.
+Usa il tag stabile indicato qui sotto.
 
 ```bash
-codex plugin marketplace add okrlinkhub/linkhub-plugin --ref <versione>
+codex plugin marketplace add okrlinkhub/linkhub-plugin --ref v0.5.0
 codex plugin add linkhub@linkhub-private
 ```
 
@@ -25,21 +25,28 @@ prima connessione completa l'accesso OAuth con il tuo account LinkHub.
 Puoi iniziare con uno di questi prompt:
 
 - `Guidami nel report mensile del mio team.`
+- `Guidami nella review di un report già sottomesso.`
 - `Spiegami l'andamento di un indicatore.`
 - `Mostrami cosa richiede attenzione in LinkHub.`
 
 ## Aggiornamento
 
 LinkHub pubblica ogni versione come tag immutabile. Per passare a un nuovo tag, sostituisci
-`<nuova-versione>` con la versione comunicata:
+`v0.5.0` con la versione comunicata:
 
 ```bash
 codex plugin marketplace remove linkhub-private
-codex plugin marketplace add okrlinkhub/linkhub-plugin --ref <nuova-versione>
+codex plugin marketplace add okrlinkhub/linkhub-plugin --ref v0.5.0
 codex plugin add linkhub@linkhub-private
 ```
 
 Dopo l'aggiornamento, usa una nuova chat per caricare skill e strumenti aggiornati.
+
+## Skill standalone
+
+Gli ZIP allegati alla GitHub Release sono un fallback per gli assistenti che non supportano il
+plugin. Sono generati dalla stessa sorgente e riportano la stessa versione e gli stessi checksum;
+non vanno mantenuti o modificati separatamente.
 
 ## Disinstallazione
 

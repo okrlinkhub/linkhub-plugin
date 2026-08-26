@@ -72,9 +72,12 @@ Per tipo **B**:
 - L'utente deve poter **gestire** il team (`teams_listMineByCompany`).
 - Verifica una volta: `mcp_membershipProfile`.
 
-**Gap MCP noto:** non esistono tool `indicators_*`. Per ogni KR serve un **`indicatorId` valido** nella company:
-- chiedi all'utente di crearlo/selezionarlo in LinkHub UI, **oppure**
-- riusa `indicatorId` da `keyResults_byTeam` su altri team se la metrica esiste già.
+**Gap MCP noto:** `indicators_listExplainable` consente di leggere e selezionare
+gli indicatori automatizzati, ma MCP non espone ancora un tool per crearne di
+nuovi. Per ogni KR serve un **`indicatorId` valido** nella company:
+- cerca prima con `indicators_listExplainable`, **oppure**
+- riusa `indicatorId` da `keyResults_byTeam` se la metrica esiste già, **oppure**
+- chiedi all'utente di creare/selezionare l'indicatore in LinkHub UI.
 
 ---
 

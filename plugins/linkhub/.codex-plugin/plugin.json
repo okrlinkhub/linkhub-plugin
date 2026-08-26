@@ -1,7 +1,7 @@
 {
   "name": "linkhub",
-  "version": "0.1.0",
-  "description": "Complete LinkHub reports, explain indicators with approved ClickHouse evidence, and manage OKR execution through MCP.",
+  "version": "0.5.0",
+  "description": "Complete and review LinkHub reports, explain indicators with approved ClickHouse evidence, and manage OKR execution through MCP.",
   "author": {
     "name": "LinkHub",
     "url": "https://www.okrlinkhub.com"
@@ -21,7 +21,7 @@
   "interface": {
     "displayName": "LinkHub",
     "shortDescription": "Reports, OKRs, and indicator evidence in Codex",
-    "longDescription": "Complete LinkHub team reports end to end, investigate automated indicators with bounded ClickHouse evidence, and manage OKR execution directly through the authenticated LinkHub MCP connection.",
+    "longDescription": "Complete LinkHub team reports, review submitted reports with coached weight validation, investigate automated indicators with bounded ClickHouse evidence, and manage OKR execution directly through the authenticated LinkHub MCP connection.",
     "developerName": "LinkHub",
     "category": "Productivity",
     "capabilities": [
@@ -32,7 +32,7 @@
     "websiteURL": "https://www.okrlinkhub.com",
     "defaultPrompt": [
       "Guidami nel report mensile del mio team.",
-      "Spiegami l’andamento di un indicatore.",
+      "Guidami nella review di un report già sottomesso.",
       "Mostrami cosa richiede attenzione in LinkHub."
     ],
     "composerIcon": "./assets/logo.png",

@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "plugin": "linkhub",
+  "version": "0.5.0",
+  "tag": "v0.5.0",
+  "sourceRepository": "okrlinkhub/linkhub-w4",
+  "sourceSha": "e07e994c0f2025ede3e35564d71e7970db92397c",
+  "distributionRepository": "okrlinkhub/linkhub-plugin",
+  "skills": [
+    {
+      "name": "lh-check-in-zero",
+      "filename": "lh-check-in-zero-v0.5.0.zip",
+      "size": 10936,
+      "sha256": "557326fd2c9a839d6302f98a4373d1e741e9947be75ffed383ed61ec79fec227"
+    },
+    {
+      "name": "lh-execution",
+      "filename": "lh-execution-v0.5.0.zip",
+      "size": 5893,
+      "sha256": "df8e46dfa6409d822f8f34618a8592b3a14d0cfdc9e22179631cff6a09e1ea67"
+    },
+    {
+      "name": "lh-inbox-zero",
+      "filename": "lh-inbox-zero-v0.5.0.zip",
+      "size": 9193,
+      "sha256": "d406f5cca29f4efa37ef16ea73d2adc4754346961ace2e41806e5fc866339801"
+    },
+    {
+      "name": "linkhub-indicator-analyst",
+      "filename": "linkhub-indicator-analyst-v0.5.0.zip",
+      "size": 2720,
+      "sha256": "27e52ead6cb6ec8c05f1c41c24e0ca913200883bbebb3bdd840c059abcd054d2"
+    },
+    {
+      "name": "linkhub-report-coach",
+      "filename": "linkhub-report-coach-v0.5.0.zip",
+      "size": 25385,
+      "sha256": "9f1260467cf2a33d063be57e755a9bab128f65c65625a2e30be872a0dab1c538"
+    },
+    {
+      "name": "linkhub-review-coach",
+      "filename": "linkhub-review-coach-v0.5.0.zip",
+      "size": 22265,
+      "sha256": "fa57dcd74131ea8c85092322c982d499c13e636358d55a3ed729c6b54c935f59"
+    },
+    {
+      "name": "linkhub-strategy-coach",
+      "filename": "linkhub-strategy-coach-v0.5.0.zip",
+      "size": 24273,
+      "sha256": "c99cddcd6cab6dd23f77dc5e1b18ecb61732af43ae0cce232f97e745cd8ede56"
+    }
+  ]
+}

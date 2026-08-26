@@ -10,8 +10,8 @@
 | `teams_listMineByCompany` | companyId | team dove sono leader |
 | `reports_getWorkflowProgress` | reportId | KR status, next step, submit |
 | `objectives_byTeam` | teamId | KR annidati + objective |
-| `keyResults_byTeam` | teamId | slug, weight, forecast |
-| `reports_getEvaluateContext` | reportId, keyResultId | indicator, tracked/next esistenti |
+| `keyResults_byTeam` | teamId | slug, peso e valore tecnico usato internamente per l'obiettivo minimo |
+| `reports_getEvaluateContext` | reportId, keyResultId | indicator, ultimo valore operativo con data, tracked/next esistenti |
 | `reports_getAnalyzeContext` | reportId, keyResultId | risks[], initiatives[] |
 | `risks_byKeyResult` | keyResultId | solo se serve lista estesa |
 | `initiatives_byTeam` | teamId, limit | hygiene batch |
@@ -19,15 +19,17 @@
 | `teams_listMembers` | teamId | assignee validi |
 | `users_searchForMentions` | query | menzioni commenti |
 | `mcp_resolveIsoDate` | isoDate | timestamp + weekday |
+| `milestones_listByIndicator` | indicatorId | milestone, stato, peso, date e totali verificati |
 
 ## Read (indicator evidence)
 
 | Tool | Args principali | Output utile |
 |------|-----------------|--------------|
-| `indicators_listExplainable` | companyId?, query?, limit? | indicatorId, periodicità, ownership e binding |
-| `indicators_getExplanation` | indicatorId | definizione, caveat, chiavi approvate, lineage e periodo |
-| `indicators_queryEvidence` | indicatorId, request | envelope con operazione, intervallo, righe, conteggio e truncation |
-| `indicators_searchCatalog` | indicatorId, query?, limit? | metriche autorizzate con namespace e metricKey esatti |
+| `indicators_listExplainable` | companyId?, query?, teamId?, usage?, assigneeId?, cursor?, limit? (max 50) | istanze LinkHub con slug, assignee, utilizzi team e paginazione |
+| `indicators_resolve` | reference, companyId? | risoluzione esatta di slug o indicatorId |
+| `indicators_getExplanation` | indicatorId | definizione, default, caveat, chiavi approvate, label, lineage e periodo |
+| `indicators_queryEvidence` | indicatorId, request (`cursor?`, `limit?` max 50) | misura/dimensione risolte, righe tipizzate, diagnostica e paginazione |
+| `indicators_searchCatalog` | indicatorId, query?, cursor?, limit? (max 50) | metriche analitiche autorizzate; non cerca istanze LinkHub |
 | `indicators_queryCatalogEvidence` | indicatorId, metric, request | evidence envelope per la metrica catalogo verificata |
 
 ## Write (workflow)
@@ -49,10 +51,21 @@
 | `initiatives_remove` | Soft-delete (errore / non più rilevante) |
 | `initiatives_checkIn` | Check-in + prossima data + append note strutturato (`postponed`, `started`, `finish`); `progressNote` obbligatoria |
 | `initiatives_finish` | Iniziativa completata + append note strutturato; `progressNote` obbligatoria |
-| `resultNext_skipWithDefaults` | Next veloce (default) |
-| `resultNext_upsert` | Next custom |
+| `resultNext_skipWithDefaults` | Conferma i default già mostrati come obiettivo minimo e obiettivo massimo |
+| `resultNext_upsert` | Salva obiettivo minimo e obiettivo massimo personalizzati tramite i campi tecnici interni |
 | `reports_updateReporterNotes` | Salva nota senza submit |
-| `reports_submit` | DRAFT → IN_REVIEW |
+| `reports_getSubmitContext` | Elenca i candidati OTO leggibili e i valori ammessi prima del submit |
+| `reports_submit` | DRAFT → IN_REVIEW; `otoCheckins?: [{ menteeId, answer: "stable" | "growing" | "declining" }]` |
+
+## Write (milestone)
+
+| Tool | Quando |
+|------|--------|
+| `milestones_create` | Crea una milestone con peso `%` e scadenza ISO opzionale |
+| `milestones_update` | Modifica descrizione, peso o scadenza (`null` la rimuove) |
+| `milestones_complete` | Completa con `achievedAtIso` esplicita |
+| `milestones_reopen` | Corregge un completamento errato |
+| `milestones_remove` | Soft-delete distruttivo, con conferma separata |
 
 ## Inbox (opzionale)
 
@@ -69,6 +82,9 @@
 - Nessun KR orfano
 - Ogni tracked ha resultNext (`assertReportHasRequiredResultNext`)
 - Pesi team = 100% (UI; verificare lato coach)
+- Somma `value` delle milestone attive ≤ 100%
+- Scrittura milestone consentita solo ad assignee indicatore o admin company
+- `resultTracked_upsert` cattura lo snapshot milestone: eseguirlo dopo l'ultima rilettura
 
 ## Campi copy-paste da evaluate context
 
@@ -78,3 +94,14 @@ Per upsert/markUnmeasurable servono sempre:
 - `intervallSource`, `resultType` (se upsert/unmeasurable)
 
 Prendili da `reports_getEvaluateContext` + `objectives_byTeam`.
+
+## Linguaggio e conferme
+
+- Verso l'utente usare sempre **obiettivo minimo** e **obiettivo massimo**;
+  `forecast*` e `target*` sono esclusivamente nomi di trasporto interni.
+- Mostrare valore operativo corrente, data e una proposta numerica prima di
+  chiedere conferma del Next.
+- Mostrare effetti leggibili delle mutation; non mostrare ID o payload MCP salvo
+  richiesta esplicita.
+- Numerare localmente i rischi di ogni KR come `R1`, `R2`, ... e mantenere la
+  mappatura interna fino alla fine di quel KR.
