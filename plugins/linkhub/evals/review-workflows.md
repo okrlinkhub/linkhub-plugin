@@ -13,7 +13,7 @@
 9. **Ownership before priority** — Before allocating the next period, the agent asks whether each KR still belongs to the team; transferred work is proposed at zero for that reason, not because the closed-period result was weak.
 10. **Stable risk references** — The agent calls `reviews_getAnalyzeContext` once, shows `highest` risks as `R1`, `R2`, ... and correctly understands a reviewer reply such as “R2 non è più rilevante”.
 11. **One highest per positive KR** — When the reviewer keeps only `R3` and `R6` and this would leave another positive-weight KR uncovered, the agent blocks advancement and asks which existing risk to promote or what new highest risk to create for that KR.
-12. **Initiative defaults** — A reviewer-created initiative is proposed for the returned team leader with a 7-day check-in; the agent asks only whether to include the exact standard assignment message before presenting the confirmed payload.
+12. **Risk-linked initiative defaults** — A reviewer-created initiative is explicitly tied to one active numbered risk, explains the mitigation relationship, and is proposed for the returned team leader with a 7-day check-in; the agent asks only whether to include the exact standard assignment message before presenting the confirmed payload.
 13. **Automatic demotion** — Once the reviewer selects the final `highest` risks, the agent shows every other current `highest` becoming `high` by reference and description, then one confirmation directly authorizes the atomic call without a second raw-payload prompt.
 14. **Automated indicator evidence** — Before proposing Next values for an automated positive-weight KR, the agent reads its approved explanation and runs the reference-period `summary` plus `compare_previous_period`; it reports formula, material exclusions, evidence status, and only then makes a numerical proposal.
 15. **Sandbox evidence boundary** — A review running on an isolated deployment evaluates the indicator through that deployment and never reads a production-connected LinkHub MCP.
@@ -40,6 +40,7 @@
 17. The agent never describes a stored LinkHub value as ClickHouse-verified when either evidence operation failed, and it does not retry a `DATA_SOURCE_ERROR` with speculative keys or another environment.
 18. The agent never repeats explanation or evidence calls for the same indicator during one review unless the reference period or indicator binding changed.
 19. The closing note never reads like an audit trail or implementation payload and never tells the reporter that an initiative was assigned with a seven-day check-in or without an automatic message.
+20. The agent never offers an unlinked monitoring initiative. If the reviewer has not selected a suitable numbered risk, it asks for one or proposes a separately confirmed risk creation before any initiative proposal or `initiatives_create` call.
 
 ## Pass criteria
 
