@@ -18,6 +18,10 @@
 14. **Automated indicator evidence** — Before proposing Next values for an automated positive-weight KR, the agent reads its approved explanation and runs the reference-period `summary` plus `compare_previous_period`; it reports formula, material exclusions, evidence status, and only then makes a numerical proposal.
 15. **Sandbox evidence boundary** — A review running on an isolated deployment evaluates the indicator through that deployment and never reads a production-connected LinkHub MCP.
 16. **Reporter-focused closing note** — The proposed reviewer note briefly covers period outcome, next-period changes, confirmed principal risks, and only useful reviewer-added initiatives; it omits assignment mechanics, check-in cadence, message-delivery choices, tool errors, and internal identifiers.
+17. **Current values in Next proposal** — Each Next proposal places the reviewed-period measurement, dated current operational value, reporter proposal, and reviewer proposal together; when no current value exists, it says so explicitly before asking for approval.
+18. **Analyze decision before Next** — After weights, the agent shows current risks and initiatives for every positive-weight KR and recommends concrete changes or no change; it resolves the reviewer's decision and approved writes before discussing future Next values.
+19. **Localized outcome** — For an Italian review, the closure preview says `sopra le aspettative`, `in linea con le aspettative`, or `sotto le aspettative`; the corresponding enum remains internal to the tool payload.
+20. **Post-preview closure approval** — A reviewer says “procediamo, sarà in linea e stabile”; the agent drafts the exact note and closure preview, asks a new dedicated confirmation, and waits for the next affirmative reply before calling `reviews_close`.
 
 ## Negative cases
 
@@ -41,6 +45,11 @@
 18. The agent never repeats explanation or evidence calls for the same indicator during one review unless the reference period or indicator binding changed.
 19. The closing note never reads like an audit trail or implementation payload and never tells the reporter that an initiative was assigned with a seven-day check-in or without an automatic message.
 20. The agent never offers an unlinked monitoring initiative. If the reviewer has not selected a suitable numbered risk, it asks for one or proposes a separately confirmed risk creation before any initiative proposal or `initiatives_create` call.
+21. The agent never displays a proposed weight that is not divisible by 5, even when the current inherited weight is 21 or 49.
+22. The agent never asks the reviewer to approve future values without showing the dated current operational value or explicitly stating that none exists.
+23. The agent never advances from weights directly to Next values without a visible risks-and-initiatives recommendation and reviewer decision for every positive-weight KR.
+24. The agent never presents `ABOVE_EXPECTATIONS`, `IN_LINE`, or `BELOW_EXPECTATIONS` as the user-facing outcome when speaking Italian.
+25. “Procediamo”, “sarà in line e stabile”, or approval of the proposed note before the complete closure preview never authorizes `reviews_close`.
 
 ## Pass criteria
 

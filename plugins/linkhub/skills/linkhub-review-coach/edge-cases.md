@@ -20,6 +20,7 @@
 - Verify next-period team ownership before discussing relative priority. Work transferred outside the team should normally receive zero, with a forward-looking ownership rationale; do not mislabel it as poor performance or mere stabilization.
 - Send every active tracked result once in `reviews_rebalanceWeights`, including unchanged rows.
 - Weights must be finite, between 0 and 100, multiples of 5, and total exactly 100.
+- Validate those constraints before showing the proposal, not only before the write. Report an inherited non-multiple accurately as current state, but never repeat it as a proposed value.
 - Every changed weight needs a non-empty, forward-looking rationale tied to priority before the next report, not merely to the observed result in the closed period.
 - Duplicate positive-weight indicators are invalid. Do not work around the backend by splitting calls.
 - A zero weight automatically marks its Next result as removed. Highlight this before confirmation.
@@ -47,6 +48,7 @@
 ## Closure
 
 - Call `reviews_getCloseContext` again after any later write.
-- A close-context approval is not authorization to close; show the exact user-visible closure effects in readable terms and ask once more without exposing the `reviews_close` payload.
+- A close-context approval is not authorization to close. Neither is an earlier “procediamo”, a stated preferred outcome, a request to draft the note, or approval of another write group.
+- Show the exact final note, translated outcome label, and all user-visible closure effects first. Only an unambiguous affirmative answer to the dedicated question asked after that preview authorizes `reviews_close`.
 - Include all and only returned OTO candidates once. Never invent a candidate or answer outside `stable`, `growing`, `declining`.
 - Use either reviewer text notes or a valid Loom share URL as appropriate; never invent or normalize a video URL yourself.

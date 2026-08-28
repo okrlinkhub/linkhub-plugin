@@ -1,6 +1,6 @@
 {
   "name": "linkhub",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "Complete and review LinkHub reports, explain indicators with approved ClickHouse evidence, and manage OKR execution through MCP.",
   "author": {
     "name": "LinkHub",
