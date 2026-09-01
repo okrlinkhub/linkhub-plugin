@@ -1,0 +1,126 @@
+# LinkHub MCP reference for operational agents
+
+Leggi questa pagina quando devi costruire una chiamata. I nomi sotto sono
+quelli pubblicati dal server MCP LinkHub; non inventare tool alternativi.
+
+## Letture
+
+| Tool | Uso |
+| --- | --- |
+| `mcp_membershipProfile` | Identità corrente, `userId`, `companyId` e membership |
+| `mcp_resolveIsoDate` | Verifica `YYYY-MM-DD`, timestamp e giorno della settimana |
+| `initiatives_listMinePending` | Recupera l'iniziativa assegnata; usa `initiativeId` quando noto |
+| `initiatives_byTeam` | Controlla iniziativa, duplicati e altre azioni sul team |
+| `teams_listByCompany` | Richiede `companyId`; recupera team attivi e `teamLeaderId` |
+| `keyResults_byTeam` | Elenca i KR del team per risalire dal `riskId` al KR corretto |
+| `risks_byKeyResult` | Legge rischio e contesto del Key Result quando il KR è noto |
+| `teams_listMembers` | Verifica che il bot sia un assignee valido nel team |
+| `inbox_getConversation` | Legge l'intera conversazione prima di rispondere |
+| `users_searchForMentions` | Cerca utenti company per nome o email senza indovinare |
+
+`initiatives_listMinePending` accetta `companyId?`, `initiativeId?`, `teamId?`,
+`overdueOnly?` e `limit?`; il default è 50 e il massimo è 100, senza cursore o
+offset. `teams_listByCompany` richiede `companyId` e accetta `limit?`, con
+massimo 200. Per il giro delle 09:00 passagli il `companyId` del profilo e
+`limit: 200`, poi chiama il pending con `teamId` e `limit: 100` per ciascun
+team, deduplicando gli ID. Una risposta di esattamente 200 team o 100 iniziative
+è satura: processa le righe visibili ma avvisa l'owner che la copertura completa
+non è verificabile.
+
+`initiatives_byTeam` richiede `teamId`, accetta `limit?` fino a 200 e restituisce
+il record completo, inclusi `createdBy` e `notes`; usalo con `limit: 200` per il
+contesto e la riconciliazione, non come fonte della data di check-in. Se
+restituisce esattamente 200 righe, non creare follow-up: l'inventario saturo
+potrebbe nascondere un duplicato.
+
+Quando l'iniziativa fornisce solo `riskId`, chiama `keyResults_byTeam` e poi
+`risks_byKeyResult` per ogni KR restituito finché trovi una corrispondenza esatta
+del `riskId`. Non usare somiglianze testuali.
+
+## Messaggi
+
+`inbox_reply` richiede `companyId`, `conversationId`, `text` e `mentionIds`.
+
+`inbox_createComment` richiede:
+
+```json
+{
+  "receiverId": "user-id",
+  "text": "messaggio",
+  "initiativeId": "initiative-id",
+  "mentionIds": ["user-id"]
+}
+```
+
+Può collegare in alternativa `indicatorId`, `teamId`, `riskId` o
+`personalInitiativeId`. Usa una sola entità coerente con la conversazione.
+
+`inbox_markConversationAsRead` richiede `companyId` e `conversationId`.
+
+## Check-in append-only
+
+Completamento:
+
+```json
+{
+  "initiativeId": "initiative-id",
+  "checkInOutcome": "finish",
+  "progressNote": "Cosa è stato completato e con quale esito osservato."
+}
+```
+
+Blocco/rimando:
+
+```json
+{
+  "initiativeId": "initiative-id",
+  "customNextCheckInDateIso": "YYYY-MM-DD",
+  "checkInOutcome": "postponed",
+  "progressNote": "Tentativo, blocco, dipendenza e prossimo passo."
+}
+```
+
+Non usare `initiatives_update` per le Note. `initiatives_finish` è disponibile
+come alternativa al check-in `finish`, ma richiede comunque `progressNote`.
+
+## Follow-up sullo stesso rischio
+
+Rileggi prima `initiatives_byTeam` con `limit: 200`. Normalizza la descrizione
+solo per case e spazi. Con zero corrispondenze puoi proseguire; con una riusa
+quell'ID; con due o più non riusare e non creare, segnala l'ambiguità e passa al
+percorso bloccato. Se la lista è satura, interrompi la riconciliazione. Subito
+prima di una nuova creazione chiama `teams_listMembers` e verifica che
+l'identità corrente sia ancora assegnabile. Poi usa `initiatives_create` con:
+
+```json
+{
+  "description": "Azione successiva autosufficiente e verificabile",
+  "teamId": "team-id",
+  "riskId": "lo-stesso-risk-id",
+  "assigneeId": "mcp-membership-profile-user-id",
+  "checkInDays": 3,
+  "priority": "high"
+}
+```
+
+`riskId` è obbligatorio. `checkInDays` deve riflettere il prossimo evento
+osservabile; non usare automaticamente 3 giorni. `priority` può essere
+`lowest`, `low`, `medium`, `high` o `highest` e va omessa se non è supportata
+dal contesto.
+
+Dopo create rileggi `initiatives_byTeam` e conserva l'ID riconciliato. Per un
+follow-up creato o riusato, chiudi la sorgente con `initiatives_checkIn` e una
+nota deterministica che includa quell'ID. Prima di ogni retry rileggi stato e
+`notes`: se la sorgente è già `FINISHED` con lo stesso ID e la stessa nota, non
+ripetere il check-in; se l'evidenza è diversa, fermati e segnala l'ambiguità.
+Non ripetere create dopo una risposta ambigua senza avere prima riconciliato.
+Se finish continua a fallire, risolvi una nuova data con `mcp_resolveIsoDate` e
+tenta il check-in `postponed` completo mostrato sopra; se anche questo fallisce,
+avvisa il creatore e non dichiarare un esito non persistito.
+
+## Mutazioni che richiedono autorità distinta
+
+Non usare `initiatives_update`, `initiatives_remove`, `risks_update` o
+`risks_remove` soltanto perché il bot sta eseguendo l'iniziativa. Un cambio di
+testo concordato può usare `initiatives_update`; rimozioni o risoluzione del
+rischio richiedono una conferma esplicita e separata.

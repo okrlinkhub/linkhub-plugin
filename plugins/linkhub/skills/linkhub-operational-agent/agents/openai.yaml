@@ -1,0 +1,6 @@
+interface:
+  display_name: "LinkHub Operational Agent"
+  short_description: "Execute assigned initiatives to reduce LinkHub risks"
+  default_prompt: "Use $linkhub-operational-agent to handle this LinkHub mention or assigned initiative with full context and traceable follow-through."
+policy:
+  allow_implicit_invocation: true
