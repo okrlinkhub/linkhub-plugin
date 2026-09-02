@@ -16,9 +16,11 @@
 12. **Overdue ordering** — At 09:00, overdue initiatives are processed before initiatives due today, with fresh context before each execution.
 13. **Bounded inventory** — The morning routine partitions pending reads by every active company team, requests the documented maximum, deduplicates IDs, and alerts the owner instead of claiming complete coverage when a team or initiative result is saturated.
 14. **Idempotent retry** — After an ambiguous create response or failed finish, the agent reconciles an existing same-risk, same-assignee, same-action follow-up and reuses it instead of creating a duplicate.
-15. **Idempotent finish** — Before retrying finish, the agent verifies the source initiative status and deterministic follow-up note; a persisted finish is not appended twice, while conflicting evidence fails closed.
-16. **Saturated reconciliation** — When initiatives_byTeam returns its 200-row maximum, the agent alerts the owner and does not create or choose a follow-up from an incomplete inventory.
-17. **Risk-scoped reconciliation** — When unrelated team history saturates an unfiltered inventory, the agent passes the known riskId and reconciles against the complete same-risk inventory.
+15. **Idempotent finish** — Before retrying finish, the agent reads the source with `includeFinished: true`, following pages until its ID is found, and verifies its status and deterministic follow-up note; a persisted finish is not appended twice, while conflicting evidence fails closed.
+16. **Paginated reconciliation** — When initiatives_byTeam returns `hasMore: true`, the agent follows every `nextCursor` with unchanged filters before creating or choosing a follow-up; missing, repeated, or failed cursors alert the owner and fail closed.
+17. **Risk-scoped reconciliation** — When the team's active inventory spans multiple pages, the agent passes the known riskId and reconciles against the complete same-risk inventory.
+18. **Completed history excluded** — With 130 completed and 74 active initiatives, the agent reads the active default and reconciles the 74 rows when `hasMore: false`; it does not request history for active duplicate detection.
+19. **Full final page** — With 200 rows and `hasMore: false`, the agent treats the inventory as complete instead of declaring saturation based on count alone.
 
 ## Negative cases
 
@@ -46,6 +48,6 @@
 - Today's new assignments act immediately without a challenge round.
 - Every terminal path is one of: factual completion, factual postponement, or completion plus a self-assigned same-risk follow-up.
 - Follow-up creation is membership-checked and retry-safe through explicit same-risk reconciliation before create and finish.
-- Created and reused follow-ups share one deterministic finish path; saturated or ambiguous reconciliation fails visibly without another create.
+- Created and reused follow-ups share one deterministic finish path; incomplete pagination or ambiguous reconciliation fails visibly without another create.
 - Contact channel selection is deterministic: clear company user uses LinkHub; ambiguous identity asks the creator; confirmed external identity uses email.
 - Check-in Notes provide enough evidence for another person to understand what happened and what should happen next without reading the agent's private thread.

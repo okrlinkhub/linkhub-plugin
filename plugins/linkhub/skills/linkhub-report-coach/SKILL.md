@@ -30,6 +30,10 @@ If the selected report is already `IN_REVIEW`, stop this workflow and route to `
 Read `mcp_membershipProfile`, `companies_list`, and `reports_listDueForUser`. If several teams or reports match, present the choices and ask the user to select one. Create a missing draft with `reports_createDraft` only after describing the team, reporting period, and resulting draft in readable terms and receiving confirmation.
 
 Load `reports_getWorkflowProgress` and one team snapshot with `objectives_byTeam`, `keyResults_byTeam`, `initiatives_byTeam`, and `initiatives_listMinePending`. Do not fan out risk reads for every KR.
+Use the active default of `initiatives_byTeam` and read records from its
+`initiatives` field. Follow `nextCursor` with unchanged filters while `hasMore`
+is true before treating the hygiene snapshot as complete; fail visibly if a
+cursor is missing, repeated, or a page fails.
 
 ## 2. Work through each KR
 

@@ -77,7 +77,9 @@ decisione o il dato che non puoi ricavare.
 Recupera l'iniziativa assegnata con `initiatives_listMinePending` passando il
 suo `initiativeId`. Dal risultato prendi `teamId` e `riskId`, poi recupera il
 record completo e le correlate con `initiatives_byTeam` passando `teamId`,
-`riskId` e `limit: 200`. Identifica l'iniziativa per ID e verifica almeno
+`riskId` e `limit: 200`. Il tool restituisce `initiatives`, `hasMore` e
+`nextCursor`: accumula le pagine attive ripetendo gli stessi filtri finché
+`hasMore` è falso. Identifica l'iniziativa per ID e verifica almeno
 `createdBy`, `notes`, `riskId`, `teamId`, stato e `assigneeId`. Chiama
 `teams_listByCompany` con `companyId` e `limit: 200`, trova lo stesso `teamId` e
 recupera `teamLeaderId`. Poi carica rischio, Key Result e altre iniziative sullo
@@ -87,11 +89,12 @@ fermati e avvisa l'owner: non trattare l'inventario come completo e non
 eseguire mutazioni. Non sostituire questi lettori con il riepilogo ridotto di
 `initiatives_listMinePending`.
 
-Una risposta di esattamente 200 iniziative dalla lettura filtrata per rischio è
-satura: puoi eseguire l'iniziativa identificata, ma non dichiarare completo il
-contesto delle iniziative correlate e non creare o riconciliare follow-up
-finché il creatore o l'owner non risolve la saturazione. Avvisalo indicando il
-team.
+Ogni pagina successiva deve usare lo stesso `teamId`, `riskId`, `limit` e valore
+di `includeFinished`, aggiungendo soltanto il `cursor` restituito. Se
+`hasMore: true` non fornisce `nextCursor`, il cursore si ripete o una pagina
+fallisce, puoi eseguire l'iniziativa identificata ma non dichiarare completo il
+contesto correlato e non creare o riconciliare follow-up. Avvisa l'owner
+indicando il team e il problema di paginazione.
 
 Se conosci il `riskId` ma non il Key Result, usa `keyResults_byTeam` sul team
 dell'iniziativa e `risks_byKeyResult` sui KR restituiti finché trovi esattamente
@@ -253,10 +256,11 @@ considerare equivalenti descrizioni semanticamente simili. Se la descrizione è
 ambigua o incompleta, chiedi al creatore e non creare il follow-up.
 
 Rileggi `initiatives_byTeam` con `teamId`, lo stesso `riskId` e `limit: 200`.
-Se la risposta è satura, avvisa l'owner e interrompi la riconciliazione senza
-chiamare `initiatives_create`.
-Altrimenti cerca i follow-up attivi con stesso `riskId`, stesso `assigneeId` e
-stessa descrizione normalizzata:
+Usa il default che esclude `FINISHED` e accumula tutte le pagine seguendo
+`nextCursor` finché `hasMore` è falso. Se la paginazione non può essere
+completata, avvisa l'owner e interrompi la riconciliazione senza chiamare
+`initiatives_create`. Sull'inventario attivo completo cerca i follow-up con
+stesso `riskId`, stesso `assigneeId` e stessa descrizione normalizzata:
 
 - zero corrispondenze: subito prima di `initiatives_create`, chiama
   `teams_listMembers` e riconferma che il tuo `userId` sia assegnabile;
@@ -264,15 +268,19 @@ stessa descrizione normalizzata:
 - più corrispondenze: non sceglierne una e non crearne altre; segnala
   l'ambiguità al creatore e passa al percorso bloccato.
 
-Se chiami `initiatives_create`, rileggi poi il team e riconcilia il suo ID. Da
-questo punto usa lo stesso percorso per follow-up creato e riusato: componi una
+Se chiami `initiatives_create`, rileggi poi tutte le pagine attive del team e
+riconcilia il suo ID. Da questo punto usa lo stesso percorso per follow-up
+creato e riusato: componi una
 nota deterministica che includa l'ID del follow-up e chiudi sempre l'iniziativa
 corrente con `initiatives_checkIn`, `checkInOutcome: "finish"` e quella
 `progressNote`.
 
 Prima di ogni retry del finish rileggi l'iniziativa corrente tramite
-`initiatives_byTeam` usando lo stesso `teamId` e `riskId`. Se è già `FINISHED`
-e le Note contengono l'ID del follow-up e la stessa nota deterministica,
+`initiatives_byTeam` usando lo stesso `teamId`, `riskId`, `limit: 200` e
+`includeFinished: true`. Segui le pagine finché trovi l'ID corrente o esaurisci
+l'inventario; applica le stesse protezioni contro cursori mancanti, ripetuti o
+falliti. Se è già `FINISHED` e le Note contengono l'ID del follow-up e la stessa
+nota deterministica,
 considera il check-in persistito e
 non aggiungere un'altra Nota. Se è `FINISHED` con evidenza diversa, fermati e
 segnala l'ambiguità. Se la risposta di create era ambigua, riconcilia il

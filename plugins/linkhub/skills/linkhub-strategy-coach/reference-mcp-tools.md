@@ -14,9 +14,16 @@ Per il reporting periodico usa `linkhub-report-coach`.
 | `objectives_byTeam` | teamId | objectives + KR annidati |
 | `keyResults_byTeam` | teamId | slug, weight, indicatorDescription, indicatorId |
 | `risks_byKeyResult` | keyResultId | rischi attivi sul KR corrente |
-| `initiatives_byTeam` | teamId, limit | hygiene / anti-duplicati |
+| `initiatives_byTeam` | teamId, riskId?, includeFinished?, cursor?, limit? | iniziative attive in `initiatives`, con `hasMore` e `nextCursor` |
 | `users_searchForMentions` | query | menzioni commenti assegnazione |
 | `mcp_resolveIsoDate` | isoDate | timestamp + weekday per scadenze |
+
+`initiatives_byTeam` esclude `FINISHED` per default e sempre i soft-deleted.
+Restituisce `{ initiatives, count, hasMore, nextCursor, truncated }`: `count`
+è la dimensione della pagina, non un totale, e `truncated` riflette `hasMore`.
+Il limite predefinito è 100 (200 con `riskId`), massimo 200. Mantieni gli stessi
+filtri seguendo `nextCursor`; non escludere duplicati finché la paginazione non
+è completa.
 
 ## Write (setup strategico)
 

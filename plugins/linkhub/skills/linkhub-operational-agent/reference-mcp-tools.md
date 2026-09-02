@@ -27,14 +27,23 @@ team, deduplicando gli ID. Una risposta di esattamente 200 team o 100 iniziative
 è satura: processa le righe visibili ma avvisa l'owner che la copertura completa
 non è verificabile.
 
-`initiatives_byTeam` richiede `teamId`, accetta `riskId?` e `limit?` fino a 200
-e restituisce il record completo, inclusi `createdBy` e `notes`. Quando passi
-`riskId`, la lettura usa 200 come limite predefinito e massimo; passalo comunque
-insieme a `limit: 200` per rendere esplicita la richiesta. Il filtro viene
-applicato prima del limite, così lo storico non correlato del team non rende
-incompleto il contesto. Non usarlo come fonte della data di check-in. Se la
-lettura filtrata restituisce esattamente 200 righe, non creare follow-up:
-l'inventario dello stesso rischio potrebbe ancora nascondere un duplicato.
+`initiatives_byTeam` richiede `teamId`; accetta `riskId?`, `includeFinished?`,
+`cursor?` e `limit?` fino a 200. Restituisce
+`{ initiatives, count, hasMore, nextCursor, truncated }`, con record completi
+inclusi `createdBy` e `notes`. Il default esclude `FINISHED` e include sempre
+solo record non soft-deleted; usa `includeFinished: true` esclusivamente quando
+serve lo storico, per esempio per verificare un retry già concluso. Quando
+passi `riskId`, la lettura usa 200 come limite predefinito e massimo; passalo
+comunque insieme a `limit: 200` per rendere esplicita la richiesta. Il filtro
+per rischio viene applicato prima della paginazione, così lo storico non
+correlato del team non rende incompleto il contesto. Non usarlo come fonte della
+data di check-in.
+
+Quando `hasMore` è vero, ripeti la chiamata con gli stessi filtri e
+`nextCursor`, accumulando `initiatives` fino a `hasMore: false`. `truncated`
+riflette `hasMore`; `count` è il numero di righe della singola pagina, non il
+totale. Se `nextCursor` manca, si ripete o una pagina fallisce, considera
+l'inventario incompleto e non creare né scegliere follow-up.
 
 Quando l'iniziativa fornisce solo `riskId`, chiama `keyResults_byTeam` e poi
 `risks_byKeyResult` per ogni KR restituito finché trovi una corrispondenza esatta
@@ -97,10 +106,11 @@ come alternativa al check-in `finish`, ma richiede comunque `progressNote`.
 ## Follow-up sullo stesso rischio
 
 Rileggi prima `initiatives_byTeam` con `teamId`, lo stesso `riskId` e
-`limit: 200`. Normalizza la descrizione
+`limit: 200`, usando il default attivo, e completa tutte le pagine. Normalizza la descrizione
 solo per case e spazi. Con zero corrispondenze puoi proseguire; con una riusa
 quell'ID; con due o più non riusare e non creare, segnala l'ambiguità e passa al
-percorso bloccato. Se la lista è satura, interrompi la riconciliazione. Subito
+percorso bloccato. Se la paginazione non si completa, interrompi la
+riconciliazione. Subito
 prima di una nuova creazione chiama `teams_listMembers` e verifica che
 l'identità corrente sia ancora assegnabile. Poi usa `initiatives_create` con:
 
@@ -120,11 +130,12 @@ osservabile; non usare automaticamente 3 giorni. `priority` può essere
 `lowest`, `low`, `medium`, `high` o `highest` e va omessa se non è supportata
 dal contesto.
 
-Dopo create rileggi `initiatives_byTeam` con lo stesso `teamId` e `riskId` e
-conserva l'ID riconciliato. Per un
+Dopo create rileggi tutte le pagine attive di `initiatives_byTeam` con lo stesso
+`teamId` e `riskId` e conserva l'ID riconciliato. Per un
 follow-up creato o riusato, chiudi la sorgente con `initiatives_checkIn` e una
 nota deterministica che includa quell'ID. Prima di ogni retry rileggi stato e
-`notes`: se la sorgente è già `FINISHED` con lo stesso ID e la stessa nota, non
+`notes` con `includeFinished: true`: se la sorgente è già `FINISHED` con lo
+stesso ID e la stessa nota, non
 ripetere il check-in; se l'evidenza è diversa, fermati e segnala l'ambiguità.
 Non ripetere create dopo una risposta ambigua senza avere prima riconciliato.
 Se finish continua a fallire, risolvi una nuova data con `mcp_resolveIsoDate` e

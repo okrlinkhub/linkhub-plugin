@@ -108,6 +108,11 @@ Quando hai `teamId`:
 | `initiatives_byTeam` | Evita duplicati |
 | `teams_listMembers` | Assignee futuri |
 
+`initiatives_byTeam` restituisce le iniziative attive nel campo `initiatives`.
+Prima di considerare completo lo snapshot o verificare duplicati, segui
+`nextCursor` con gli stessi filtri finché `hasMore` è falso; cursori mancanti o
+ripetuti e pagine fallite bloccano le scritture dipendenti da quell'inventario.
+
 Presenta:
 - stato attuale (vuoto / parziale / completo)
 - **somma pesi** attuali (target **100%**)
@@ -295,6 +300,9 @@ objectives_byTeam
 keyResults_byTeam
 initiatives_byTeam
 ```
+
+Completa tutte le pagine attive di `initiatives_byTeam` prima di applicare la
+checklist.
 
 **Checklist coach (verbalizza):**
 

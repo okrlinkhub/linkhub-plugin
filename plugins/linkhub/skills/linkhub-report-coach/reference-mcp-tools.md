@@ -14,12 +14,20 @@
 | `reports_getEvaluateContext` | reportId, keyResultId | indicator, ultimo valore operativo con data, tracked/next esistenti |
 | `reports_getAnalyzeContext` | reportId, keyResultId | risks[], initiatives[] |
 | `risks_byKeyResult` | keyResultId | solo se serve lista estesa |
-| `initiatives_byTeam` | teamId, limit | hygiene batch |
+| `initiatives_byTeam` | teamId, riskId?, includeFinished?, cursor?, limit? | active hygiene page in `initiatives`, with `hasMore` and `nextCursor` |
 | `initiatives_listMinePending` | companyId | check-in da fare |
 | `teams_listMembers` | teamId | assignee validi |
 | `users_searchForMentions` | query | menzioni commenti |
 | `mcp_resolveIsoDate` | isoDate | timestamp + weekday |
 | `milestones_listByIndicator` | indicatorId | milestone, stato, peso, date e totali verificati |
+
+`initiatives_byTeam` excludes `FINISHED` by default and always excludes
+soft-deleted records. Its envelope is
+`{ initiatives, count, hasMore, nextCursor, truncated }`; `count` is the page
+size, not a total, and `truncated` mirrors `hasMore`. The default limit is 100
+(200 with `riskId`), maximum 200. Keep all filters unchanged when following
+`nextCursor`; do not treat a failed or incomplete pagination as a complete
+hygiene snapshot.
 
 ## Read (indicator evidence)
 
