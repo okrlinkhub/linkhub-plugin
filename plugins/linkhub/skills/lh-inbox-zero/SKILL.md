@@ -105,10 +105,13 @@ Attendi il testo → mostra la risposta formulata:
 
 Dopo conferma:
 ```
-inbox_reply { companyId, conversationId, text: "..." }
+inbox_reply { companyId, conversationId, text: "...", mentionIds: [] }
 inbox_markConversationAsRead { companyId, conversationId }
 ```
 > «✅ Risposta inviata e conversazione archiviata.»
+
+Se l'utente vuole allegare un file, chiedi prima l'URL HTTPS pubblico reale e
+il nome del file. Aggiungi `attachments` solo con i valori forniti dall'utente.
 
 **Se C (salta):**
 > «Ok, la saltiamo. Torniamo alla fine se avanza tempo.»

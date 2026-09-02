@@ -74,19 +74,24 @@ decisione o il dato che non puoi ricavare.
 
 ### Nuova iniziativa assegnata
 
-Recupera il record completo con `initiatives_byTeam` passando `teamId` e
-`limit: 200`, poi identifica l'iniziativa per ID e verifica almeno `createdBy`,
-`notes`, `riskId`, `teamId`, stato e `assigneeId`. Chiama
+Recupera l'iniziativa assegnata con `initiatives_listMinePending` passando il
+suo `initiativeId`. Dal risultato prendi `teamId` e `riskId`, poi recupera il
+record completo e le correlate con `initiatives_byTeam` passando `teamId`,
+`riskId` e `limit: 200`. Identifica l'iniziativa per ID e verifica almeno
+`createdBy`, `notes`, `riskId`, `teamId`, stato e `assigneeId`. Chiama
 `teams_listByCompany` con `companyId` e `limit: 200`, trova lo stesso `teamId` e
 recupera `teamLeaderId`. Poi carica rischio, Key Result e altre iniziative sullo
 stesso rischio. Non agire se l'iniziativa non è più attiva o assegnata alla tua
-identità; non sostituire questi lettori con il riepilogo ridotto di
+identità. Se la lettura filtrata non contiene l'`initiativeId` corrente,
+fermati e avvisa l'owner: non trattare l'inventario come completo e non
+eseguire mutazioni. Non sostituire questi lettori con il riepilogo ridotto di
 `initiatives_listMinePending`.
 
-Una risposta di esattamente 200 iniziative da `initiatives_byTeam` è satura:
-puoi eseguire l'iniziativa identificata, ma non dichiarare completo il contesto
-delle iniziative correlate e non creare o riconciliare follow-up finché il
-creatore o l'owner non risolve la saturazione. Avvisalo indicando il team.
+Una risposta di esattamente 200 iniziative dalla lettura filtrata per rischio è
+satura: puoi eseguire l'iniziativa identificata, ma non dichiarare completo il
+contesto delle iniziative correlate e non creare o riconciliare follow-up
+finché il creatore o l'owner non risolve la saturazione. Avvisalo indicando il
+team.
 
 Se conosci il `riskId` ma non il Key Result, usa `keyResults_byTeam` sul team
 dell'iniziativa e `risks_byKeyResult` sui KR restituiti finché trovi esattamente
@@ -247,8 +252,9 @@ solo maiuscole/minuscole, spazi iniziali/finali e sequenze di spazi; non
 considerare equivalenti descrizioni semanticamente simili. Se la descrizione è
 ambigua o incompleta, chiedi al creatore e non creare il follow-up.
 
-Rileggi `initiatives_byTeam` con `limit: 200`. Se la risposta è satura, avvisa
-l'owner e interrompi la riconciliazione senza chiamare `initiatives_create`.
+Rileggi `initiatives_byTeam` con `teamId`, lo stesso `riskId` e `limit: 200`.
+Se la risposta è satura, avvisa l'owner e interrompi la riconciliazione senza
+chiamare `initiatives_create`.
 Altrimenti cerca i follow-up attivi con stesso `riskId`, stesso `assigneeId` e
 stessa descrizione normalizzata:
 
@@ -265,8 +271,9 @@ corrente con `initiatives_checkIn`, `checkInOutcome: "finish"` e quella
 `progressNote`.
 
 Prima di ogni retry del finish rileggi l'iniziativa corrente tramite
-`initiatives_byTeam`. Se è già `FINISHED` e le Note contengono l'ID del
-follow-up e la stessa nota deterministica, considera il check-in persistito e
+`initiatives_byTeam` usando lo stesso `teamId` e `riskId`. Se è già `FINISHED`
+e le Note contengono l'ID del follow-up e la stessa nota deterministica,
+considera il check-in persistito e
 non aggiungere un'altra Nota. Se è `FINISHED` con evidenza diversa, fermati e
 segnala l'ambiguità. Se la risposta di create era ambigua, riconcilia il
 follow-up prima di ogni altra mutazione e non ripetere create finché non hai

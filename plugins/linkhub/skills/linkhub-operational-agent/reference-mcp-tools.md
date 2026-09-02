@@ -27,11 +27,14 @@ team, deduplicando gli ID. Una risposta di esattamente 200 team o 100 iniziative
 è satura: processa le righe visibili ma avvisa l'owner che la copertura completa
 non è verificabile.
 
-`initiatives_byTeam` richiede `teamId`, accetta `limit?` fino a 200 e restituisce
-il record completo, inclusi `createdBy` e `notes`; usalo con `limit: 200` per il
-contesto e la riconciliazione, non come fonte della data di check-in. Se
-restituisce esattamente 200 righe, non creare follow-up: l'inventario saturo
-potrebbe nascondere un duplicato.
+`initiatives_byTeam` richiede `teamId`, accetta `riskId?` e `limit?` fino a 200
+e restituisce il record completo, inclusi `createdBy` e `notes`. Quando passi
+`riskId`, la lettura usa 200 come limite predefinito e massimo; passalo comunque
+insieme a `limit: 200` per rendere esplicita la richiesta. Il filtro viene
+applicato prima del limite, così lo storico non correlato del team non rende
+incompleto il contesto. Non usarlo come fonte della data di check-in. Se la
+lettura filtrata restituisce esattamente 200 righe, non creare follow-up:
+l'inventario dello stesso rischio potrebbe ancora nascondere un duplicato.
 
 Quando l'iniziativa fornisce solo `riskId`, chiama `keyResults_byTeam` e poi
 `risks_byKeyResult` per ogni KR restituito finché trovi una corrispondenza esatta
@@ -39,7 +42,9 @@ del `riskId`. Non usare somiglianze testuali.
 
 ## Messaggi
 
-`inbox_reply` richiede `companyId`, `conversationId`, `text` e `mentionIds`.
+`inbox_reply` richiede `companyId`, `conversationId` e `mentionIds`; accetta
+`text` e fino a 5 `attachments` HTTPS da massimo 10 MB ciascuno. Specifica
+almeno il testo o un allegato.
 
 `inbox_createComment` richiede:
 
@@ -48,12 +53,18 @@ del `riskId`. Non usare somiglianze testuali.
   "receiverId": "user-id",
   "text": "messaggio",
   "initiativeId": "initiative-id",
-  "mentionIds": ["user-id"]
+  "mentionIds": ["user-id"],
+  "attachments": []
 }
 ```
 
+Prima di popolare `attachments`, chiedi all'utente un URL HTTPS pubblico reale
+e il relativo nome file; non inventare URL o identificativi di esempio.
+
 Può collegare in alternativa `indicatorId`, `teamId`, `riskId` o
 `personalInitiativeId`. Usa una sola entità coerente con la conversazione.
+Gli URL firmati sono accettati solo se HTTPS e pubblici; l'intera operazione
+fallisce se anche un solo allegato non supera la validazione.
 
 `inbox_markConversationAsRead` richiede `companyId` e `conversationId`.
 
@@ -85,7 +96,8 @@ come alternativa al check-in `finish`, ma richiede comunque `progressNote`.
 
 ## Follow-up sullo stesso rischio
 
-Rileggi prima `initiatives_byTeam` con `limit: 200`. Normalizza la descrizione
+Rileggi prima `initiatives_byTeam` con `teamId`, lo stesso `riskId` e
+`limit: 200`. Normalizza la descrizione
 solo per case e spazi. Con zero corrispondenze puoi proseguire; con una riusa
 quell'ID; con due o più non riusare e non creare, segnala l'ambiguità e passa al
 percorso bloccato. Se la lista è satura, interrompi la riconciliazione. Subito
@@ -108,7 +120,8 @@ osservabile; non usare automaticamente 3 giorni. `priority` può essere
 `lowest`, `low`, `medium`, `high` o `highest` e va omessa se non è supportata
 dal contesto.
 
-Dopo create rileggi `initiatives_byTeam` e conserva l'ID riconciliato. Per un
+Dopo create rileggi `initiatives_byTeam` con lo stesso `teamId` e `riskId` e
+conserva l'ID riconciliato. Per un
 follow-up creato o riusato, chiudi la sorgente con `initiatives_checkIn` e una
 nota deterministica che includa quell'ID. Prima di ogni retry rileggi stato e
 `notes`: se la sorgente è già `FINISHED` con lo stesso ID e la stessa nota, non

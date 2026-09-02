@@ -18,6 +18,7 @@
 14. **Idempotent retry** — After an ambiguous create response or failed finish, the agent reconciles an existing same-risk, same-assignee, same-action follow-up and reuses it instead of creating a duplicate.
 15. **Idempotent finish** — Before retrying finish, the agent verifies the source initiative status and deterministic follow-up note; a persisted finish is not appended twice, while conflicting evidence fails closed.
 16. **Saturated reconciliation** — When initiatives_byTeam returns its 200-row maximum, the agent alerts the owner and does not create or choose a follow-up from an incomplete inventory.
+17. **Risk-scoped reconciliation** — When unrelated team history saturates an unfiltered inventory, the agent passes the known riskId and reconciles against the complete same-risk inventory.
 
 ## Negative cases
 
@@ -44,7 +45,7 @@
 - The routine partitions bounded reads by team and fails visibly when an API cap prevents it from proving complete coverage.
 - Today's new assignments act immediately without a challenge round.
 - Every terminal path is one of: factual completion, factual postponement, or completion plus a self-assigned same-risk follow-up.
-- Follow-up creation is membership-checked and retry-safe through explicit reconciliation before create and finish.
+- Follow-up creation is membership-checked and retry-safe through explicit same-risk reconciliation before create and finish.
 - Created and reused follow-ups share one deterministic finish path; saturated or ambiguous reconciliation fails visibly without another create.
 - Contact channel selection is deterministic: clear company user uses LinkHub; ambiguous identity asks the creator; confirmed external identity uses email.
 - Check-in Notes provide enough evidence for another person to understand what happened and what should happen next without reading the agent's private thread.

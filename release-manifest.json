@@ -1,57 +1,57 @@
 {
   "schemaVersion": 1,
   "plugin": "linkhub",
-  "version": "0.6.0",
-  "tag": "v0.6.0",
+  "version": "0.6.2",
+  "tag": "v0.6.2",
   "sourceRepository": "okrlinkhub/linkhub-w4",
-  "sourceSha": "a3004b07f620c5e89a90ef1ab6e440ffd910ccd7",
+  "sourceSha": "c67254d7b35e9e59f0b016a0fc8f29bccbd10aae",
   "distributionRepository": "okrlinkhub/linkhub-plugin",
   "skills": [
     {
       "name": "lh-check-in-zero",
-      "filename": "lh-check-in-zero-v0.6.0.zip",
+      "filename": "lh-check-in-zero-v0.6.2.zip",
       "size": 10936,
       "sha256": "557326fd2c9a839d6302f98a4373d1e741e9947be75ffed383ed61ec79fec227"
     },
     {
       "name": "lh-execution",
-      "filename": "lh-execution-v0.6.0.zip",
+      "filename": "lh-execution-v0.6.2.zip",
       "size": 5893,
       "sha256": "df8e46dfa6409d822f8f34618a8592b3a14d0cfdc9e22179631cff6a09e1ea67"
     },
     {
       "name": "lh-inbox-zero",
-      "filename": "lh-inbox-zero-v0.6.0.zip",
-      "size": 9193,
-      "sha256": "d406f5cca29f4efa37ef16ea73d2adc4754346961ace2e41806e5fc866339801"
+      "filename": "lh-inbox-zero-v0.6.2.zip",
+      "size": 9368,
+      "sha256": "57f2ea5a97a5d7012f0163383065fa5579413e096488b441d8eed3f240995eab"
     },
     {
       "name": "linkhub-indicator-analyst",
-      "filename": "linkhub-indicator-analyst-v0.6.0.zip",
+      "filename": "linkhub-indicator-analyst-v0.6.2.zip",
       "size": 2720,
       "sha256": "27e52ead6cb6ec8c05f1c41c24e0ca913200883bbebb3bdd840c059abcd054d2"
     },
     {
       "name": "linkhub-operational-agent",
-      "filename": "linkhub-operational-agent-v0.6.0.zip",
-      "size": 20700,
-      "sha256": "980319bd63e5e247d7f81ae700cc94ed1bae568da92f0c20335456958f2fd934"
+      "filename": "linkhub-operational-agent-v0.6.2.zip",
+      "size": 21852,
+      "sha256": "e5c08432bcd96261806ea31cdb8e38f70d385bcbcb9e4c832dfc9edd7b57e098"
     },
     {
       "name": "linkhub-report-coach",
-      "filename": "linkhub-report-coach-v0.6.0.zip",
+      "filename": "linkhub-report-coach-v0.6.2.zip",
       "size": 25385,
       "sha256": "9f1260467cf2a33d063be57e755a9bab128f65c65625a2e30be872a0dab1c538"
     },
     {
       "name": "linkhub-review-coach",
-      "filename": "linkhub-review-coach-v0.6.0.zip",
+      "filename": "linkhub-review-coach-v0.6.2.zip",
       "size": 25882,
       "sha256": "c6b76fa2adde1c53a880a2feb02f0d4cb4a3ff62c0bc34bc53a3e60f1be27680"
     },
     {
       "name": "linkhub-strategy-coach",
-      "filename": "linkhub-strategy-coach-v0.6.0.zip",
+      "filename": "linkhub-strategy-coach-v0.6.2.zip",
       "size": 24273,
       "sha256": "c99cddcd6cab6dd23f77dc5e1b18ecb61732af43ae0cce232f97e745cd8ede56"
     }
