@@ -7,13 +7,13 @@
 | `reviews_getContext { reportId? \| reportSlug? }` | Complete reviewer snapshot, team leader, notes, KR/indicator details including each indicator's latest value and date, previous reports, untracked KRs, and readiness |
 | `reviews_getAnalyzeContext { reportId }` | All positive-weight review KRs, with compact stable risk references `R1...`, initiative references `I1...`, period relation, and per-KR `highest` coverage in one call |
 | `reviews_rebalanceRiskPriorities { reportId, changes[] }` | Atomic priority update for a confirmed risk group; rejects a final state that leaves any positive-weight KR without a `highest` risk |
-| `reviews_rebalanceWeights { reportId, allocations[] }` | Atomic complete 100% weight confirmation/rebalance; changed rows require notes |
-| `reviews_attachKeyResult { reportId, keyResultId, notes }` | Attach an existing untracked active KR at zero, before a separately confirmed complete rebalance |
+| `reviews_rebalanceWeights { reportId, allocations[] }` | Atomic complete 100% weight confirmation/rebalance; changed rows require reviewer notes |
+| `reviews_attachKeyResult { reportId, keyResultId, reviewerNotes }` | Attach an existing untracked active KR at zero, before a separately confirmed complete rebalance |
 | `reviews_updateNextResult { resultNextId, forecastValueReviewed, targetValueReviewed, notes? }` | Reviewer-only Next validation with audit; preserves reported values |
 | `reviews_getCloseContext { reportId }` | Final completeness, recommendation, and exact OTO candidates |
 | `reviews_close { reportId, resultType, reviewerNotes?, videoReviewUrl?, otoCheckins? }` | IN_REVIEW → CLOSED_* after dedicated confirmation |
 
-`allocations[]` items are `{ resultTrackedId, weightReviewed, notes? }`. Include every active tracked result exactly once. Changed weights require `notes`; unchanged weights may preserve existing notes by omitting the field.
+`allocations[]` items are `{ resultTrackedId, weightReviewed, reviewerNotes? }`. Include every active tracked result exactly once. Changed weights require `reviewerNotes`; unchanged weights may preserve existing reviewer notes by omitting the field. `trackedResults[].reporterNotes` and `trackedResults[].reviewerNotes` have distinct authors and must never be merged or copied into each other.
 
 The Next tool keeps technical field names for transport, but the interview must always present them as `obiettivo minimo` and `obiettivo massimo`. Base the proposal on `keyResults[].indicator.latestValue` when present, even if the reviewed-period result is marked unmeasurable.
 

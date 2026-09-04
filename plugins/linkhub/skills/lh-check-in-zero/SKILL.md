@@ -30,6 +30,7 @@ Rispondi nella lingua dell'utente / Reply in the user's language. Sii conciso. U
 7. **Verifica la data col calendario** — usa sempre `mcp_resolveIsoDate` per confermare il giorno della settimana prima di eseguire il check-in.
 8. **Non inventare** — se non hai il `companyId`, recuperalo da `mcp_membershipProfile` prima di tutto.
 9. **Note append-only** — non usare `initiatives_update` per modificare le Note; si aggiornano solo via check-in/finish.
+10. **Contesto del rischio su richiesta** — se l'utente vuole ricordare perché esiste un'iniziativa, recupera il rischio collegato tramite il suo `riskId`; non dedurlo dal testo e non avanzare alla prossima iniziativa.
 
 ---
 
@@ -93,15 +94,53 @@ Per **ogni iniziativa**, segui questo pattern rigido:
 
 ### Step 1 — Domanda di stato
 
-Mostra il nome dell'iniziativa e chiedi:
+Mostra il nome dell'iniziativa e chiedi. Se il risultato di
+`initiatives_listMinePending` contiene un `riskId`, offri anche l'opzione D:
 
 > **[X/N] "[Nome Iniziativa]"**
 > Come sta andando? Scegli:
 > **A)** Tutto ok, prosegue come previsto → `postponed`
 > **B)** È partita / ci sono aggiornamenti → `started`
 > **C)** È completata, possiamo chiuderla → `finish`
+> **D)** Ricordami quale rischio stiamo mitigando → sola lettura, poi ripeti questa domanda
 
 Attendi risposta prima di procedere.
+
+Considera come D anche richieste naturali come «che rischio mitiga?», «perché
+stiamo facendo questa iniziativa?» o «dammi il contesto», anche se arrivano
+negli step successivi. Non registrare un esito, non chiedere la nota e non ridurre
+il contatore finché l'utente non sceglie A, B o C.
+
+#### Opzione D — Recupero del contesto del rischio
+
+Usa esclusivamente `teamId` e `riskId` restituiti per l'iniziativa corrente:
+
+```
+1. keyResults_byTeam { teamId, limit: 200 }
+2. per ogni KR restituito, fino alla corrispondenza esatta:
+   risks_byKeyResult { keyResultId, limit: 200 }
+3. seleziona soltanto il rischio il cui _id è uguale al riskId dell'iniziativa
+```
+
+Non scegliere un rischio perché la descrizione sembra simile e non mostrare ID
+interni. Quando trovi la corrispondenza, mostra un riepilogo breve e leggibile:
+
+```
+Contesto
+- Rischio: [description]
+- Priorità: [priority]
+- Key Result: [indicatorDescription] ([indicatorSymbol])
+
+[X/N] "[Nome Iniziativa]"
+Come sta andando? A, B o C?
+```
+
+Se `riskId` è assente, spiega che l'iniziativa non ha più un rischio attivo
+collegato e ripeti A/B/C. Se nessuna lettura restituisce l'esatto `riskId`, non
+presentare un'alternativa probabile: segnala che il contesto non è verificabile
+con i dati correnti e ripeti A/B/C. Una risposta di esattamente 200 KR o 200
+rischi senza corrispondenza può essere satura: dichiaralo esplicitamente invece
+di descrivere l'inventario come completo.
 
 ---
 
@@ -207,6 +246,7 @@ Se vuota:
 | Utente non sa la data | Proponi sempre tu una data specifica (es. «tra 7 giorni, il [GG/MM]?») |
 | Utente non vuole scrivere una nota | Spiega che la nota è obbligatoria per tracciare l'avanzamento; chiedi almeno una frase |
 | Utente vuole saltare un'iniziativa | «Ok, la saltiamo per ora. Vuoi tornarci alla fine?» |
+| Utente chiede il rischio o il motivo dell'iniziativa | Recupera il contesto esatto con l'opzione D, poi torna alla stessa domanda senza modifiche |
 | Errore MCP su check-in | Segnala l'errore, proponi di riprovare o saltare |
 | Più di 10 iniziative | Dopo ogni 5, chiedi «Vuoi una pausa o continuiamo?» |
 
@@ -223,4 +263,6 @@ Se vuota:
 | Usare timestamp grezzi per la data | `mcp_resolveIsoDate` + `customNextCheckInDateIso` |
 | Chiedere data senza proporne una | Proponi sempre +7 giorni come default |
 | Chiudere un'iniziativa senza conferma esplicita | Chiedi sempre «C)» e una nota di completamento |
-| Mostrare tutti i dettagli tecnici MCP | Mostra solo nome, scadenza, stato |
+| Indovinare il rischio dalla descrizione dell'iniziativa | Cerca l'esatto `riskId` tramite KR e rischi del team; se manca, dichiara il limite |
+| Trattare la richiesta di contesto come un esito | Mostra il rischio e ripeti A/B/C sulla stessa iniziativa |
+| Mostrare dettagli tecnici MCP o ID | Mostra nome, scadenza e stato; solo su richiesta aggiungi il contesto business del rischio |
