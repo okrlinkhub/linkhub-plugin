@@ -1,0 +1,9 @@
+interface:
+  display_name: "LinkHub Strategy Canvas"
+  short_description: "Learn OKRs and export a workshop canvas"
+  default_prompt: "Use $linkhub-strategy-canvas to guide my team through an OKR workshop and export the final canvas."
+  icon_small: "assets/icon.svg"
+  icon_large: "assets/icon.svg"
+  brand_color: "#28C6CE"
+policy:
+  allow_implicit_invocation: true

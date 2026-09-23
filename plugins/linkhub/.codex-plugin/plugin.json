@@ -1,7 +1,7 @@
 {
   "name": "linkhub",
-  "version": "0.7.2",
-  "description": "Complete and review LinkHub reports, explain indicators, and run risk-focused operational agents through MCP.",
+  "version": "0.8.0",
+  "description": "Learn and design LinkHub OKRs, complete and review reports, explain indicators, and run risk-focused operational agents.",
   "author": {
     "name": "LinkHub",
     "url": "https://www.okrlinkhub.com"
@@ -13,6 +13,8 @@
     "linkhub",
     "okr",
     "monthly-report",
+    "strategy-canvas",
+    "workshop",
     "indicators",
     "clickhouse"
   ],
@@ -21,7 +23,7 @@
   "interface": {
     "displayName": "LinkHub",
     "shortDescription": "Reports, OKRs, and operational agents in Codex",
-    "longDescription": "Complete LinkHub team reports, review submitted reports, investigate automated indicators, and operate assigned initiatives with context, punctual check-ins, and risk-focused follow-through through the authenticated LinkHub MCP connection.",
+    "longDescription": "Learn the LinkHub OKR method through a guided Strategy Canvas workshop, prepare implementation-ready artifacts, complete team reports, review submitted reports, investigate automated indicators, and operate assigned initiatives through the authenticated LinkHub MCP connection.",
     "developerName": "LinkHub",
     "category": "Productivity",
     "capabilities": [
@@ -31,6 +33,7 @@
     ],
     "websiteURL": "https://www.okrlinkhub.com",
     "defaultPrompt": [
+      "Guidami in un workshop Strategy Canvas e crea il PDF e il Markdown finali.",
       "Guidami nel report mensile del mio team.",
       "Guidami nella review di un report già sottomesso.",
       "Gestisci questa menzione o iniziativa come agente operativo LinkHub."

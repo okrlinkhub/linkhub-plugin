@@ -8,7 +8,8 @@ description: >-
   saper misurare) e iniziative completabili entro ~30 giorni. Usare quando l'utente
   deve impostare la prima strategia OKR di un team, definire objectives/KR da zero,
   usare linkhub-mcp per setup strategico, o chiede supporto su analisi strategica
-  misurabile.
+  misurabile. Non usare per un workshop didattico con Strategy Canvas ed export
+  PDF/Markdown senza scritture: per quello usa `linkhub-strategy-canvas`.
 ---
 
 # LinkHub Strategy Coach (MCP)
@@ -21,7 +22,7 @@ Rispondi nella lingua dell'utente / Reply in the user's language. Non esegui azi
 
 1. **Coach prima, esecutore dopo** — una domanda alla volta; proponi solo dopo aver compreso intento e misurabilità.
 2. **Strategia misurabile o in via di misurabilità** — ogni KR è misurabile oggi **oppure** è una metrica di **% completamento del setup di misurazione** (con rischio e iniziativa dedicati).
-3. **Un KR per Objective** — regola LinkHub: esattamente 1 Key Result per ogni Objective.
+3. **Da 1 a 3 KR per Objective** — parti da 1 KR e aggiungine un secondo o un terzo solo se misurano dimensioni distinte e necessarie dell'outcome. Meno KR sono meglio quando bastano a dimostrare il risultato.
 4. **Non inventare numeri** — forecast/target solo se l'utente li fornisce o li conferma; mai actual inventati.
 5. **Iniziative mensili** — ogni iniziativa deve poter essere **portata a termine entro ~30 giorni** (`checkInDays` ≤ 30, scope realistico).
 6. **MCP efficiente** — snapshot in batch all'inizio; scrivi in sequenza Objective → KR → Rischi → Iniziative per ogni blocco strategico.
@@ -144,17 +145,23 @@ Per **ogni Objective** candidato, conduci l'intervista in ordine:
 - Cosa potrebbe impedire il raggiungimento?
 - C'è rischio di **non avere dati** o di **slittare il setup**?
 
-**Output atteso prima di scrivere su MCP:** per ogni Objective una scheda mentale:
+**Output atteso prima di scrivere su MCP:** per ogni Objective una scheda mentale con 1–3 KR:
 
 ```
 Objective: [titolo qualitativo]
-KR tipo: A | B
-Indicatore: [nome (unità)] + indicatorId
-Peso: X%
-Forecast/target: [solo se confermati]
-Rischi: 1–3 bozze
-Iniziative: 1 per rischio prioritario, scope ≤ 30 giorni
+KR 1:
+  Tipo: A | B
+  Indicatore: [nome (unità)] + indicatorId
+  Peso: X%
+  Forecast/target: [solo se confermati]
+  Rischi: 1–3 bozze
+  Iniziative: 1 per rischio prioritario, scope ≤ 30 giorni
+KR 2–3: [solo se misurano dimensioni distinte e necessarie]
 ```
+
+Prima dell'approvazione chiedi: *«Un solo KR dimostra già l'outcome, oppure
+manca una dimensione essenziale?»* Non aggiungere KR per misurare attività,
+milestone o quantità che non dimostrano il risultato.
 
 ---
 
@@ -170,9 +177,11 @@ objectives_create { teamId, title, description? }
 
 Se esiste già un objective simile → `objectives_update` invece di duplicare.
 
-### Step B — Key Result
+### Step B — Key Results (1–3)
 
-```
+Per ciascun KR approvato, in ordine:
+
+```text
 keyResults_create {
   objectiveId,
   indicatorId,
@@ -182,7 +191,12 @@ keyResults_create {
 }
 ```
 
-**Pesi:** dopo ogni create/update, verifica somma con `keyResults_byTeam`. Se ≠ 100%:
+Interrompi il ciclo dopo il primo KR se misura già in modo sufficiente
+l'Objective. Non superare 3 KR per Objective.
+
+**Pesi:** durante la creazione, dopo aver creato tutti i gruppi approvati di KR
+del piano, verifica la somma del team con `keyResults_byTeam`. Per un piano già
+completo, verifica subito dopo ogni singolo update. Se ≠ 100%:
 - proponi ribilanciamento esplicito all'utente
 - applica `keyResults_update { keyResultId, weight }` sui KR coinvolti
 
@@ -306,7 +320,7 @@ checklist.
 
 **Checklist coach (verbalizza):**
 
-- [ ] Ogni Objective ha **esattamente 1 KR**?
+- [ ] Ogni Objective ha **1–3 KR**, senza misure ridondanti o di sola attività?
 - [ ] Ogni KR rispetta **`Nome metrica (unità)`**?
 - [ ] KR non misurabili oggi hanno tipo **B** + rischio setup + iniziativa di misurazione?
 - [ ] **Pesi = 100%**?
@@ -370,9 +384,9 @@ Strategia OKR — [Team]
 
 1. Profilo MCP + scelta team vuoto o parziale.
 2. Intervista su 3 priorità strategiche → 3 Objectives qualitativi.
-3. Per ciascuno: tipo A o B, indicatore, peso 40/35/25.
-4. `objectives_create` × 3 → `keyResults_create` × 3 → ribilancia pesi.
-5. Loop rischi + iniziative per KR a peso più alto, poi gli altri.
+3. Per ciascuno: 1 KR iniziale; aggiungi un secondo o terzo solo se necessario.
+4. Crea gli Objectives, poi 1–3 KR per ciascuno e ribilancia i pesi complessivi.
+5. Loop rischi + iniziative per ogni KR, iniziando da quelli a peso più alto.
 6. Double-check 100% + copertura iniziative mensili.
 7. Riepilogo strategico + invito al report coach al prossimo periodo.
 
