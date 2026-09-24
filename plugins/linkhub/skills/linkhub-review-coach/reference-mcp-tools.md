@@ -27,7 +27,7 @@ The Next tool keeps technical field names for transport, but the interview must 
 
 ## Reused writes during Analyze
 
-Use `risks_create`, `risks_update`, `risks_remove`, `initiatives_create`, `initiatives_update`, `initiatives_checkIn`, `initiatives_finish`, or `initiatives_remove` only after their complete user-visible effects have been shown in readable terms and confirmed. Prefer `reviews_rebalanceRiskPriorities` over several `risks_update` calls when applying the reviewer's final `highest` selection.
+Use `risks_create`, `risks_update`, `risks_move`, `risks_remove`, `initiatives_create`, `initiatives_update`, `initiatives_checkIn`, `initiatives_finish`, or `initiatives_remove` only after their complete user-visible effects have been shown in readable terms and confirmed. `risks_move` accepts `riskId` and `targetKeyResultId` for an active target KR in the same team and preserves the risk and linked initiatives. Prefer `reviews_rebalanceRiskPriorities` over several `risks_update` calls when applying the reviewer's final `highest` selection.
 
 `initiatives_create` requires one active `riskId`. A reviewer-created initiative must name the selected stable risk reference in the readable proposal and explain how it mitigates that risk; never offer an unlinked initiative. If no suitable risk exists, create and confirm the risk first. Reviewer-created initiatives default to the `reviews_getContext.teamLeader` assignee and a 7-day check-in. Ask whether to include the standard assignment message; do not spend separate interview turns reconfirming those defaults.
 

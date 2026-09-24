@@ -53,6 +53,7 @@ hygiene snapshot.
 | `resultTracked_markCompleted` | Objective completato (weight→0) |
 | `risks_create` | Nuovo rischio in analyze / setup |
 | `risks_update` | Modifica descrizione, priorità, KPI trigger |
+| `risks_move` | Sposta un rischio attivo su un altro KR dello stesso team con `riskId` e `targetKeyResultId`; conserva ID e iniziative. Mostra il cambio e chiedi conferma prima di chiamarlo. |
 | `risks_remove` | Rischio risolto (soft-delete) |
 | `initiatives_create` | Nuova iniziativa |
 | `initiatives_update` | Modifica descrizione, assignee, priorità, riskId, checkInDays, URL esterno |
