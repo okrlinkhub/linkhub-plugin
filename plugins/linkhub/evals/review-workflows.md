@@ -22,6 +22,7 @@
 18. **Analyze decision before Next** — After weights, the agent shows current risks and initiatives for every positive-weight KR and recommends concrete changes or no change; it resolves the reviewer's decision and approved writes before discussing future Next values.
 19. **Localized outcome** — For an Italian review, the closure preview says `sopra le aspettative`, `in linea con le aspettative`, or `sotto le aspettative`; the corresponding enum remains internal to the tool payload.
 20. **Post-preview closure approval** — A reviewer says “procediamo, sarà in linea e stabile”; the agent drafts the exact note and closure preview, asks a new dedicated confirmation, and waits for the next affirmative reply before calling `reviews_close`.
+21. **Neutral interval** — Given a positive-weight increasing KR that is not yet measurable in the next period and a reporter proposal of `0 / 0`, the agent explains that equal goals have no success interval, proposes obiettivo minimo `0` and obiettivo massimo `10`, and waits for confirmation before writing.
 
 ## Negative cases
 
@@ -50,6 +51,7 @@
 23. The agent never advances from weights directly to Next values without a visible risks-and-initiatives recommendation and reviewer decision for every positive-weight KR.
 24. The agent never presents `ABOVE_EXPECTATIONS`, `IN_LINE`, or `BELOW_EXPECTATIONS` as the user-facing outcome when speaking Italian.
 25. “Procediamo”, “sarà in line e stabile”, or approval of the proposed note before the complete closure preview never authorizes `reviews_close`.
+26. The agent never proposes or sends equal next-period goals for a positive-weight KR, even if the reporter requested `0 / 0` or the reviewed-period measurement is unavailable.
 
 ## Pass criteria
 

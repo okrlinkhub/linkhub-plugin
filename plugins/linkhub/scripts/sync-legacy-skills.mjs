@@ -1,5 +1,5 @@
 import { cp, mkdir, readdir, rm, stat } from "node:fs/promises";
-import { dirname, resolve } from "node:path";
+import { dirname, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const pluginRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -24,7 +24,11 @@ for (const skillName of skillNames) {
   const source = resolve(skillsRoot, skillName);
   const destination = resolve(legacyRoot, skillName);
   await rm(destination, { recursive: true, force: true });
-  await cp(source, destination, { recursive: true });
+  await cp(source, destination, {
+    recursive: true,
+    filter: (path) =>
+      !path.split(sep).some((part) => part === "__pycache__" || part.endsWith(".pyc")),
+  });
 }
 
 console.log(`Synchronized ${skillNames.length} generated legacy skill copies.`);

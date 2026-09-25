@@ -16,6 +16,8 @@
 `allocations[]` items are `{ resultTrackedId, weightReviewed, reviewerNotes? }`. Include every active tracked result exactly once. Changed weights require `reviewerNotes`; unchanged weights may preserve existing reviewer notes by omitting the field. `trackedResults[].reporterNotes` and `trackedResults[].reviewerNotes` have distinct authors and must never be merged or copied into each other.
 
 The Next tool keeps technical field names for transport, but the interview must always present them as `obiettivo minimo` and `obiettivo massimo`. Base the proposal on `keyResults[].indicator.latestValue` when present, even if the reviewed-period result is marked unmeasurable.
+For a positive-weight KR, `forecastValueReviewed` and `targetValueReviewed` must be finite, different values forming a success interval in the indicator's direction. A neutral, not-yet-measurable increasing KR defaults to `0 / 10`, never `0 / 0`. The tool rejects equal values; correct the proposal and reconfirm it before retrying.
+If a zero-weight KR was marked `0 / 0` for removal or was newly attached with placeholder `0 / 0`, use `reviews_updateNextResult` to confirm and save a valid interval before giving it positive weight. The tool can correct the interval while the weight is zero; it does not restore the weight itself.
 
 ## Reused read tools
 

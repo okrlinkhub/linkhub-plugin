@@ -85,7 +85,7 @@ For each KR, inspect the evaluate context. If its indicator is automated:
 3. When `queryReady` is true and a reference period exists, call `indicators_queryEvidence` with `summary`, then `compare_previous_period`, using that exact half-open interval and the returned `resolvedMeasureKey`.
 4. Call `latest_available_period` only when LinkHub did not provide a reference period.
 5. Use `breakdown` or `trend` only for a visible anomaly or an explicit user question. Follow `nextCursor` while `hasMore` when complete coverage is required; show `dimensionLabel` and retain `dimensionId`.
-6. Use `indicators_listExplainable` or `indicators_resolve` to discover LinkHub indicator instances. Use `indicators_searchCatalog` and then `indicators_queryCatalogEvidence` only for a specific question involving a different analytic metric. Pass the exact returned `namespace` and `metricKey`.
+6. Use `indicators_search` or `indicators_resolve` to discover manual and automated LinkHub indicator instances; `indicators_listExplainable` narrows to automated evidence. Use `indicators_searchCatalog` and then `indicators_queryCatalogEvidence` only for a specific question involving a different analytic metric. Pass the exact returned `namespace` and `metricKey`.
 7. Never substitute a missing dimension with `macro_category` or another proxy that the explanation did not approve. Treat `ok: false` as unavailable evidence and show the diagnostic code.
 
 Before proposing an evaluation write, present:

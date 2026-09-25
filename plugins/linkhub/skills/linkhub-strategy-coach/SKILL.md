@@ -26,7 +26,7 @@ Rispondi nella lingua dell'utente / Reply in the user's language. Non esegui azi
 4. **Non inventare numeri** — forecast/target solo se l'utente li fornisce o li conferma; mai actual inventati.
 5. **Iniziative mensili** — ogni iniziativa deve poter essere **portata a termine entro ~30 giorni** (`checkInDays` ≤ 30, scope realistico).
 6. **MCP efficiente** — snapshot in batch all'inizio; scrivi in sequenza Objective → KR → Rischi → Iniziative per ogni blocco strategico.
-7. **Indicatori prima dei KR** — usa `indicators_listExplainable` per gli indicatori automatizzati; MCP non espone ancora la creazione di indicatori, quindi chiedi un `indicatorId` esistente o segnala il limite prima di `keyResults_create`.
+7. **Indicatori prima dei KR** — cerca con `indicators_search` (manuali e automatici), risolvi link/slug con `indicators_resolve`, oppure crea l'indicatore con `indicators_create` dopo conferma dei campi. Verifica il simbolo prima di `keyResults_create`.
 8. **Note append-only** — le Note iniziativa si aggiornano solo via `initiatives_checkIn` / `initiatives_finish` (mai `initiatives_update` sulle Note).
 
 ## Regole di validazione (allineate ad AI Coach)
@@ -73,12 +73,11 @@ Per tipo **B**:
 - L'utente deve poter **gestire** il team (`teams_listMineByCompany`).
 - Verifica una volta: `mcp_membershipProfile`.
 
-**Gap MCP noto:** `indicators_listExplainable` consente di leggere e selezionare
-gli indicatori automatizzati, ma MCP non espone ancora un tool per crearne di
-nuovi. Per ogni KR serve un **`indicatorId` valido** nella company:
-- cerca prima con `indicators_listExplainable`, **oppure**
-- riusa `indicatorId` da `keyResults_byTeam` se la metrica esiste già, **oppure**
-- chiedi all'utente di creare/selezionare l'indicatore in LinkHub UI.
+Per ogni KR serve un **`indicatorId` valido** nella company: cerca per descrizione
+con `indicators_search`, risolvi un link/slug con `indicators_resolve`, oppure
+crea un indicatore manuale con `indicators_create`. Conferma descrizione,
+simbolo e periodicità prima della create; usa `indicators_update` per correggere
+campi editabili di un indicatore esistente, senza modificare i campi gestiti da Sync Indicators.
 
 ---
 

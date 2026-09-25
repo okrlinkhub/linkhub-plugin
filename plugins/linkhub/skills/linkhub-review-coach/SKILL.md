@@ -21,7 +21,7 @@ Use this workflow only for an `IN_REVIEW` report when the caller is the assigned
 - Before every logical write group, show its complete user-visible effects in readable business terms and wait for explicit confirmation. Keep internal record IDs and transport payloads hidden unless the user asks for them.
 - A clear confirmation of the displayed proposal authorizes its immediate write. Never ask a second confirmation merely to repeat the same decision as raw JSON, IDs, or tool syntax. A confirmation covers only that displayed logical group.
 - `reviews_close` always requires a fresh, dedicated confirmation immediately before the call. That confirmation must come after the complete closure preview; an earlier intention, outcome preference, request to proceed, or approval of the note is never closure authorization.
-- Never invent notes, weights, values, dates, causes, evidence, identifiers, or tool outcomes. Distinguish records completed after `trackingDate` from work completed inside the reviewed period.
+- Never present proposed values as measured or user supplied, and never invent notes, weights, dates, causes, evidence, identifiers, or tool outcomes. The documented `0 / 10` neutral interval is a proposal that still requires reviewer confirmation. Distinguish records completed after `trackingDate` from work completed inside the reviewed period.
 - Stop before writes whenever `reviews_getContext.completeness.potentiallyTruncated` is true.
 
 ## 1. Open and read before interviewing
@@ -55,7 +55,7 @@ Show one complete proposal containing every active KR name, inherited weight, pr
 
 A zero weight removes the KR from the active next-period review; highlight that effect. Never use reporter-side `keyResults_rebalanceWeightInDraftReport` or `resultNext_upsert` on an IN_REVIEW report.
 
-If `untrackedKeyResults` contains a KR the reviewer wants to activate, explain that it was outside the submitted snapshot. Show and confirm a separate readable proposal stating that the KR will be attached at zero; keep the tool payload and ID mapping internal. Reread context, then include it in the later complete 100% rebalance. Never attach a KR merely because it exists.
+If `untrackedKeyResults` contains a KR the reviewer wants to activate, explain that it was outside the submitted snapshot. Show and confirm a separate readable proposal stating that the KR will be attached at zero; keep the tool payload and ID mapping internal. Reread context, then confirm and save a valid Next success interval before including it in the later complete 100% rebalance. The same order applies when restoring positive weight to a KR previously marked for removal at `0 / 0`. Never attach a KR merely because it exists.
 
 ## 3. Analyze current risks and initiatives
 
@@ -95,6 +95,8 @@ For each positive-weight KR, always present:
 - for an automated indicator, its approved formula, material exclusions, and whether ClickHouse evidence succeeded before treating the latest value as verified;
 - a concrete numerical proposal for **obiettivo minimo** and **obiettivo massimo**, starting from the latest available operational value and grounded in verified evidence when available, selected highest risks, initiatives, annual objectives, and the KR's next-period weight;
 - one concise request to confirm or modify the proposal.
+
+Every positive-weight KR must have a **success interval**: the proposed minimum and maximum must be finite and different, in the indicator's correct direction. Never propose or confirm equal values, including `0 / 0`. For a neutral or not-yet-measurable KR in the next period, propose **obiettivo minimo 0 / obiettivo massimo 10** by default when an increasing indicator permits it; explain that this is a minimum valid interval, not a measured result. For a reverse indicator or a metric whose natural range excludes that pair, choose and explain a different valid interval. If the reporter's values or the reviewer's requested values are equal, point out the missing success interval and obtain confirmation of corrected values before calling `reviews_updateNextResult`.
 
 Present these values together in one readable row or compact block per KR: reviewed-period measurement, current operational value with its date, reporter's proposed obiettivo minimo/massimo, and reviewer's proposed obiettivo minimo/massimo. Do not ask for approval of future values when the current operational value is omitted; when none exists, state that explicitly rather than leaving the baseline implicit.
 

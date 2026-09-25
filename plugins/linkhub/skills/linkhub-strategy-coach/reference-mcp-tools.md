@@ -49,15 +49,22 @@ filtri seguendo `nextCursor`; non escludere duplicati finché la paginazione non
 | `keyResults_rebalanceWeightInDraftReport` | Solo con `reportId` DRAFT aperto |
 | `reports_*`, `resultTracked_*`, `resultNext_*` | Usa `linkhub-report-coach` |
 
-## Gap MCP — Indicatori
+## Indicatori MCP
 
-**Non esistono** tool `indicators_list` / `indicators_create` via MCP.
+| Tool | Args essenziali | Esito |
+|------|----------------|-------|
+| `indicators_search` | `query`, `companyId?`, `cursor?`, `limit?` (max 50) | Indicatori manuali e automatici con `indicatorId`, slug, simbolo, periodicità e utilizzi |
+| `indicators_resolve` | `reference` (ID, slug o link), `companyId?` | Indicatore esatto nella company autorizzata |
+| `indicators_create` | `description`, `symbol`, `periodicity`, `companyId?`; opzionali: `aggregationPeriod`, `periodOffset`, `assigneeId`, `automationUrl`, `automationDescription`, `notes`, `isReverse` | `indicatorId` immediatamente utilizzabile in `keyResults_create` |
+| `indicators_update` | `indicatorId` e i soli campi da modificare, almeno `description?` / `symbol?` | `indicatorId`, slug immutato; `null` rimuove i campi opzionali che lo ammettono |
 
-Per `keyResults_create` serve sempre `indicatorId`:
-1. L'utente crea/seleziona l'indicatore in **LinkHub UI** (company scope).
-2. Oppure riusa `indicatorId` da `keyResults_byTeam` (stesso team o altro team stessa company).
-
-Formato indicatore atteso: descrizione = nome metrica + unità tra parentesi, coerente con regole AI Coach.
+Esempio: `indicators_search { query: "ticket SLA" }` → se assente, dopo conferma,
+`indicators_create { description: "Ticket entro SLA (%)", symbol: "%", periodicity: "monthly" }`
+→ `keyResults_create { objectiveId, indicatorId, weight: 20 }`. Per correggere
+un indicatore manuale: `indicators_update { indicatorId, symbol: "%" }`.
+Non usare `indicators_searchCatalog` per istanze LinkHub: interroga solo il catalogo analitico.
+Un bot con profilo custom deve avere questi tool abilitati; i preset si riallineano
+al catalogo corrente quando l'admin apre le impostazioni MCP.
 
 ## Validazioni backend rilevanti
 

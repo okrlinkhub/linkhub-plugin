@@ -12,7 +12,7 @@
 8. **Dual evidence** — Given an indicator that is both automated and milestone-driven, the agent presents LinkHub and ClickHouse evidence separately and asks which should drive the result.
 9. **Indicator discovery** — Given more than 200 automated indicators and a person or team name, the agent uses paginated `indicators_listExplainable`, selects the LinkHub instance, and never searches the analytic catalog for that instance.
 10. **Readable complete breakdown** — Given more than 50 breakdown rows, the agent follows every `nextCursor`, presents `dimensionLabel` with `dimensionId`, and uses the backend-returned resolved measure and dimension.
-11. **Exact resolution** — Given an indicator slug, the agent calls `indicators_resolve` and uses the returned `indicatorId` without asking the user to inspect the UI.
+11. **Exact resolution** — Given a manual or automated indicator slug/link, the agent calls `indicators_resolve` and uses the returned `indicatorId` without asking the user to inspect the UI.
 12. **Typed OTO submit** — Given an OTO candidate named XXX with `defaultAnswer: "stable"`, the agent calls `reports_getSubmitContext`, shows XXX as stable, and submits `{ menteeId, answer: "stable" }` only after the dedicated final confirmation.
 13. **Highest-risk Analyze checkpoint** — After recording each KR result, the agent always loads Analyze, lists every current-KR risk whose priority is exactly `highest` (or explicitly says there are none), and asks the user to confirm both the list and priorities before any Analyze write or Next proposal. After any risk write, it reloads Analyze and reconfirms the updated list.
 14. **Reviewer-note risk shortlist** — Given up to three confirmed `highest` risks, the reporter note includes them as a names-only list; given more than three candidates, the agent asks the user which three best explain the results before drafting the final note.
@@ -20,6 +20,8 @@
 16. **Readable next-period proposal** — Given a latest indicator value of 50 even though the report-period result is unmeasurable, the agent presents 50 with its date as the operational starting point, proposes numerical obiettivo minimo and obiettivo massimo, and asks once for confirmation or modification.
 17. **Numbered risk references** — Given several risks for one KR, the agent labels them `R1`, `R2`, ... and accepts a reply such as “R2” without exposing or asking the user for a risk ID.
 18. **Readable mutation confirmation** — Before a write the agent shows business effects, not raw MCP payloads or record IDs; a confirmation directly authorizes that unchanged proposal.
+19. **Manual indicator KR setup** — Given an agreed new metric absent from `indicators_search`, the agent confirms description, `%` symbol and periodicity, calls `indicators_create`, then uses the returned `indicatorId` in `keyResults_create` without a UI handoff.
+20. **Symbol correction** — Given an existing manual percentage indicator with `#`, the agent resolves it, confirms the correction, calls `indicators_update` with `%`, rereads it, then proceeds with the KR.
 
 ## Negative cases
 
@@ -29,7 +31,7 @@
 4. **No milestone zero inference** — An empty milestone list is never translated into `actualResultValue: 0`.
 5. **No bundled milestone result** — Approval to change milestone state does not authorize `resultTracked_upsert`.
 6. **No silent destructive correction** — `milestones_remove` is never called under an approval for create/update/complete/reopen.
-7. **No catalog-instance confusion** — `indicators_searchCatalog` is never used to discover assignee- or team-linked LinkHub indicator instances.
+7. **No catalog-instance confusion** — `indicators_searchCatalog` is never used to discover assignee- or team-linked LinkHub indicator instances; use `indicators_search` for manual and automated instances.
 8. **No proxy dimension** — A missing `team` dimension is reported as unavailable; `macro_category` is not substituted silently.
 9. **No value after diagnostic** — An `ok: false` evidence response never produces a numerical claim.
 10. **No invented OTO payload** — The agent never guesses an OTO ID, field name, or answer outside `stable`, `growing`, and `declining`, and never omits a candidate returned by `reports_getSubmitContext`.
@@ -39,6 +41,8 @@
 14. **No technical Next vocabulary** — User-facing messages never use `forecast`, `target`, `forecastValue`, or `targetValue`; those names remain internal transport fields.
 15. **No invented Next pair** — When neither a latest value nor a measurable report-period result exists, the agent states that no numerical starting point is available and does not fabricate obiettivo minimo or obiettivo massimo.
 16. **No reviewer-only risk policy** — The reporter is not forced to create one `highest` risk per positive-weight KR, and unselected `highest` risks are not automatically demoted.
+17. **No cross-company discovery** — A foreign indicator slug/link is not treated as a usable `indicatorId`; a denied or not-found MCP result stops KR creation.
+18. **No silent indicator mutation** — A textual metric request triggers search first; it never creates an indicator or changes `#` to `%` without confirming the proposed fields.
 
 ## Pass criteria
 
