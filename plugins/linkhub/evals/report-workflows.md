@@ -22,6 +22,7 @@
 18. **Readable mutation confirmation** — Before a write the agent shows business effects, not raw MCP payloads or record IDs; a confirmation directly authorizes that unchanged proposal.
 19. **Manual indicator KR setup** — Given an agreed new metric absent from `indicators_search`, the agent confirms description, `%` symbol and periodicity, calls `indicators_create`, then uses the returned `indicatorId` in `keyResults_create` without a UI handoff.
 20. **Symbol correction** — Given an existing manual percentage indicator with `#`, the agent resolves it, confirms the correction, calls `indicators_update` with `%`, rereads it, then proceeds with the KR.
+21. **Inverse indicator correction** — Given an existing manual indicator whose lower-is-better setting is wrong, the agent confirms the change, calls `indicators_update` with the explicit `isReverse` boolean, and rereads the same indicator to verify the new value without recreating it.
 
 ## Negative cases
 

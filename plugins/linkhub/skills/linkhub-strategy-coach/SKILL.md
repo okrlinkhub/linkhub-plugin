@@ -26,7 +26,7 @@ Rispondi nella lingua dell'utente / Reply in the user's language. Non esegui azi
 4. **Non inventare numeri** — forecast/target solo se l'utente li fornisce o li conferma; mai actual inventati.
 5. **Iniziative mensili** — ogni iniziativa deve poter essere **portata a termine entro ~30 giorni** (`checkInDays` ≤ 30, scope realistico).
 6. **MCP efficiente** — snapshot in batch all'inizio; scrivi in sequenza Objective → KR → Rischi → Iniziative per ogni blocco strategico.
-7. **Indicatori prima dei KR** — cerca con `indicators_search` (manuali e automatici), risolvi link/slug con `indicators_resolve`, oppure crea l'indicatore con `indicators_create` dopo conferma dei campi. Verifica il simbolo prima di `keyResults_create`.
+7. **Indicatori prima dei KR** — cerca con `indicators_search` (manuali e automatici), risolvi link/slug con `indicators_resolve`, oppure crea l'indicatore con `indicators_create` dopo conferma dei campi. Verifica simbolo e `isReverse` (se valori piu bassi sono migliori) prima di `keyResults_create`.
 8. **Note append-only** — le Note iniziativa si aggiornano solo via `initiatives_checkIn` / `initiatives_finish` (mai `initiatives_update` sulle Note).
 
 ## Regole di validazione (allineate ad AI Coach)
@@ -76,7 +76,7 @@ Per tipo **B**:
 Per ogni KR serve un **`indicatorId` valido** nella company: cerca per descrizione
 con `indicators_search`, risolvi un link/slug con `indicators_resolve`, oppure
 crea un indicatore manuale con `indicators_create`. Conferma descrizione,
-simbolo e periodicità prima della create; usa `indicators_update` per correggere
+simbolo, periodicità e se valori più bassi sono migliori (`isReverse`) prima della create; usa `indicators_update` per correggere
 campi editabili di un indicatore esistente, senza modificare i campi gestiti da Sync Indicators.
 
 ---

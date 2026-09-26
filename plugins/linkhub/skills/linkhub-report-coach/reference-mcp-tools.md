@@ -34,9 +34,9 @@ hygiene snapshot.
 | Tool | Args principali | Output utile |
 |------|-----------------|--------------|
 | `indicators_listExplainable` | companyId?, query?, teamId?, usage?, assigneeId?, cursor?, limit? (max 50) | istanze LinkHub con slug, assignee, utilizzi team e paginazione |
-| `indicators_resolve` | reference, companyId? | risoluzione esatta di slug, link o indicatorId, anche manuali |
-| `indicators_search` | query, companyId?, cursor?, limit? (max 50) | istanze manuali e automatiche per descrizione o slug |
-| `indicators_create` / `indicators_update` | descrizione/simbolo/periodicità e campi editabili | creazione o correzione di indicatori manuali prima dei KR |
+| `indicators_resolve` | reference, companyId? | risoluzione esatta di slug, link o indicatorId, anche manuali, con `isReverse` |
+| `indicators_search` | query, companyId?, cursor?, limit? (max 50) | istanze manuali e automatiche per descrizione o slug, con `isReverse` |
+| `indicators_create` / `indicators_update` | descrizione/simbolo/periodicità, `isReverse` e campi editabili | creazione o correzione di indicatori manuali prima dei KR, incluso il passaggio normale/inverso |
 | `indicators_getExplanation` | indicatorId | definizione, default, caveat, chiavi approvate, label, lineage e periodo |
 | `indicators_queryEvidence` | indicatorId, request (`cursor?`, `limit?` max 50) | misura/dimensione risolte, righe tipizzate, diagnostica e paginazione |
 | `indicators_searchCatalog` | indicatorId, query?, cursor?, limit? (max 50) | metriche analitiche autorizzate; non cerca istanze LinkHub |

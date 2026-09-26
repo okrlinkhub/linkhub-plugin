@@ -53,15 +53,17 @@ filtri seguendo `nextCursor`; non escludere duplicati finché la paginazione non
 
 | Tool | Args essenziali | Esito |
 |------|----------------|-------|
-| `indicators_search` | `query`, `companyId?`, `cursor?`, `limit?` (max 50) | Indicatori manuali e automatici con `indicatorId`, slug, simbolo, periodicità e utilizzi |
-| `indicators_resolve` | `reference` (ID, slug o link), `companyId?` | Indicatore esatto nella company autorizzata |
-| `indicators_create` | `description`, `symbol`, `periodicity`, `companyId?`; opzionali: `aggregationPeriod`, `periodOffset`, `assigneeId`, `automationUrl`, `automationDescription`, `notes`, `isReverse` | `indicatorId` immediatamente utilizzabile in `keyResults_create` |
-| `indicators_update` | `indicatorId` e i soli campi da modificare, almeno `description?` / `symbol?` | `indicatorId`, slug immutato; `null` rimuove i campi opzionali che lo ammettono |
+| `indicators_search` | `query`, `companyId?`, `cursor?`, `limit?` (max 50) | Indicatori manuali e automatici con `indicatorId`, slug, simbolo, periodicità, `isReverse` e utilizzi |
+| `indicators_resolve` | `reference` (ID, slug o link), `companyId?` | Indicatore esatto con `isReverse` nella company autorizzata |
+| `indicators_create` | `description`, `symbol`, `periodicity`, `companyId?`; opzionali: `aggregationPeriod`, `periodOffset`, `assigneeId`, `automationUrl`, `automationDescription`, `notes`, `isReverse` | `indicatorId` e valore effettivo di `isReverse`; l'ID è subito utilizzabile in `keyResults_create` |
+| `indicators_update` | `indicatorId` e i soli campi da modificare, incluso `isReverse?` | `indicatorId`, slug immutato e valore effettivo di `isReverse`; `null` rimuove i campi opzionali che lo ammettono |
 
 Esempio: `indicators_search { query: "ticket SLA" }` → se assente, dopo conferma,
 `indicators_create { description: "Ticket entro SLA (%)", symbol: "%", periodicity: "monthly" }`
 → `keyResults_create { objectiveId, indicatorId, weight: 20 }`. Per correggere
-un indicatore manuale: `indicators_update { indicatorId, symbol: "%" }`.
+un indicatore manuale: `indicators_update { indicatorId, symbol: "%" }`. Per
+passare da normale a inverso o viceversa senza ricrearlo, usa
+`indicators_update { indicatorId, isReverse: true }` oppure `isReverse: false`.
 Non usare `indicators_searchCatalog` per istanze LinkHub: interroga solo il catalogo analitico.
 Un bot con profilo custom deve avere questi tool abilitati; i preset si riallineano
 al catalogo corrente quando l'admin apre le impostazioni MCP.
