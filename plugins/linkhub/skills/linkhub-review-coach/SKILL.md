@@ -26,7 +26,13 @@ Use this workflow only for an `IN_REVIEW` report when the caller is the assigned
 
 ## 1. Open and read before interviewing
 
-Resolve the report slug from the user's LinkHub URL when supplied. Call `mcp_membershipProfile` and `reviews_getContext`; use `reportId` for later calls.
+Call `mcp_membershipProfile`, then `reviews_listMyClusterTargets` before selecting a report. The cluster-target response is authoritative: it first identifies the active team whose leader is the current user and whose ID is the cluster's `teamClusterLeaderId`, then lists that cluster's active teams, people, and pending reviews assigned to the user. Never infer the review cluster from `teams_listMineByCompany` or ordinary team memberships.
+
+- When the response is `cluster_leader`, present only the returned cluster teams and people as review candidates. Clearly mark the cluster leader team. If there is one pending review, select it; if there are several, show team, reporter, and period and ask the user to choose. If the user leads more than one cluster, ask which returned cluster to use before selecting a report.
+- When the response is `not_cluster_leader`, say explicitly that no cluster can be resolved because the user is not the leader of a configured cluster leader team. Do not invent a cluster or substitute membership teams. Stop discovery unless the user supplied an exact report URL; an exact authorized report may still use the direct assigned-reviewer/company-admin fallback below.
+- When `completeness.potentiallyTruncated` is true, stop before choosing a review target and explain that the cluster target list is incomplete.
+
+Resolve the report slug from the user's LinkHub URL when supplied. For an exact URL, verify that `reviews_getContext.team._id` belongs to a returned cluster target before continuing. If the caller is not a cluster leader, continue only when `reviews_getContext` authorizes that exact report as assigned reviewer or company admin; describe this as a direct-report fallback, not as the user's cluster. Use `reportId` for later calls.
 
 Before asking any question, present a concise factual briefing:
 

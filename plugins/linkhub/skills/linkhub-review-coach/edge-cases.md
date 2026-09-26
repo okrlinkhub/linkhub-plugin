@@ -2,6 +2,9 @@
 
 ## Lifecycle and authorization
 
+- Review discovery starts from `reviews_listMyClusterTargets`, never from membership teams. `not_cluster_leader` means there is no configured cluster to infer: say so and stop unless the user supplied an exact report URL that passes the assigned-reviewer/company-admin authorization fallback.
+- More than one returned cluster leader assignment is not guessed away. Show the returned cluster names and ask the user which cluster to review.
+- A truncated cluster target response is incomplete and cannot be used to select a team or person.
 - `DRAFT`: stop and route report completion to `linkhub-report-coach`.
 - `IN_REVIEW`: normal review workflow.
 - `CLOSED_*`: read-only explanation unless the user separately asks an authorized admin to reopen it; this skill does not reopen reports.

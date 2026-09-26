@@ -4,6 +4,7 @@
 
 | Tool | Purpose |
 | --- | --- |
+| `reviews_listMyClusterTargets` | Resolve the current user's cluster through the team configured as `teamClusterLeaderId`, then return only that cluster's active teams, people, and assigned pending reviews; returns `not_cluster_leader` instead of falling back to membership teams |
 | `reviews_getContext { reportId? \| reportSlug? }` | Complete reviewer snapshot, team leader, notes, KR/indicator details including each indicator's latest value and date, previous reports, untracked KRs, and readiness |
 | `reviews_getAnalyzeContext { reportId }` | All positive-weight review KRs, with compact stable risk references `R1...`, initiative references `I1...`, period relation, and per-KR `highest` coverage in one call |
 | `reviews_rebalanceRiskPriorities { reportId, changes[] }` | Atomic priority update for a confirmed risk group; rejects a final state that leaves any positive-weight KR without a `highest` risk |
@@ -26,6 +27,8 @@ If a zero-weight KR was marked `0 / 0` for removal or was newly attached with pl
 | `mcp_membershipProfile` | Current MCP identity and company |
 | `indicators_getExplanation` / `indicators_queryEvidence` | Mandatory definition plus bounded ClickHouse evidence before proposing Next values for every automated positive-weight KR; reuse results within the review |
 | `milestones_listByIndicator` | Tool-returned milestone values and totals |
+
+`teams_listMineByCompany` is not a review-cluster discovery tool: it returns membership, directly led, or admin-visible teams and must not be used to infer the cluster leader team.
 
 ## Reused writes during Analyze
 
