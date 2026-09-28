@@ -16,6 +16,7 @@ from pathlib import Path
 from typing import Any
 
 SCHEMA_VERSION = "linkhub-strategy-canvas/v1"
+QUICK_SCHEMA_VERSION = "linkhub-strategy-canvas/quick-v1"
 SOURCE_URL = "https://www.okrlinkhub.com/blog/strategy-canvas"
 ALLOWED_DIRECTIONS = {"at_or_below", "at_or_above"}
 RISK_COLORS = ("#CFF58A", "#A9D3F7", "#F36A82")
@@ -61,20 +62,25 @@ def validate_payload(raw: Any) -> dict[str, Any]:
 
     if not isinstance(raw, dict):
         raise CanvasValidationError("Il payload deve essere un oggetto JSON")
-    if raw.get("schemaVersion") != SCHEMA_VERSION:
+    if raw.get("schemaVersion") not in (SCHEMA_VERSION, QUICK_SCHEMA_VERSION):
         raise CanvasValidationError(
-            f"schemaVersion deve essere esattamente {SCHEMA_VERSION}"
+            f"schemaVersion deve essere {SCHEMA_VERSION} o {QUICK_SCHEMA_VERSION}"
         )
 
+    quick = raw["schemaVersion"] == QUICK_SCHEMA_VERSION
+    identity_key = "canvasTitle" if quick else "teamName"
     payload: dict[str, Any] = {
-        "schemaVersion": SCHEMA_VERSION,
-        "teamName": require_string(raw.get("teamName"), "teamName"),
+        "schemaVersion": raw["schemaVersion"],
+        identity_key: require_string(raw.get(identity_key), identity_key),
         "objective": require_string(raw.get("objective"), "objective"),
     }
 
     key_results = raw.get("keyResults")
     if not isinstance(key_results, list) or not 1 <= len(key_results) <= 3:
         raise CanvasValidationError("keyResults deve contenere da 1 a 3 elementi")
+
+    if quick and len(key_results) != 1:
+        raise CanvasValidationError("La modalità rapida richiede esattamente un KR")
 
     normalized_krs = []
     kr_refs: set[str] = set()
@@ -134,8 +140,9 @@ def validate_payload(raw: Any) -> dict[str, Any]:
     payload["keyResults"] = normalized_krs
 
     risks = raw.get("risks")
-    if not isinstance(risks, list) or len(risks) != 3:
-        raise CanvasValidationError("risks deve contenere esattamente 3 elementi")
+    risk_count = 2 if quick else 3
+    if not isinstance(risks, list) or len(risks) != risk_count:
+        raise CanvasValidationError(f"risks deve contenere esattamente {risk_count} elementi")
     normalized_risks = []
     risk_refs: set[str] = set()
     initiative_refs: set[str] = set()
@@ -156,36 +163,44 @@ def validate_payload(raw: Any) -> dict[str, Any]:
 
         kpi = risk.get("kpi")
         normalized_kpi = None
+        if quick and kpi is None:
+            raise CanvasValidationError(f"{ref}.kpi è obbligatorio nella modalità rapida")
         if kpi is not None:
             if not isinstance(kpi, dict):
                 raise CanvasValidationError(
                     f"risks[{risk_index - 1}].kpi deve essere un oggetto o null"
                 )
-            direction = kpi.get("triggerDirection")
-            if direction not in ALLOWED_DIRECTIONS:
-                raise CanvasValidationError(
-                    f"risks[{risk_index - 1}].kpi.triggerDirection non valido"
-                )
             normalized_kpi = {
                 "indicatorName": require_string(
-                    kpi.get("indicatorName"),
-                    f"risks[{risk_index - 1}].kpi.indicatorName",
+                    kpi.get("indicatorName"), f"risks[{risk_index - 1}].kpi.indicatorName"
                 ),
-                "unit": require_string(
-                    kpi.get("unit"), f"risks[{risk_index - 1}].kpi.unit"
-                ),
-                "triggerDirection": direction,
-                "triggerValue": require_number(
-                    kpi.get("triggerValue"),
-                    f"risks[{risk_index - 1}].kpi.triggerValue",
-                ),
+                "unit": require_string(kpi.get("unit"), f"risks[{risk_index - 1}].kpi.unit"),
             }
+            if quick:
+                if set(kpi) != {"indicatorName", "unit"}:
+                    raise CanvasValidationError(
+                        f"{ref}.kpi rapido contiene solo indicatorName e unit, senza soglie"
+                    )
+            else:
+                direction = kpi.get("triggerDirection")
+                if direction not in ALLOWED_DIRECTIONS:
+                    raise CanvasValidationError(
+                        f"risks[{risk_index - 1}].kpi.triggerDirection non valido"
+                    )
+                normalized_kpi.update({
+                    "triggerDirection": direction,
+                    "triggerValue": require_number(
+                        kpi.get("triggerValue"), f"risks[{risk_index - 1}].kpi.triggerValue"
+                    ),
+                })
 
         initiatives = risk.get("initiatives")
         if not isinstance(initiatives, list) or not 1 <= len(initiatives) <= 3:
             raise CanvasValidationError(
                 f"{ref}.initiatives deve contenere da 1 a 3 elementi"
             )
+        if quick and len(initiatives) != 1:
+            raise CanvasValidationError(f"{ref}.initiatives rapido richiede esattamente un elemento")
         normalized_initiatives = []
         for initiative_index, initiative in enumerate(initiatives, start=1):
             if not isinstance(initiative, dict):
@@ -227,6 +242,23 @@ def validate_payload(raw: Any) -> dict[str, Any]:
     return payload
 
 
+def canvas_identity(payload: dict[str, Any]) -> str:
+    """Return the confirmed team name or the quick canvas title."""
+
+    key = "canvasTitle" if payload.get("schemaVersion") == QUICK_SCHEMA_VERSION else "teamName"
+    return require_string(payload.get(key), key)
+
+
+def kpi_label(kpi: dict[str, Any]) -> str:
+    """Render a metric, adding a trigger only for the complete contract."""
+
+    label = f"{kpi['indicatorName']} ({kpi['unit']})"
+    if "triggerDirection" in kpi:
+        symbol = "<=" if kpi["triggerDirection"] == "at_or_below" else ">="
+        label += f" {symbol} {format_value(kpi['triggerValue'])}"
+    return label
+
+
 def slugify(value: str) -> str:
     """Convert a team name to the stable filename slug required by the contract."""
 
@@ -235,8 +267,8 @@ def slugify(value: str) -> str:
     return slug or "team"
 
 
-def existing_canvas_team_name(markdown_path: Path) -> str:
-    """Read the team identity from an existing canonical Markdown artifact."""
+def existing_canvas_identity(markdown_path: Path) -> str:
+    """Read the identity from an existing canonical Markdown artifact."""
 
     try:
         markdown = markdown_path.read_text(encoding="utf-8")
@@ -263,11 +295,11 @@ def existing_canvas_team_name(markdown_path: Path) -> str:
         raise CanvasValidationError(
             f"I dati canonici del Canvas esistente non sono validi: {markdown_path}"
         ) from error
-    return require_string(existing_payload.get("teamName"), "teamName esistente")
+    return canvas_identity(existing_payload)
 
 
 def assert_output_identity(
-    team_name: str,
+    canvas_name: str,
     markdown_path: Path,
     pdf_path: Path,
 ) -> None:
@@ -281,11 +313,11 @@ def assert_output_identity(
             )
         return
 
-    existing_team_name = existing_canvas_team_name(markdown_path)
-    if existing_team_name != team_name:
+    existing_name = existing_canvas_identity(markdown_path)
+    if existing_name != canvas_name:
         raise CanvasValidationError(
-            "Il nome del team collide con un Canvas esistente: "
-            f"'{team_name}' e '{existing_team_name}' producono lo stesso team-slug"
+            "Il nome collide con un Canvas esistente: "
+            f"'{canvas_name}' e '{existing_name}' producono lo stesso slug"
         )
 
 
@@ -313,10 +345,15 @@ def markdown_escape(value: Any) -> str:
 def make_markdown(payload: dict[str, Any]) -> str:
     """Render the readable handoff and its canonical JSON block."""
 
+    identity = canvas_identity(payload)
+    quick = payload["schemaVersion"] == QUICK_SCHEMA_VERSION
+    identity_label = "Titolo" if quick else "Team"
     lines = [
-        f"# Strategy Canvas — {payload['teamName']}",
+        f"# Strategy Canvas — {identity}",
         "",
-        f"**Team:** {payload['teamName']}",
+        f"**{identity_label}:** {identity}",
+        "",
+        f"**Modalità:** {'Rapida' if quick else 'Completa'}",
         "",
         f"**Objective:** {payload['objective']}",
         "",
@@ -352,17 +389,10 @@ def make_markdown(payload: dict[str, Any]) -> str:
             lines.extend(["**KPI di allerta:** non definito (opzionale)", ""])
         else:
             kpi = risk["kpi"]
-            direction = (
-                "a o sotto" if kpi["triggerDirection"] == "at_or_below" else "a o sopra"
-            )
-            lines.extend(
-                [
-                    "**KPI di allerta:** "
-                    f"{kpi['indicatorName']} ({kpi['unit']}), soglia {direction} "
-                    f"{format_value(kpi['triggerValue'])}",
-                    "",
-                ]
-            )
+            lines.extend([
+                "**KPI di allerta:** " + kpi_label(kpi),
+                "",
+            ])
         lines.append("**Iniziative:**")
         lines.append("")
         for initiative in risk["initiatives"]:
@@ -371,14 +401,18 @@ def make_markdown(payload: dict[str, Any]) -> str:
 
     lines.extend(
         [
-            "## Handoff per LinkHub",
+            "## Esercizio rapido" if quick else "## Handoff per LinkHub",
             "",
+            ("Canvas rapido formativo: i KPI non hanno soglie e non sono regole di "
+             "allarme operative. Prima del passaggio a LinkHub occorre completare il "
+             "Canvas secondo il contratto completo. Nessun record è stato creato."
+             if quick else
             "Questo documento descrive i componenti approvati nel workshop, ma non "
             "attesta che siano già stati creati in LinkHub. Gli indicatori dei KR e "
             "gli eventuali KPI devono essere selezionati o creati in piattaforma; "
             "non sono presenti `indicatorId`. I KR complementari non ricevono rischi "
             "da questo Canvas. Pesi, priorità, assignee e cadenze saranno definiti "
-            "contro lo stato reale del team nella successiva sessione operativa.",
+            "contro lo stato reale del team nella successiva sessione operativa."),
             "",
             f"Fonte metodologica: {SOURCE_URL}",
             "",
@@ -418,6 +452,9 @@ def render_pdf(payload: dict[str, Any], output_path: Path) -> None:
             "ReportLab non disponibile: installa il pacchetto Python 'reportlab'"
         ) from error
 
+    identity = canvas_identity(payload)
+    quick = payload["schemaVersion"] == QUICK_SCHEMA_VERSION
+    identity_text = f"{'Rapida' if quick else 'Team'}: {pdf_text(identity)}"
     page_width, page_height = landscape(A4)
     margin = 22.0
     gap = 10.0
@@ -475,9 +512,9 @@ def render_pdf(payload: dict[str, Any], output_path: Path) -> None:
         raise CanvasValidationError(
             "Overflow PDF: accorciare objective prima dell'export"
         )
-    if stringWidth(f"Team: {pdf_text(payload['teamName'])}", "Helvetica", 9.5) > inner_width * 0.42:
+    if stringWidth(identity_text, "Helvetica", 9.5) > inner_width * 0.42:
         raise CanvasValidationError(
-            "Overflow PDF: accorciare il nome del team prima dell'export"
+            "Overflow PDF: accorciare il titolo o nome del team prima dell'export"
         )
 
     kr_render_data = []
@@ -500,7 +537,8 @@ def render_pdf(payload: dict[str, Any], output_path: Path) -> None:
     columns_top = header_bottom - 12
     columns_bottom = 28.0
     column_height = columns_top - columns_bottom
-    column_width = (inner_width - 2 * gap) / 3
+    column_count = len(payload["risks"])
+    column_width = (inner_width - (column_count - 1) * gap) / column_count
     risk_render_data = []
     overflow_fields = []
     for index, risk in enumerate(payload["risks"]):
@@ -511,11 +549,7 @@ def render_pdf(payload: dict[str, Any], output_path: Path) -> None:
             kpi_lines = ["Nessun KPI di allerta definito (opzionale)"]
         else:
             kpi = risk["kpi"]
-            symbol = "<=" if kpi["triggerDirection"] == "at_or_below" else ">="
-            kpi_text = (
-                f"{kpi['indicatorName']} ({kpi['unit']}) {symbol} "
-                f"{format_value(kpi['triggerValue'])}"
-            )
+            kpi_text = kpi_label(kpi)
             kpi_lines = wrap(kpi_text, column_width - 26, "Helvetica", 9)
         kpi_height = 48 + len(kpi_lines) * 10.5
 
@@ -544,14 +578,14 @@ def render_pdf(payload: dict[str, Any], output_path: Path) -> None:
         pageCompression=1,
         invariant=1,
     )
-    canvas.setTitle(f"Strategy Canvas - {payload['teamName']}")
+    canvas.setTitle(f"Strategy Canvas - {identity}")
     canvas.setAuthor("LinkHub Strategy Canvas")
 
     canvas.setFillColor(HexColor("#111827"))
     canvas.setFont("Helvetica-Bold", 17)
     canvas.drawString(margin, page_height - 27, "LINKHUB STRATEGY CANVAS")
     canvas.setFont("Helvetica", 9.5)
-    canvas.drawRightString(page_width - margin, page_height - 25, f"Team: {pdf_text(payload['teamName'])}")
+    canvas.drawRightString(page_width - margin, page_height - 25, identity_text)
 
     canvas.setFillColor(HexColor("#28C6CE"))
     canvas.roundRect(margin, header_bottom, inner_width, header_height, 7, fill=1, stroke=0)
@@ -645,7 +679,8 @@ def render_pdf(payload: dict[str, Any], output_path: Path) -> None:
     canvas.drawRightString(
         page_width - margin,
         12,
-        "Handoff formativo: nessun record LinkHub creato",
+        "Rapida: KPI senza soglia, nessun record creato" if quick
+        else "Handoff formativo: nessun record LinkHub creato",
     )
     canvas.showPage()
     canvas.save()
@@ -655,10 +690,12 @@ def write_outputs(payload: dict[str, Any], output_dir: Path) -> tuple[Path, Path
     """Generate matching Markdown and PDF artifacts without unsafe overwrites."""
 
     output_dir.mkdir(parents=True, exist_ok=True)
-    stem = f"{slugify(payload['teamName'])}-strategy-canvas"
+    identity = canvas_identity(payload)
+    mode_suffix = "-quick" if payload["schemaVersion"] == QUICK_SCHEMA_VERSION else ""
+    stem = f"{slugify(identity)}-strategy-canvas{mode_suffix}"
     markdown_path = output_dir / f"{stem}.md"
     pdf_path = output_dir / f"{stem}.pdf"
-    assert_output_identity(payload["teamName"], markdown_path, pdf_path)
+    assert_output_identity(identity, markdown_path, pdf_path)
     markdown = make_markdown(payload)
 
     markdown_temp: Path | None = None
