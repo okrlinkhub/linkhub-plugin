@@ -1,0 +1,6 @@
+interface:
+  display_name: "Cluster Collaboration"
+  short_description: "Analyze and improve Cluster indicator collaborations"
+  default_prompt: "Use $cluster-collaboration to analyze my Cluster collaborations and guide confirmed OKR changes."
+policy:
+  allow_implicit_invocation: true

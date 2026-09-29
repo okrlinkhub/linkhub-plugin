@@ -1,6 +1,6 @@
 {
   "name": "linkhub",
-  "version": "0.9.3",
+  "version": "0.9.4",
   "description": "Learn and design LinkHub OKRs, complete and review reports, explain indicators, and run risk-focused operational agents.",
   "author": {
     "name": "LinkHub",
@@ -35,6 +35,8 @@
     "defaultPrompt": [
       "Guidami in un workshop Strategy Canvas e crea il PDF e il Markdown finali.",
       "Guidami nel report mensile del mio team.",
+      "Analizza e migliora le collaborazioni del mio Cluster.",
+      "Guidami nel workshop dei report dei team del mio Cluster.",
       "Guidami nella review di un report già sottomesso.",
       "Gestisci questa menzione o iniziativa come agente operativo LinkHub."
     ],

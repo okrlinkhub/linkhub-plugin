@@ -8,8 +8,9 @@ description: >-
   saper misurare) e iniziative completabili entro ~30 giorni. Usare quando l'utente
   deve impostare la prima strategia OKR di un team, definire objectives/KR da zero,
   usare linkhub-mcp per setup strategico, o chiede supporto su analisi strategica
-  misurabile. Non usare per un workshop didattico con Strategy Canvas ed export
-  PDF/Markdown senza scritture: per quello usa `linkhub-strategy-canvas`.
+  misurabile. Non usare per un workshop di collaborazioni fra i team di un
+  Cluster: usa `cluster-collaboration`. Per un workshop didattico con
+  Strategy Canvas ed export PDF/Markdown usa `linkhub-strategy-canvas`.
 ---
 
 # LinkHub Strategy Coach (MCP)

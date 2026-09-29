@@ -1,0 +1,6 @@
+interface:
+  display_name: "Cluster Report Coach"
+  short_description: "Guide a multi-team Cluster reporting workshop"
+  default_prompt: "Use $coach-cluster-report to prepare and separately submit the present Cluster teams' reports."
+policy:
+  allow_implicit_invocation: true

@@ -7,7 +7,8 @@ description: >-
   submission. Use for monthly reports, DRAFT completion, OKR review, or when the
   user asks to report a team without opening LinkHub in a browser. Do not use
   for reviewer approval after the report is IN_REVIEW; use
-  `linkhub-review-coach` for that workflow.
+  `linkhub-review-coach` for that workflow. For a multi-team Cluster reporting
+  workshop with a company-admin coach, use `coach-cluster-report`.
 ---
 
 # LinkHub Report Coach
