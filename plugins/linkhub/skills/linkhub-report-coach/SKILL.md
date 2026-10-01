@@ -112,6 +112,14 @@ Propose exactly one of:
 
 Do not pass `weightReported` to `resultTracked_upsert`. Weight changes in a draft use only `keyResults_rebalanceWeightInDraftReport` and require their own confirmed write group.
 
+Before proposing `resultTracked_upsert`, call `reports_previewTrackedResult` with
+the exact report, KR, actual, minimum objective, and maximum objective values
+that will be written. Present the returned performance score and classification
+in readable terms alongside the actual value, evidence/source, interval source,
+and any note. Use the returned classification verbatim in the write. If any of
+these values change, preview again and obtain a new confirmation. Never guess
+the classification or silently choose an interval source.
+
 Milestone corrections and the evaluation result are separate write groups. An
 approval for milestone changes never authorizes `resultTracked_upsert`.
 
@@ -174,6 +182,13 @@ Use `resultNext_skipWithDefaults` only after presenting its resolved default
 values as obiettivo minimo and obiettivo massimo and receiving confirmation.
 Otherwise use `resultNext_upsert` with the confirmed internal mapping. Recheck
 `reports_getWorkflowProgress` every one or two KRs.
+
+Before confirming `resultNext_upsert`, explain that it also updates the live
+KR's minimum and maximum objectives and records the minimum as the indicator
+forecast for the report's next target date. Show that date and these effects
+alongside the report's Next values. If the returned annual final value is zero
+because no validated yearly KR exists, identify it as a system placeholder,
+not an agreed annual objective. Do not promise that only the report changes.
 
 ## 3. Initiative hygiene
 

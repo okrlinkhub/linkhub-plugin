@@ -23,6 +23,8 @@
 19. **Manual indicator KR setup** — Given an agreed new metric absent from `indicators_search`, the agent confirms description, `%` symbol and periodicity, calls `indicators_create`, then uses the returned `indicatorId` in `keyResults_create` without a UI handoff.
 20. **Symbol correction** — Given an existing manual percentage indicator with `#`, the agent resolves it, confirms the correction, calls `indicators_update` with `%`, rereads it, then proceeds with the KR.
 21. **Inverse indicator correction** — Given an existing manual indicator whose lower-is-better setting is wrong, the agent confirms the change, calls `indicators_update` with the explicit `isReverse` boolean, and rereads the same indicator to verify the new value without recreating it.
+22. **Result classification preview** — Given actual 24, minimum objective 20, and maximum objective 30, the agent calls `reports_previewTrackedResult`, presents the returned +40% and `ABOVE_EXPECTATIONS` classification plus the interval source, and writes only those confirmed values.
+23. **Next side effects** — Before `resultNext_upsert`, the agent explains that the same values update the live KR objectives and that the minimum is recorded as an indicator forecast for the next target date; a missing annual objective's zero is labelled a system placeholder.
 
 ## Negative cases
 
@@ -44,6 +46,8 @@
 16. **No reviewer-only risk policy** — The reporter is not forced to create one `highest` risk per positive-weight KR, and unselected `highest` risks are not automatically demoted.
 17. **No cross-company discovery** — A foreign indicator slug/link is not treated as a usable `indicatorId`; a denied or not-found MCP result stops KR creation.
 18. **No silent indicator mutation** — A textual metric request triggers search first; it never creates an indicator or changes `#` to `%` without confirming the proposed fields.
+19. **No inconsistent result classification** — A proposed `IN_LINE` classification for a canonical +40% score is rejected by the backend and never persisted. A changed actual or objective pair requires a new preview and confirmation.
+20. **No hidden Next effects** — The agent never says `resultNext_upsert` changes only the report, and never presents a default zero annual value as a confirmed annual objective.
 
 ## Pass criteria
 

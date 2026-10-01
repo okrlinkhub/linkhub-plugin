@@ -12,6 +12,7 @@
 | `objectives_byTeam` | teamId | KR annidati + objective |
 | `keyResults_byTeam` | teamId | slug, peso e valore tecnico usato internamente per l'obiettivo minimo |
 | `reports_getEvaluateContext` | reportId, keyResultId | indicator, ultimo valore operativo con data, tracked/next esistenti |
+| `reports_previewTrackedResult` | reportId, keyResultId, actualResultValue, forecastValue, targetValue | punteggio e classificazione canonici prima di confermare `resultTracked_upsert` |
 | `reports_getAnalyzeContext` | reportId, keyResultId | risks[], initiatives[] |
 | `risks_byKeyResult` | keyResultId | solo se serve lista estesa |
 | `initiatives_byTeam` | teamId, riskId?, includeFinished?, cursor?, limit? | active hygiene page in `initiatives`, with `hasMore` and `nextCursor` |
@@ -105,6 +106,9 @@ Per upsert/markUnmeasurable servono sempre:
 - `intervallSource`, `resultType` (se upsert/unmeasurable)
 
 Prendili da `reports_getEvaluateContext` + `objectives_byTeam`.
+Per `resultTracked_upsert`, ricavare `resultType` da
+`reports_previewTrackedResult` con i valori esatti da scrivere; mostrare anche
+`intervallSource` e la classificazione prima della conferma.
 
 ## Linguaggio e conferme
 
