@@ -11,6 +11,38 @@ description: >-
   workshop with a company-admin coach, use `coach-cluster-report`.
 ---
 
+## Sfida time-bound del Coach OKR in /Agent
+
+Quando questa skill è eseguita in una sessione /Agent, questa sezione prevale
+sulle fasi successive di scelta team, ricerca trasversale o cambio skill.
+Output atteso: **completare e inviare il report in review (DRAFT → IN_REVIEW)**. Durata massima hard-coded: **60 minuti**.
+
+- All'inizio leggi `coach_sessionStatus`: traccia `startedAt`, dichiara la
+  partenza del countdown, durata e output atteso. Il countdown è già avviato
+  dal server: non inventare o spostare la scadenza.
+- Usa solo il team e report fissati nella sessione. Per check-in e inbox usa
+  solo gli elementi personali nell'azienda fissata. Se manca un draft, crea
+  quello del team scelto dopo la conferma richiesta dal workflow.
+- Prima di ogni passo controlla `coach_sessionStatus` e il tempo residuo.
+  Se sei in ritardo, aumenta il passo: meno approfondimenti, proposte dirette,
+  una domanda breve e priorità alle operazioni che chiudono l'output.
+  Il tempo e la pausa sono gestiti dal server; non usare pause conversazionali
+  come se fermassero il countdown.
+- Rifiuta domande generiche, altre skill, team o dati non pertinenti. Chiama
+  `coach_rejectRequest` con un motivo breve per tracciare ogni tentativo,
+  poi riporta l'utente all'obiettivo. Non invocare altre skill. Anche il
+  gateway applica una allowlist e verifica il perimetro delle entità.
+- Alla fine traccia `endedAt` e `effectiveDurationMs` restituiti dal server e
+  dichiara **success** o **fail** con un breve motivo. Non dedurre success dal
+  testo dell'utente o dall'esito di un turno: serve l'output verificato.
+  La chiusura della pagina non conclude la sfida. La pausa è utilizzabile
+  una sola volta e scade al rinnovo della quota (lunedì o primo del mese).
+- Le conferme delle scritture restano obbligatorie anche sotto pressione.
+  Non saltare verifiche né inventare misure per rispettare il tempo.
+
+Fuori da /Agent mantieni il workflow autonomo descritto di seguito: i tool
+`coach_*` sono disponibili soltanto con le credenziali di una sessione.
+
 # LinkHub Report Coach
 
 Complete the report entirely through the LinkHub MCP connection. Never require browser use for the report. Reply in the user's language; preserve LinkHub names and enum values exactly.
@@ -45,6 +77,11 @@ Follow LinkHub's workflow in this order and do not bypass it:
 3. `reports_getAnalyzeContext`
 4. analyze risks and initiatives
 5. `resultNext_skipWithDefaults` or `resultNext_upsert`
+
+In Analyze, read every `krSignals` entry returned for the report period,
+including below, in-line, above and not-evaluable measurements. Use them as
+context for the team's result; do not route KR Signals to KPI Interviewer or
+claim an unassessable measurement has a positive or negative result.
 
 ### Milestone-driven indicators
 

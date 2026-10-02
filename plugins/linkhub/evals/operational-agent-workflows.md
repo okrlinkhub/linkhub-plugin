@@ -51,3 +51,12 @@
 - Created and reused follow-ups share one deterministic finish path; incomplete pagination or ambiguous reconciliation fails visibly without another create.
 - Contact channel selection is deterministic: clear company user uses LinkHub; ambiguous identity asks the creator; confirmed external identity uses email.
 - Check-in Notes provide enough evidence for another person to understand what happened and what should happen next without reading the agent's private thread.
+
+## Inbox zero: assegnatario, menzioni escluse
+
+- Con messaggi `received` non letti e menzioni non lette, gestisce solo i messaggi di cui l’utente è assegnatario; `inbox_summary.unreadComments` conta solo questi ultimi.
+- Con zero messaggi assegnati non letti e menzioni ancora non lette, dichiara inbox zero; in /Agent usa l’esito success certificato dal server.
+- Non elenca `mentions` e non apre una conversazione presente soltanto nelle menzioni; il gateway di sessione rifiuta entrambe le richieste e registra il tentativo.
+- Segnare letta una conversazione tramite una sessione Coach aggiorna solo lo stato dei messaggi assegnati, preservando lo stato separato delle menzioni.
+
+- Con più di 200 non letti assegnati, `inbox_summary.isLimited` è true: presenta «almeno N», rilegge dopo ogni conversazione e non confonde il campione con il totale. Zero è valido solo con `isLimited` false e, in /Agent, esito server success.

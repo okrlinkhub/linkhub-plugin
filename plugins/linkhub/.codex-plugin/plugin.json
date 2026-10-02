@@ -1,6 +1,6 @@
 {
   "name": "linkhub",
-  "version": "0.9.6",
+  "version": "0.10.0",
   "description": "Learn and design LinkHub OKRs, complete and review reports, explain indicators, and run risk-focused operational agents.",
   "author": {
     "name": "LinkHub",
@@ -38,6 +38,7 @@
       "Analizza e migliora le collaborazioni del mio Cluster.",
       "Guidami nel workshop dei report dei team del mio Cluster.",
       "Guidami nella review di un report già sottomesso.",
+      "Aiutami ad affrontare un alert KPI del mio team.",
       "Gestisci questa menzione o iniziativa come agente operativo LinkHub."
     ],
     "composerIcon": "./assets/logo.png",

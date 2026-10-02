@@ -1,15 +1,42 @@
 ---
 name: lh-inbox-zero
 description: >-
-  Guida l'utente a leggere e gestire tutti i messaggi non letti nella inbox
-  LinkHub, arrivando a zero messaggi non letti. Usa sempre questa skill quando
-  l'utente vuole svuotare la inbox, leggere i messaggi LinkHub, gestire le
-  notifiche, rispondere ai commenti, o dice frasi come "inbox zero", "ho messaggi
-  non letti", "svuota inbox", "leggo i messaggi LinkHub", "ho notifiche",
-  "cosa ho in inbox", "rispondi ai messaggi". La skill carica il riepilogo,
-  mostra un messaggio alla volta, guida l'utente a rispondere o archiviare,
-  e conferma lo zero finale.
+  Guida l'utente a gestire i messaggi LinkHub non letti di cui è assegnatario
+  (inbox received), una conversazione alla volta, fino a zero. Usa questa skill
+  per "inbox zero", "svuota inbox", "ho messaggi non letti" o "rispondi ai
+  messaggi assegnati a me". Non usarla per gestire menzioni, notifiche generiche
+  o messaggi assegnati ad altri. Non includere le menzioni nel contatore.
 ---
+
+## Sfida time-bound del Coach OKR in /Agent
+
+Quando questa skill è eseguita in una sessione /Agent, questa sezione prevale
+sulle fasi successive di scelta team, ricerca trasversale o cambio skill.
+Output atteso: **portare a zero i messaggi non letti nell’azienda di cui l’utente è assegnatario (`receiverId`, inbox `received`)**. Durata massima hard-coded: **30 minuti**.
+
+- All'inizio leggi `coach_sessionStatus`: traccia `startedAt`, dichiara la
+  partenza del countdown, durata e output atteso. Il countdown è già avviato
+  dal server: non inventare o spostare la scadenza.
+- Usa solo i messaggi assegnati all’utente (`received`) nell'azienda fissata.
+- Prima di ogni passo controlla `coach_sessionStatus` e il tempo residuo.
+  Se sei in ritardo, aumenta il passo: meno approfondimenti, proposte dirette,
+  una domanda breve e priorità alle operazioni che chiudono l'output.
+  Il tempo e la pausa sono gestiti dal server; non usare pause conversazionali
+  come se fermassero il countdown.
+- Rifiuta domande generiche, altre skill, team o dati non pertinenti. Chiama
+  `coach_rejectRequest` con un motivo breve per tracciare ogni tentativo,
+  poi riporta l'utente all'obiettivo. Non invocare altre skill. Anche il
+  gateway applica una allowlist e verifica il perimetro delle entità.
+- Alla fine traccia `endedAt` e `effectiveDurationMs` restituiti dal server e
+  dichiara **success** o **fail** con un breve motivo. Non dedurre success dal
+  testo dell'utente o dall'esito di un turno: serve l'output verificato.
+  La chiusura della pagina non conclude la sfida. La pausa è utilizzabile
+  una sola volta e scade al rinnovo della quota (lunedì o primo del mese).
+- Le conferme delle scritture restano obbligatorie anche sotto pressione.
+  Non saltare verifiche né inventare misure per rispettare il tempo.
+
+Fuori da /Agent mantieni il workflow autonomo descritto di seguito: i tool
+`coach_*` sono disponibili soltanto con le credenziali di una sessione.
 
 # LH Inbox Zero
 
@@ -21,12 +48,14 @@ Rispondi nella lingua dell'utente / Reply in the user's language. Sii conciso. U
 
 ## Principi
 
+**Inbox zero non comprende le menzioni.** Vale sia in /Agent sia nel workflow autonomo: il successo dipende esclusivamente dai non letti assegnati all’utente, non dalle notifiche o dalle menzioni.
+
 1. **Una conversazione alla volta** — mai sovraccaricare l'utente.
 2. **Mostra sempre il contatore** — quante conversazioni non lette restano (`X rimaste`).
 3. **Riassumi il messaggio** — non mostrare il testo grezzo: sintetizza in 1-2 righe cosa richiede.
 4. **Proponi azioni concrete** — sempre A/B/C, mai domande aperte.
 5. **Segna come letto solo dopo decisione** — non marcare come letto prima che l'utente abbia scelto cosa fare.
-6. **Distingui tipi di inbox** — `received` (messaggi diretti), `mentions` (citazioni nei commenti). Gestisci entrambi.
+6. **Perimetro assegnatario** — usa solo `received`: i non letti sono messaggi in cui l’utente compare come assegnatario (`receiverId`). Le menzioni (`mentions`) sono fuori perimetro: non leggerle, non gestirle e non sommarle al contatore. Una menzione su un messaggio assegnato all’utente non cambia questa regola: conta solo il suo stato di lettura come assegnatario.
 
 ---
 
@@ -36,10 +65,12 @@ Esegui **in sequenza** senza chiedere nulla:
 
 ```
 1. mcp_membershipProfile          → ottieni userId, companyId
-2. inbox_summary { companyId }    → conta non letti: received + mentions
+2. inbox_summary { companyId }    → conta solo non letti assegnati: received
 ```
 
-**Se zero non letti** → rispondi:
+**Contatore limitato:** `inbox_summary` restituisce un campione bounded. Se `isLimited` è true, `unreadComments` è un limite inferiore: mostra «almeno N messaggi», non un totale esatto. Rileggi il riepilogo dopo ogni conversazione; non dichiarare zero con un campione saturato.
+
+**Se zero non letti e `isLimited` false** → rispondi:
 > «✅ Inbox Zero raggiunto! Non hai messaggi non letti su LinkHub.»
 > Fine sessione.
 
@@ -48,16 +79,14 @@ Esegui **in sequenza** senza chiedere nulla:
 ```
 📬 Inbox non letta: N messaggi
 
-  • Messaggi diretti (received): X
-  • Menzioni (mentions): Y
+  • Messaggi assegnati a te (received): N
 
-Iniziamo dai messaggi diretti. Procedo?
+Procedo con i messaggi assegnati a te?
 ```
 
 Poi carica:
 ```
 inbox_listConversations { companyId, type: "received" }
-inbox_listConversations { companyId, type: "mentions" }
 ```
 
 ---
@@ -120,24 +149,7 @@ il nome del file. Aggiungi `attachments` solo con i valori forniti dall'utente.
 
 ---
 
-## Fase 2 — Loop menzioni (`mentions`)
-
-Stessa logica della Fase 1, ma con contesto diverso nella sintesi.
-
-Per le menzioni, aggiungi il contesto:
-
-> **[X/N] Menzione da [NomeMittente]** su [tipo entità: iniziativa / KR / rischio]
-> 📝 *[Sintesi: cosa ti viene chiesto o segnalato]*
->
-> **A)** Preso nota, segna come letto
-> **B)** Voglio rispondere
-> **C)** Salta
-
-*(Per le menzioni, `inbox_markConversationAsRead` è l'azione di archiviazione)*
-
----
-
-## Fase 3 — Gestione messaggi saltati
+## Fase 2 — Gestione messaggi saltati
 
 Se ci sono conversazioni saltate (scelta C):
 
@@ -148,13 +160,13 @@ Se no → vai alla verifica finale.
 
 ---
 
-## Fase 4 — Verifica finale
+## Fase 3 — Verifica finale
 
 ```
-inbox_summary { companyId }   ← verifica zero non letti
+inbox_summary { companyId }   ← verifica zero non letti assegnati (received); ignora le menzioni
 ```
 
-**Se zero:**
+**Se zero e `isLimited` false:**
 > «🏆 **Inbox Zero raggiunto!** Tutti i messaggi sono stati gestiti.»
 
 **Se ancora ci sono non letti (es. nuovi arrivati nel frattempo):**
@@ -187,7 +199,7 @@ Esempio:
 | Conversazione con thread lungo | Leggi gli ultimi 3 messaggi per il contesto |
 | Utente vuole rispondere a tutti nello stesso modo | «Vuoi usare la stessa risposta per tutti i messaggi simili?» |
 | Più di 15 messaggi | Dopo ogni 5, chiedi «Vuoi una pausa o continuiamo?» |
-| Menzione che chiede check-in su un'iniziativa | Non eseguire check-in da questa skill: usa `lh-check-in-zero` oppure guida l'utente al flusso MCP con `checkInOutcome` e `progressNote` obbligatoria |
+| Richiesta di gestire menzioni o fare check-in | Rifiuta la richiesta fuori perimetro e torna ai messaggi assegnati; in /Agent traccia il rifiuto con `coach_rejectRequest` |
 
 ---
 
