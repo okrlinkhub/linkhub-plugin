@@ -39,6 +39,9 @@
 ## Highest-risk coverage
 
 - Every positive-weight KR must retain at least one active `highest` risk before Next validation.
+- Coverage is a minimum, not an exclusivity rule: keep any number of `highest` risks on the same KR.
+- New review risks always start at `highest`, including when the KR already has one or more `highest` risks. Ask for creation confirmation, never for the priority.
+- Creating, promoting, or selecting a `highest` risk never demotes the other risks. An omitted reference keeps its priority; only an explicit, confirmed change to that risk may lower it.
 - A proposal that demotes the last `highest` risk of a KR is incomplete until another existing risk is promoted or a new `highest` risk is explicitly confirmed for that KR.
 - Zero-weight KRs are excluded from this coverage requirement because they are outside the active next-period allocation.
 
@@ -53,5 +56,5 @@
 - Call `reviews_getCloseContext` again after any later write.
 - A close-context approval is not authorization to close. Neither is an earlier “procediamo”, a stated preferred outcome, a request to draft the note, or approval of another write group.
 - Show the exact final note, translated outcome label, and all user-visible closure effects first. Only an unambiguous affirmative answer to the dedicated question asked after that preview authorizes `reviews_close`.
-- Include all and only returned OTO candidates once. Never invent a candidate or answer outside `stable`, `growing`, `declining`.
+- If the mentee evaluation context is present, require both explicit integer 1–5 star scores even with 0 risks or initiatives. If absent, omit the evaluation. Never invent evidence or derive scores from legacy career trends.
 - Use either reviewer text notes or a valid Loom share URL as appropriate; never invent or normalize a video URL yourself.

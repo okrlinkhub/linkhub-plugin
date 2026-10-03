@@ -22,7 +22,7 @@
 6. **Truncated discovery** — A 101st team or incomplete collaboration pagination prevents coverage claims and dependent writes.
 7. **Unmeasurable report** — Missing evidence is not converted to zero; mark unmeasurable with a note and preserve honest next-period baselines.
 8. **Blocked report** — A failed weight, risk or Next validation leaves that report in draft, while other teams may continue. A confirmation for team A never submits team B.
-9. **Private OTO** — Shared display names no individual OTO candidates. The coach submit tool derives eligible candidates and stores stable with coach authorship after that team's final confirmation.
+9. **No career check-ins** — Shared display contains no individual mentee evaluations. Coach submission stores no OTO check-ins and collects no strategy/execution scores.
 10. **Check-in handoff** — Count overdue check-ins from a complete current inventory and hand them to the team without making `initiatives_checkIn` calls.
 
 ## Routing near misses

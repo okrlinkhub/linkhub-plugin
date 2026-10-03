@@ -66,8 +66,8 @@ hygiene snapshot.
 | `resultNext_skipWithDefaults` | Conferma i default già mostrati come obiettivo minimo e obiettivo massimo |
 | `resultNext_upsert` | Salva obiettivo minimo e obiettivo massimo personalizzati tramite i campi tecnici interni |
 | `reports_updateReporterNotes` | Salva nota senza submit |
-| `reports_getSubmitContext` | Elenca i candidati OTO leggibili e i valori ammessi prima del submit |
-| `reports_submit` | DRAFT → IN_REVIEW; `otoCheckins?: [{ menteeId, answer: "stable" | "growing" | "declining" }]` |
+| `reports_getSubmitContext` | Legge lo stato del report prima del submit; nessun check-in carriera |
+| `reports_submit` | DRAFT → IN_REVIEW; nessuna valutazione individuale all’invio |
 
 ## Write (milestone)
 
@@ -108,7 +108,8 @@ Per upsert/markUnmeasurable servono sempre:
 Prendili da `reports_getEvaluateContext` + `objectives_byTeam`.
 Per `resultTracked_upsert`, ricavare `resultType` da
 `reports_previewTrackedResult` con i valori esatti da scrivere; mostrare anche
-`intervallSource` e la classificazione prima della conferma.
+la provenienza degli obiettivi e la classificazione con etichette leggibili
+prima della conferma; tenere `intervallSource` interno.
 
 ## Linguaggio e conferme
 
@@ -116,7 +117,7 @@ Per `resultTracked_upsert`, ricavare `resultType` da
   `forecast*` e `target*` sono esclusivamente nomi di trasporto interni.
 - Mostrare valore operativo corrente, data e una proposta numerica prima di
   chiedere conferma del Next.
-- Mostrare effetti leggibili delle mutation; non mostrare ID o payload MCP salvo
-  richiesta esplicita.
+- Mostrare gli effetti in parole semplici; tenere sempre interni nomi di
+  strumenti, stati tecnici, ID e payload MCP, anche su richiesta esplicita.
 - Numerare localmente i rischi di ogni KR come `R1`, `R2`, ... e mantenere la
   mappatura interna fino alla fine di quel KR.

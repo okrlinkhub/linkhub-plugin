@@ -1,150 +1,122 @@
 # Esempio dialogo Coach OKR (estratto)
 
-## Apertura
+Questo esempio contiene solo la conversazione visibile. Le verifiche e le
+operazioni restano interne; ogni risultato comunicato presuppone una risposta
+verificata. I dati sono illustrativi, mai valori da usare in una sessione reale.
+Nella sessione /Agent team e periodo sono già fissati.
 
-**Coach:** Ciao! Per iniziare il reporting LinkHub: su quale team stiamo lavorando?
+## Apertura e bozza
 
-**Utente:** Centro Unico Paziente.
+**Coach:** Lavoriamo sul report di ottobre per Head of Innovation. Abbiamo
+60 minuti per completarlo e inviarlo in review.
 
-**Coach:** *(reports_listDueForUser → report: null)*
-Non c'è ancora un DRAFT per maggio — lo creo ora.
-
-*(reports_createDraft { teamId }) → reportId + slug*
-
-**Coach:** DRAFT creato (`centro-unico-paziente-2026-05`). Progresso **0/4** KR. Da quale Key Result partiamo?
-
-## Evaluate — non misurabile
-
-**Coach:** Per lo **SLA maggio**, hai il dato % ticket entro SLA?
-
-**Utente:** No, non ho dati consolidati.
-
-**Coach:** Segno il KR come **non misurabile** con nota esplicativa e passo al next con default (forecast 90, target 100). Confermi?
+**Coach:** Preparo la bozza del report di ottobre per Head of Innovation, a
+nome tuo. Non invio nulla in review. Va bene?
 
 **Utente:** Sì.
 
-*(resultTracked_markUnmeasurable → resultNext_skipWithDefaults)*
+**Coach:** La bozza è pronta. Abbiamo quattro risultati da valutare.
+Partiamo dai tempi di risposta ai ticket?
 
-## Evaluate — indicatore automatico da risolvere
+## Dati non disponibili
 
-**Utente:** Valutiamo lo SLA assegnato a Davide.
+**Utente:** Non ho ancora il dato consolidato.
 
-**Coach:** *(indicators_listExplainable { query: "Davide SLA", teamId, usage:
-"key_result", limit: 50 } → hasMore: false)* Ho trovato l’istanza LinkHub
-`sla-davide`, assegnata a Davide e usata come KR di questo team. La risolvo e
-leggo la definizione approvata.
-
-*(indicators_resolve { reference: "sla-davide" } → indicatorId;
-indicators_getExplanation → defaultMeasureKey + dimensioni)*
-
-**Coach:** *(indicators_queryEvidence summary senza measureKey → ok: true,
-resolvedMeasureKey: "sla_percentage")* Il risultato verificato usa la misura
-predefinita `sla_percentage` per l’intervallo del report.
-
-Se un breakdown restituisce `hasMore: true`, il coach ripete la stessa richiesta
-con `nextCursor` fino a copertura completa e mostra `dimensionLabel` insieme a
-`dimensionId`. Se la dimensione `team` non è approvata, si ferma: non usa
-`macro_category` come proxy.
-
-## Evaluate — indicatore con milestone
-
-**Coach:** *(reports_getEvaluateContext → hasMilestones: true; milestones_listByIndicator)*
-Per **Avanzamento progetto** risultano 3 milestone: 40% completata, 30% in
-scadenza e 30% futura. Il totale verificato da LinkHub è `achievedValue: 40`.
-La milestone *Collaudo* risulta ancora aperta: è corretto?
-
-**Utente:** No, completata il 12 agosto.
-
-**Coach:** Propongo questa modifica, senza ancora salvare il risultato del KR:
-`milestones_complete { milestoneId: "...", achievedAtIso: "2026-08-12" }`.
-Confermi?
+**Coach:** Per questo mese possiamo indicare il risultato come non misurabile,
+con la nota «Dato del mese non ancora consolidato». Va bene?
 
 **Utente:** Sì.
 
-*(mcp_resolveIsoDate → milestones_complete → milestones_listByIndicator)*
+**Coach:** Salvato. L'ultimo valore disponibile è 92%, riferito al 31 agosto.
+Per il prossimo periodo propongo obiettivo minimo 90% e obiettivo massimo 100%,
+in base ai dati disponibili e alle iniziative concordate. Questi valori
+aggiornano anche gli obiettivi attuali del risultato; il 90% sarà la previsione
+per il 31 ottobre. Confermi o vuoi modificarli?
 
-**Coach:** Ora LinkHub restituisce `achievedValue: 70`. Propongo quindi
-`resultTracked_upsert` con `actualResultValue: 70`; questa è una scrittura
-separata. Confermi?
+**Utente:** Confermo.
+
+## Indicatore automatico
+
+**Utente:** Valutiamo i tempi di risposta seguiti da Davide.
+
+**Coach:** Ho trovato l'indicatore di Davide usato dal team. Misura la
+percentuale di ticket risposti entro il tempo concordato. Per settembre risulta
+94%, rispetto al 92% di agosto. Sono esclusi i ticket annullati. Il risultato è
+sopra le aspettative, con un punteggio del 40% rispetto agli obiettivi del
+periodo. Salvo il 94% con questo esito e la nota «Miglioramento rispetto ad
+agosto»? Gli obiettivi usati sono minimo 90% e massimo 100%.
 
 **Utente:** Sì.
 
-*(resultTracked_upsert → resultNext_skipWithDefaults)*
+## Tappe di progetto
 
-## Analyze — rischio risolto
+**Coach:** Per Avanzamento progetto ci sono tre tappe: progettazione, 40%,
+completata; collaudo, 30%, ancora da completare; consegna, 30%, ancora da
+completare. Il totale è 100%, di cui 40% completato e 60% da completare.
+Il collaudo risulta ancora aperto: è corretto?
 
-**Coach:** *(reports_getAnalyzeContext, dopo il tracciamento del risultato)*
-Prima di modificare rischi o passare al Next, questi sono i rischi con priorità
-`highest` per *Sviluppi Chiave*:
+**Utente:** No, completato il 12 settembre.
 
-- *Non completo sviluppi CIO KD-126/KD-129*
-- *Dipendenza dal collaudo del fornitore*
+**Coach:** Segno il collaudo come completato il 12 settembre. Per ora non
+salvo il risultato nel report. Confermi?
 
-Confermi sia che sono i rischi più rilevanti per spiegare il risultato al
-reviewer, sia che la priorità `highest` è corretta per entrambi?
+**Utente:** Sì.
 
-**Utente:** Sì. Il primo però è risolto.
+**Coach:** La tappa è aggiornata. Ora l'avanzamento verificato è 70%.
+Per il report gli obiettivi sono minimo 70% e massimo 90%: il risultato è
+in linea con le aspettative, con punteggio 0%. Salvo il 70% con questo esito?
 
-**Coach:** `reports_getAnalyzeContext` ha restituito l'identificatore
-`riskToRemove._id` per *Non completo sviluppi CIO KD-126/KD-129*. Propongo di
-chiuderlo con questo payload esatto:
+**Utente:** Sì.
 
-```text
-risks_remove { riskId: riskToRemove._id }
-```
+## Rischio risolto
 
-Confermi?
+**Coach:** Per Sviluppi Chiave i rischi con priorità massima sono:
 
-**Utente:** Confermo.
+- R1: ritardo negli sviluppi concordati;
+- R2: dipendenza dal collaudo del fornitore.
 
-*(risks_remove { riskId: riskToRemove._id } → reports_getAnalyzeContext)*
+Sono quelli più importanti per spiegare il risultato? Confermi anche la
+priorità massima per entrambi?
 
-**Coach:** L'elenco aggiornato dei rischi `highest` contiene solo *Dipendenza dal
-collaudo del fornitore*. Confermi nuovamente elenco e priorità? Dopo la conferma
-lo terrò tra i candidati per la nota al reviewer; restano anche 2 iniziative
-collegate da rivedere.
+**Utente:** Il primo è risolto.
 
-**Utente:** Confermo.
-
-## Iniziativa — assignee + commento
-
-**Coach:** Per *APP AM non testata*: ti assegno l'iniziativa e lasci un commento a Mirko Longo (non è nel team)?
-
-**Utente:** Sì, assegna a me.
-
-*(teams_listMembers → initiatives_create con assignmentCommentReceiverId)*
-
-## Chiusura
-
-**Coach:** Tutti e 4 i KR sono completi. Ecco la **nota al reviewer** che propongo — la modifichi o invio?
-
-Rischi `highest`:
-
-- Dipendenza dal collaudo del fornitore
-- Disponibilità limitata del team integrazioni
-
-*(mostra le altre sezioni di reporterNotes; la lista contiene solo i nomi di
-massimo 3 rischi confermati)*
-
-**Utente:** Va bene, submit.
-
-*(reports_getSubmitContext → Davide Campofranco, defaultAnswer: "stable")*
-
-**Coach:** Prima dell'invio registro il check-in OTO di Davide come stabile. Payload finale separato:
-
-```json
-{
-  "reportId": "<reportId>",
-  "otoCheckins": [
-    { "menteeId": "<davideUserId>", "answer": "stable" }
-  ]
-}
-```
-
-Confermi questo submit definitivo?
+**Coach:** Rimuovo il rischio R1, «ritardo negli sviluppi concordati».
+Confermi la rimozione?
 
 **Utente:** Confermo.
 
-*(reports_submit con il payload mostrato)*
+**Coach:** Il rischio è stato rimosso. Rimane R2, «dipendenza dal collaudo del
+fornitore», con priorità massima. Confermi elenco e priorità aggiornati?
 
-**Coach:** Report in **IN_REVIEW**. Il reviewer riceverà email con la nota. Prossimo passo: attendere review o aprire dashboard report.
+**Utente:** Confermo.
+
+## Nota e invio separato
+
+**Coach:** Tutti e quattro i risultati sono completi. Propongo questa nota:
+«I tempi di risposta migliorano e il collaudo è completato. Resta da gestire
+la dipendenza dal collaudo del fornitore. Nel prossimo periodo puntiamo a
+mantenere i tempi di risposta e completare la consegna». La salvo senza
+inviare ancora il report. Va bene?
+
+**Utente:** Sì, poi invia.
+
+**Coach:** La nota è salvata. Il report passerà in review. Le valutazioni di strategia ed esecuzione avverranno alla chiusura, se il reviewer è anche mentor del team leader. Confermi l’invio del report con la nota appena approvata?
+
+**Utente:** Confermo.
+
+**Coach:** Il report è in review. Ora è pronto per chi deve valutarlo.
+
+## Limiti che cambiano il prossimo passo
+
+Se non è possibile verificare la bozza e manca un modo sicuro per prepararla:
+
+**Coach:** Non riesco a vedere se hai già una bozza. Per evitare di crearne
+una seconda, mi fermo prima di prepararla.
+
+Se il team e il report sono già verificati, un problema nella ricerca generale
+non richiede un messaggio: il coach continua sul report scelto.
+
+Se mancano dati necessari per confermare i rischi:
+
+**Coach:** Non riesco a verificare l'elenco completo dei rischi. Prima di
+modificarli o pianificare il prossimo periodo, dobbiamo avere l'elenco completo.

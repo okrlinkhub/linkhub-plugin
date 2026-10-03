@@ -1,81 +1,81 @@
 {
   "schemaVersion": 1,
   "plugin": "linkhub",
-  "version": "0.10.0",
-  "tag": "v0.10.0",
+  "version": "0.10.4",
+  "tag": "v0.10.4",
   "sourceRepository": "okrlinkhub/linkhub-w4",
-  "sourceSha": "e66aefd6f8d7736193bb0e4ee4991e677743f178",
+  "sourceSha": "03d3bb3d1168ac9feeb53ef16f44fa5f3f1091ed",
   "distributionRepository": "okrlinkhub/linkhub-plugin",
   "skills": [
     {
       "name": "cluster-collaboration",
-      "filename": "cluster-collaboration-v0.10.0.zip",
+      "filename": "cluster-collaboration-v0.10.4.zip",
       "size": 9309,
       "sha256": "b8d74ca47ef1d37acd7a855daacae629fc367b36e86d55ee9155a69c313a15b9"
     },
     {
       "name": "coach-cluster-report",
-      "filename": "coach-cluster-report-v0.10.0.zip",
-      "size": 6938,
-      "sha256": "cc210427cc0269d0441e99967419c74ff0d4e37227bb19931f2da7e763c4d73d"
+      "filename": "coach-cluster-report-v0.10.4.zip",
+      "size": 6986,
+      "sha256": "2ea9a6a9148618420cc76204ace9b23b3c9dd0c7c6e3c0362f6bbc172c1b949a"
     },
     {
       "name": "lh-check-in-zero",
-      "filename": "lh-check-in-zero-v0.10.0.zip",
-      "size": 15373,
-      "sha256": "67535afcb04a9fa4eb14fac193b2afcd8f054bc06e847cf918dd1e013d339075"
+      "filename": "lh-check-in-zero-v0.10.4.zip",
+      "size": 20237,
+      "sha256": "b95c9f06176f25d8a6ceb6cd6f5947ab58558f0f8569623ac88d880998346e9b"
     },
     {
       "name": "lh-execution",
-      "filename": "lh-execution-v0.10.0.zip",
+      "filename": "lh-execution-v0.10.4.zip",
       "size": 5893,
       "sha256": "df8e46dfa6409d822f8f34618a8592b3a14d0cfdc9e22179631cff6a09e1ea67"
     },
     {
       "name": "lh-inbox-zero",
-      "filename": "lh-inbox-zero-v0.10.0.zip",
+      "filename": "lh-inbox-zero-v0.10.4.zip",
       "size": 11421,
       "sha256": "fb25543179a2d11d972059f67a0dd5cbf8f738af11abfb580821b5fd863383a2"
     },
     {
       "name": "linkhub-indicator-analyst",
-      "filename": "linkhub-indicator-analyst-v0.10.0.zip",
+      "filename": "linkhub-indicator-analyst-v0.10.4.zip",
       "size": 2720,
       "sha256": "27e52ead6cb6ec8c05f1c41c24e0ca913200883bbebb3bdd840c059abcd054d2"
     },
     {
       "name": "linkhub-kpi-interviewer",
-      "filename": "linkhub-kpi-interviewer-v0.10.0.zip",
-      "size": 3283,
-      "sha256": "a5435f5a54359f681d345b7abb902367ac57b946d9c910300aba59165275e44f"
+      "filename": "linkhub-kpi-interviewer-v0.10.4.zip",
+      "size": 4278,
+      "sha256": "4bafd3ae77859613cd725506513fdb3b077b4a1959b67cdb4cca1cf9517dc438"
     },
     {
       "name": "linkhub-operational-agent",
-      "filename": "linkhub-operational-agent-v0.10.0.zip",
+      "filename": "linkhub-operational-agent-v0.10.4.zip",
       "size": 23090,
       "sha256": "d6a485cd7d67f531d22d2384bc8c4c5e3bf73656a7311c11f1ee3601ee658596"
     },
     {
       "name": "linkhub-report-coach",
-      "filename": "linkhub-report-coach-v0.10.0.zip",
-      "size": 30681,
-      "sha256": "a58264bcfbf3ecdd41baa6e3392aded06cf70f9b50123e992cf8c26fd07955d9"
+      "filename": "linkhub-report-coach-v0.10.4.zip",
+      "size": 36421,
+      "sha256": "011173f5c7bb15749a2d064bd8bfdced648da40ad039774ea710b9fee32c27c0"
     },
     {
       "name": "linkhub-review-coach",
-      "filename": "linkhub-review-coach-v0.10.0.zip",
-      "size": 32625,
-      "sha256": "e75171088c274551d16afa6d41bff7eb70dcfcd6efd15ce5d955a352a5744b6c"
+      "filename": "linkhub-review-coach-v0.10.4.zip",
+      "size": 42655,
+      "sha256": "c12a0f641a64b023a4307f80b5ef70d5150bb923820918841afce74aca101d97"
     },
     {
       "name": "linkhub-strategy-canvas",
-      "filename": "linkhub-strategy-canvas-v0.10.0.zip",
+      "filename": "linkhub-strategy-canvas-v0.10.4.zip",
       "size": 52013,
       "sha256": "5a8f56da35a08362c3b3ff33cd10d3908e12027c16cac4058316bf0bb5a9c50c"
     },
     {
       "name": "linkhub-strategy-coach",
-      "filename": "linkhub-strategy-coach-v0.10.0.zip",
+      "filename": "linkhub-strategy-coach-v0.10.4.zip",
       "size": 28903,
       "sha256": "078b16f458dc4d90eb90b51f66836dd250e52b42f6c54a52086a1a2f189ad2ed"
     }

@@ -11,11 +11,63 @@ description: >-
   workshop with a company-admin coach, use `coach-cluster-report`.
 ---
 
+## Linguaggio della conversazione
+
+Questa regola vale per tutte le risposte, le conferme, i riepiloghi e le note,
+anche nelle sessioni a tempo, e prevale sulle indicazioni successive su cosa
+mostrare. Parla come un collega che aiuta a compilare il report, fare la review
+o aggiornare le iniziative. Nelle sessioni in italiano usa italiano semplice;
+nelle altre lingue usa etichette altrettanto comprensibili.
+
+- Non nominare mai strumenti, funzioni, campi, identificativi, codici di errore
+  o dettagli del collegamento, inclusi nomi di database come ClickHouse. I nomi tecnici in questa skill servono solo alle
+  chiamate interne: non copiarli nella conversazione, nemmeno se manca una
+  funzione o se l'utente chiede dettagli tecnici.
+- Evita gergo come “idempotente”, “payload”, “scrittura”, “mutazione”, “enum”,
+  “backend”, “allowlist”, “query” e “snapshot”. Spiega l'effetto concreto:
+  “preparo”, “salvo”, “aggiorno”, “invio”. Conserva i nomi leggibili di team,
+  persone, indicatori e iniziative. I riferimenti locali R1/I1 sono ammessi
+  per scegliere un elemento: non sono identificativi interni.
+- Traduci stati e priorità in minuscolo: `DRAFT` → “bozza”, `OVERDUE` → “in
+  ritardo”, `IN_REVIEW` → “in review”, `CLOSED_*` → “chiuso” con l'esito;
+  `highest` → “massima”, `high` → “alta”, `medium` → “media”, `low` → “bassa”,
+  `lowest` → “minima”. Per gli esiti usa “sopra le aspettative”, “in linea con
+  le aspettative”, “sotto le aspettative”; per l'andamento delle persone
+  “stabile”, “in crescita”, “in calo”. Mantieni i valori originali solo nelle
+  chiamate interne. Per la sfida comunica “obiettivo raggiunto” o “obiettivo
+  non raggiunto”, solo dopo averne verificato l'esito.
+- Se una lettura manca o fallisce, spiega il limite solo quando cambia la
+  decisione o impedisce di proseguire: “Non riesco a verificare questo dato;
+  per ora non lo considero confermato”. Se hai già il contesto necessario,
+  prosegui senza descrivere il problema. Non inventare risultati o aggirare
+  controlli, permessi e limiti di completezza per evitare una spiegazione.
+- Se non puoi verificare se esiste già una bozza, non promettere di crearne
+  una nuova alla cieca. Usa il contesto verificato della sessione; prepara o
+  recupera la bozza solo attraverso l'operazione prevista e dopo conferma.
+  Se non puoi farlo in sicurezza, spiega il limite e fermati su quel passaggio.
+- Prima di salvare, mostra tutti gli effetti in una frase naturale con nomi,
+  periodo, valori, nota e destinatari pertinenti, poi attendi un sì esplicito.
+  Una conferma vale per quella proposta invariata; l'invio in review o la
+  chiusura richiedono la loro conferma finale separata. Dopo l'operazione
+  comunica il risultato solo se verificato.
+
+### Esempi di frasi sbagliate e giuste
+
+Le frasi sbagliate sono esempi da evitare, mai risposte da riprodurre.
+
+| Sbagliato | Giusto |
+| --- | --- |
+| “`companies_list` e `reports_listDueForUser` non sono disponibili.” | Se team e periodo sono già verificati: “Lavoriamo sul report di ottobre per Head of Innovation”. Se manca la verifica della bozza: “Non riesco a vedere se hai già una bozza”. |
+| “Prima scrittura: creo il report DRAFT. L'operazione è idempotente.” | “Preparo la bozza del report di ottobre per Head of Innovation, a nome tuo. Non invio nulla in review. Va bene?” |
+| “Il payload di `reviews_close` usa `IN_LINE`.” | “Invio questa nota e chiudo il report con esito in linea con le aspettative. Confermi?” |
+| “Iniziativa OVERDUE; imposto `checkInOutcome: started`.” | “L'iniziativa è in ritardo. Salvo che è iniziata, con questa nota e il prossimo check-in il 9 ottobre. Va bene?” |
+| “Errore di query: `ok: false`.” | “Non riesco a verificare il risultato di questo mese. Possiamo indicarlo come non misurabile, spiegando il motivo”. |
+
 ## Sfida time-bound del Coach OKR in /Agent
 
 Quando questa skill è eseguita in una sessione /Agent, questa sezione prevale
 sulle fasi successive di scelta team, ricerca trasversale o cambio skill.
-Output atteso: **completare e inviare il report in review (DRAFT → IN_REVIEW)**. Durata massima hard-coded: **60 minuti**.
+Output atteso: **completare e inviare il report in review**. Durata massima hard-coded: **60 minuti**.
 
 - All'inizio leggi `coach_sessionStatus`: traccia `startedAt`, dichiara la
   partenza del countdown, durata e output atteso. Il countdown è già avviato
@@ -33,11 +85,11 @@ Output atteso: **completare e inviare il report in review (DRAFT → IN_REVIEW)*
   poi riporta l'utente all'obiettivo. Non invocare altre skill. Anche il
   gateway applica una allowlist e verifica il perimetro delle entità.
 - Alla fine traccia `endedAt` e `effectiveDurationMs` restituiti dal server e
-  dichiara **success** o **fail** con un breve motivo. Non dedurre success dal
-  testo dell'utente o dall'esito di un turno: serve l'output verificato.
+  comunica “obiettivo raggiunto” o “obiettivo non raggiunto” con un breve
+  motivo. Non dedurre success dal testo dell'utente o dall'esito di un turno: serve l'output verificato.
   La chiusura della pagina non conclude la sfida. La pausa è utilizzabile
   una sola volta e scade al rinnovo della quota (lunedì o primo del mese).
-- Le conferme delle scritture restano obbligatorie anche sotto pressione.
+- Le conferme prima di salvare restano obbligatorie anche sotto pressione.
   Non saltare verifiche né inventare misure per rispettare il tempo.
 
 Fuori da /Agent mantieni il workflow autonomo descritto di seguito: i tool
@@ -45,14 +97,14 @@ Fuori da /Agent mantieni il workflow autonomo descritto di seguito: i tool
 
 # LinkHub Report Coach
 
-Complete the report entirely through the LinkHub MCP connection. Never require browser use for the report. Reply in the user's language; preserve LinkHub names and enum values exactly.
+Complete the report entirely through the LinkHub MCP connection. Never require browser use for the report. Reply in the user's language; preserve readable LinkHub names and translate user-facing states; enum values remain internal.
 
 If the selected report is already `IN_REVIEW`, stop this workflow and route to `linkhub-review-coach`; reporter tools must not be used to simulate reviewer decisions.
 
 ## Safety contract
 
 - Reads may run automatically.
-- Before every logical group of writes, show its complete user-visible effects in readable business terms and wait for explicit confirmation. Keep record IDs, transport fields, and raw MCP payloads hidden unless the user asks for them.
+- Before every logical group of writes, show its complete user-visible effects in readable business terms and wait for explicit confirmation. Keep record IDs, transport fields, and raw MCP payloads hidden including when requested.
 - A clear confirmation of the displayed proposal authorizes its immediate write. Never ask a second confirmation merely to repeat the same decision as JSON, IDs, or tool syntax. A confirmation covers only the displayed group; if its user-visible effects change, ask again.
 - `reports_submit` always requires a new, separate confirmation immediately before the call. Never include it in an earlier approval.
 - Never invent a number, date, cause, SQL expression, measure, dimension, or catalog metric.
@@ -60,13 +112,14 @@ If the selected report is already `IN_REVIEW`, stop this workflow and route to `
 
 ## 1. Open the report
 
-Read `mcp_membershipProfile`, `companies_list`, and `reports_listDueForUser`. If several teams or reports match, present the choices and ask the user to select one. Create a missing draft with `reports_createDraft` only after describing the team, reporting period, and resulting draft in readable terms and receiving confirmation.
+Outside a timed /Agent session, read `mcp_membershipProfile`, `companies_list`, and `reports_listDueForUser`. In /Agent use the fixed session context instead; do not require unavailable cross-team discovery tools. If several teams or reports match, present the choices and ask the user to select one. Create a missing draft with `reports_createDraft` only after describing the team, reporting period, and resulting draft in readable terms and receiving confirmation.
 
 Load `reports_getWorkflowProgress` and one team snapshot with `objectives_byTeam`, `keyResults_byTeam`, `initiatives_byTeam`, and `initiatives_listMinePending`. Do not fan out risk reads for every KR.
 Use the active default of `initiatives_byTeam` and read records from its
 `initiatives` field. Follow `nextCursor` with unchanged filters while `hasMore`
-is true before treating the hygiene snapshot as complete; fail visibly if a
-cursor is missing, repeated, or a page fails.
+is true before treating the hygiene snapshot as complete; stop if a
+cursor is missing, repeated, or a page fails. Say only that the initiative list
+cannot be verified completely; do not expose pagination mechanics.
 
 ## 2. Work through each KR
 
@@ -89,8 +142,9 @@ When the evaluate context says `hasMilestones: true`, always call
 `milestones_listByIndicator` before proposing the evaluation result.
 
 1. Show every milestone's description, percentage `value`, status, planned
-   date, and achieved date, followed by `totalValue`, `achievedValue`, and
-   `pendingValue` from the tool response.
+   date, and achieved date, followed by the totals returned as `totalValue`,
+   `achievedValue`, and `pendingValue`, labelled “totale”, “completato” and
+   “da completare”. Translate the milestone states; keep field names internal.
 2. Ask whether the milestone state is correct. Never calculate or silently
    repair the totals yourself, and never interpret an empty milestone list as
    zero progress.
@@ -102,16 +156,24 @@ When the evaluate context says `hasMilestones: true`, always call
 4. Treat `milestones_remove` as a destructive correction: identify the
    milestone and explain that it will be removed, then obtain a separate,
    explicitly highlighted confirmation. Keep IDs and the raw payload hidden
-   unless requested. Do not substitute a removal when the user only needs
+   including when requested. Do not substitute a removal when the user only needs
    `milestones_reopen`.
 5. After any milestone write, call `milestones_listByIndicator` again. Use only
    the returned `summary.achievedValue` as the verified LinkHub milestone value.
 6. Perform `resultTracked_upsert` only after the final milestone reread so the
    report snapshot captures the confirmed state.
 
+For a replacement, prefer `milestones_update` on the existing milestone and
+preserve fields not included in the confirmed proposal. These tools use the
+current user's MCP permissions; team-leader status alone does not grant milestone
+write access. If the backend denies permission, explain that the current user
+cannot edit this indicator's milestones; do not impersonate another user or
+claim success. Do not describe milestones as read-only when the write tools are
+available. Limit writes to indicators linked to the session's fixed team.
+
 If an indicator is both milestone-driven and automated, collect both LinkHub
 milestone evidence and the approved ClickHouse evidence below, present them
-separately, and ask the user which source should drive `actualResultValue`.
+separately as “tappe di progetto” and “dati di misurazione”, and ask the user which source should drive `actualResultValue`.
 Never choose a precedence silently.
 
 ### Automatic indicator evidence
@@ -119,23 +181,24 @@ Never choose a precedence silently.
 For each KR, inspect the evaluate context. If its indicator is automated:
 
 1. Call `indicators_getExplanation`.
-2. Show the definition, inclusions, exclusions, caveats, binding state, default measure/dimension keys, and approved reference period.
+2. Show the definition, inclusions, exclusions, caveats, data availability and approved reference period. Describe what is measured and how results are grouped in business terms; keep binding details and measure/dimension keys internal.
 3. When `queryReady` is true and a reference period exists, call `indicators_queryEvidence` with `summary`, then `compare_previous_period`, using that exact half-open interval and the returned `resolvedMeasureKey`.
 4. Call `latest_available_period` only when LinkHub did not provide a reference period.
 5. Use `breakdown` or `trend` only for a visible anomaly or an explicit user question. Follow `nextCursor` while `hasMore` when complete coverage is required; show `dimensionLabel` and retain `dimensionId`.
 6. Use `indicators_search` or `indicators_resolve` to discover manual and automated LinkHub indicator instances; `indicators_listExplainable` narrows to automated evidence. Use `indicators_searchCatalog` and then `indicators_queryCatalogEvidence` only for a specific question involving a different analytic metric. Pass the exact returned `namespace` and `metricKey`.
-7. Never substitute a missing dimension with `macro_category` or another proxy that the explanation did not approve. Treat `ok: false` as unavailable evidence and show the diagnostic code.
+7. Never substitute a missing dimension with `macro_category` or another proxy that the explanation did not approve. Treat `ok: false` as unavailable evidence and explain only the relevant measurement limitation in simple words; keep the diagnostic code internal.
 
 Before proposing an evaluation write, present:
 
 - LinkHub indicator and KR;
-- ClickHouse value and exact interval;
+- verified measurement value and exact period, with the source labelled
+  “dati di misurazione” in Italian; never name the database;
 - previous-period comparison;
 - definition and applicable caveats;
 - whether rows were empty or truncated.
 
 For a milestone-driven indicator, also present the final LinkHub milestone
-summary and identify it as LinkHub evidence rather than ClickHouse evidence.
+summary labelled “tappe di progetto”, separately from the “dati di misurazione”.
 
 If the explanation is missing, orphaned, not query-ready, or returns no rows, use only existing LinkHub values that are explicitly present in the report context. Otherwise propose `resultTracked_markUnmeasurable` with an honest note. Never translate an empty result into zero.
 
@@ -169,7 +232,7 @@ write or Next proposal:
 1. Verify that the risk list is complete before filtering it. The current
    `reports_getAnalyzeContext` contract returns at most 300 active risks and has
    no cursor. When it returns exactly 300 risks, treat the result as potentially
-   truncated: explain that MCP cannot guarantee a complete list and stop before
+   truncated: explain that you cannot verify the complete risk list and stop before
    confirmation, Analyze writes, or Next. Do not use `risks_byKeyResult` as a
    pagination substitute; it also has no cursor and returns at most 200 risks.
 2. Show a concise list of every current-KR risk whose priority is exactly
@@ -191,6 +254,13 @@ Then ask whether observed risks still explain the gap. Propose removals, new
 risks, initiative check-ins, or new initiatives as one clearly scoped write
 group. Before creating an initiative, call `teams_listMembers`; resolve calendar
 dates with `mcp_resolveIsoDate`. Never duplicate an existing initiative.
+
+Multiple risks of the same KR may have priority `highest` together. Creating or
+promoting a risk never lowers the other risks' priorities; omission from the
+confirmed list or the reporter-note shortlist is not a request to demote a risk.
+Change only priorities the user explicitly requested and confirmed. The
+reviewer's minimum highest-risk coverage requirement does not apply to this
+reporter workflow.
 
 ### Plan the next period
 
@@ -245,9 +315,10 @@ Include only:
   the next period;
 - when useful, initiatives added or changed and the outcome they should produce.
 
-Keep ClickHouse intervals, evidence diagnostics, MCP mechanics, internal IDs,
-payload fields, check-in mechanics, and tool outcomes in the conversation, not
-in the reporter note. Do not cite a ClickHouse number that was not returned
+Keep evidence diagnostics, MCP mechanics, internal IDs and payload fields
+internal. Explain measurement periods, limits and saved changes in simple words
+only when relevant to the user; omit them from the reporter note unless a
+measurement limitation materially changes its interpretation. Do not cite a ClickHouse number that was not returned
 successfully. If more than three `highest` risks qualify, show the numbered
 candidates and ask which three best explain the results; never choose silently.
 Save with `reports_updateReporterNotes` only after confirmation.
@@ -256,22 +327,18 @@ Save with `reports_updateReporterNotes` only after confirmation.
 
 Read `reports_getWorkflowProgress`, `objectives_byTeam`, and `keyResults_byTeam`. Verify all KRs are complete, weights total 100%, no KR is orphaned, overdue initiatives are handled, and reporter notes are saved.
 
-Call `reports_getSubmitContext` immediately before proposing the submit payload.
-For every returned OTO candidate, show the readable `userName` and encode exactly
-one item as `{ menteeId, answer }`. The only allowed answers are:
+Call `reports_getSubmitContext` immediately before proposing submission. Submission no longer collects OTO/career check-ins. Do not ask for a career trajectory or submit an OTO payload.
 
-- `stable`: stable career/role trajectory;
-- `growing`: growing career/role trajectory;
-- `declining`: declining career/role trajectory.
-
-Use the returned `defaultAnswer` only when the user has not stated a different
-trend. Include every candidate returned by the context, exactly as the LinkHub UI
-does. If there are no candidates, omit `otoCheckins` rather than inventing one.
+Strategy and execution evaluations belong to review closure, only when the reviewer also mentors the team leader. For that workflow use [the review coach](../linkhub-review-coach/SKILL.md); do not rate the mentee or collect closure scores during submission.
 
 Then show every user-visible submission effect in readable terms and ask a
 dedicated final question without exposing IDs or tool syntax. Call
-`reports_submit` only after that separate confirmation. Report the returned
-status and any remaining follow-up.
+`reports_submit` only after that separate confirmation. Report the verified returned
+status using the lowercase mapping in “Linguaggio della conversazione” and any
+remaining follow-up. For an unlisted state, describe only its verified business
+effect in simple words, without copying the raw value. If that effect is unclear,
+say “Non riesco a confermare lo stato del report” and do not claim submission
+succeeded or invent a translated status.
 
 ## References
 

@@ -10,7 +10,7 @@ description: >-
 
 # Workshop report del Cluster
 
-Rispondi nella lingua del gruppo. Il coach è admin company con OAuth personale. I report vanno al normale reviewer, il Cluster Leader. Il team del Cluster Leader rendiconta nel workshop del proprio Cluster e resta fuori da questo inventario. Non mostrare sullo schermo condiviso nomi, trend o altre valutazioni individuali OTO.
+Rispondi nella lingua del gruppo. Il coach è admin company con OAuth personale. I report vanno al normale reviewer, il Cluster Leader. Il team del Cluster Leader rendiconta nel workshop del proprio Cluster e resta fuori da questo inventario. Non mostrare sullo schermo condiviso valutazioni individuali del mentee.
 
 ## 1. Apri il workshop
 
@@ -34,7 +34,7 @@ Per indicatori automatici usa `indicators_getExplanation` e `indicators_queryEvi
 
 Prepara una nota breve per il Cluster Leader con risultati confermati, limiti di misura, fino a tre rischi `highest` scelti dal team e focus successivo. Mostrala prima di `reports_updateReporterNotes`. Presenta poi **il report completo del singolo team** al gruppo: KR, pesi del periodo chiuso, risultati e non misurabili, rischi, iniziative, obiettivi minimo/massimo, nota e stato di completezza. Raccogli consenso collettivo sulla versione mostrata. Se negato, conserva la bozza e risolvi le obiezioni; non inviare.
 
-Per quel team chiedi una **nuova conferma finale di invio**, distinta dal consenso alle modifiche e dalle conferme degli altri team. Dichiara che l'invio mette il report in revisione e registra automaticamente `stable` per gli eventuali candidati OTO idonei, con il coach come autore, senza mostrarne i dati individuali. Solo dopo un sì esplicito chiama `workshops_submitTeamReport` per il report corrente. Rileggi l'inventario e comunica lo stato restituito. Un report bloccato non impedisce di lavorare sulle altre bozze, ma non va dichiarato inviato. Per una bozza ripresa, rileggi progress e dati attuali prima di nuove proposte; non riutilizzare vecchie conferme.
+Per quel team chiedi una **nuova conferma finale di invio**, distinta dal consenso alle modifiche e dalle conferme degli altri team. Dichiara che l'invio mette il report in revisione. Non raccogliere né registrare check-in carriera o valutazioni del mentee durante l'invio; le due valutazioni sono riservate alla chiusura da parte del reviewer che è anche mentor del team leader. Solo dopo un sì esplicito chiama `workshops_submitTeamReport` per il report corrente. Rileggi l'inventario e comunica lo stato restituito. Un report bloccato non impedisce di lavorare sulle altre bozze, ma non va dichiarato inviato. Per una bozza ripresa, rileggi progress e dati attuali prima di nuove proposte; non riutilizzare vecchie conferme.
 
 ## 5. Consegna operativa
 
