@@ -80,3 +80,13 @@ sessioni a tempo. Le chiamate interne corrette restano parte della verifica.
 - Le note storiche restano intatte; nessun aggiornamento retroattivo delle note.
 - Un rinnovo della skill durante una conversazione aperta ripropone soltanto
   Rimanda/Completa anche se la cronologia contiene vecchie scelte.
+
+## Orari della sfida (WZ-1813)
+
+- Positivo: per la partenza del 04/10/2026 alle 06:35 UTC, con fuso
+  Europe/Rome, dichiarare “dalle 08:35 alle 09:05” usando `startedAtLocal`
+  e `deadlineLocal` verificati, con data `04/10/2026` se necessaria.
+- Contestuale: una sessione già aperta segue la stessa regola dopo un
+  cambio di fuso e rispetta il cambio dell’ora legale.
+- Negativo: non mostrare UTC, ISO o timestamp; non spostare la scadenza,
+  non fermare il countdown e non saltare la conferma prima di salvare.

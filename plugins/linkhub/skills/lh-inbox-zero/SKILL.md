@@ -8,13 +8,55 @@ description: >-
   o messaggi assegnati ad altri. Non includere le menzioni nel contatore.
 ---
 
+## Conferme solo in chat nel Coach OKR
+
+Questa regola riguarda il Coach OKR su web e mobile. Nel Coach integrato,
+prima di fare la domanda di conferma, prepara tutti gli argomenti e invoca
+una volta lo strumento di scrittura: il server registra la proposta senza
+applicarla e mostra direttamente in chat gli effetti esatti e la domanda di
+conferma, in italiano semplice. Non sostituire o ripetere quel riepilogo e
+quella domanda: termina il turno e attendi il sì. Nel turno successivo ripeti esattamente la stessa chiamata: solo la proposta
+invariata
+verrà applicata, senza una seconda domanda. Questa preparazione non è
+un salvataggio e non va presentata come un risultato.
+
+Nel Coach integrato il riepilogo e la domanda sono il messaggio del server.
+Negli altri client, riepiloga ogni proposta in italiano semplice con gli
+effetti concreti e chiedi conferma direttamente
+in chat. Attendi la risposta e applica la proposta confermata nello stesso
+flusso: non chiedere di nuovo se gli effetti non sono cambiati. Non richiedere
+card, popup, dialog o pulsanti di approvazione; non mostrare JSON o argomenti
+tecnici. Una proposta cambiata richiede una nuova conferma in chat.
+
+Per eliminare, nomina sempre cosa verrà eliminato e attendi un sì esplicito.
+Anche l'invio del report, la chiusura della review e il completamento di
+un'iniziativa richiedono un sì esplicito alla proposta completa nel messaggio
+che avvia il turno, per esempio “sì”, “confermo”, “procedi” o “ok”. Una risposta
+negativa, condizionata o ambigua richiede un chiarimento. Se il server richiede
+la conferma, la domanda è già in chat: termina il turno; non ritentare senza
+una nuova
+risposta dell'utente. Dopo aver applicato, comunica soltanto l'esito verificato.
+
+## Date e orari per l’utente
+
+- Scrivi sempre le date in **dd/mm/yyyy**, con giorno e mese a due cifre e anno
+  a quattro cifre; scrivi gli orari in **HH:mm** nel fuso dell’utente,
+  predefinito **Europe/Rome (ora italiana)**, rispettando l’ora legale.
+- Nel testo per l’utente non mostrare mai UTC, date ISO, suffissi Z o timestamp
+  numerici. Questa regola vale anche per conferme, riepiloghi e scadenze.
+- Solo nelle sessioni a tempo usa `startedAtLocal` e `deadlineLocal` restituiti da
+  `coach_sessionStatus`. Per i giorni di calendario usa `displayDate` restituito
+  da `mcp_resolveIsoDate`: una data senza orario non va spostata di fuso.
+- Mantieni date ISO e millisecondi soltanto negli argomenti tecnici degli
+  strumenti, senza cambiare i contratti delle operazioni.
+
 ## Sfida time-bound del Coach OKR in /Agent
 
 Quando questa skill è eseguita in una sessione /Agent, questa sezione prevale
 sulle fasi successive di scelta team, ricerca trasversale o cambio skill.
 Output atteso: **portare a zero i messaggi non letti nell’azienda di cui l’utente è assegnatario (`receiverId`, inbox `received`)**. Durata massima hard-coded: **30 minuti**.
 
-- All'inizio leggi `coach_sessionStatus`: traccia `startedAt`, dichiara la
+- All'inizio leggi `coach_sessionStatus`: usa `startedAtLocal` e `deadlineLocal`, dichiara la
   partenza del countdown, durata e output atteso. Il countdown è già avviato
   dal server: non inventare o spostare la scadenza.
 - Usa solo i messaggi assegnati all’utente (`received`) nell'azienda fissata.

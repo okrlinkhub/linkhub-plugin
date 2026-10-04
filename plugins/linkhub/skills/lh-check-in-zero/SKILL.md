@@ -11,6 +11,48 @@ description: >-
   check-in e conferma lo zero finale.
 ---
 
+## Conferme solo in chat nel Coach OKR
+
+Questa regola riguarda il Coach OKR su web e mobile. Nel Coach integrato,
+prima di fare la domanda di conferma, prepara tutti gli argomenti e invoca
+una volta lo strumento di scrittura: il server registra la proposta senza
+applicarla e mostra direttamente in chat gli effetti esatti e la domanda di
+conferma, in italiano semplice. Non sostituire o ripetere quel riepilogo e
+quella domanda: termina il turno e attendi il sì. Nel turno successivo ripeti esattamente la stessa chiamata: solo la proposta
+invariata
+verrà applicata, senza una seconda domanda. Questa preparazione non è
+un salvataggio e non va presentata come un risultato.
+
+Nel Coach integrato il riepilogo e la domanda sono il messaggio del server.
+Negli altri client, riepiloga ogni proposta in italiano semplice con gli
+effetti concreti e chiedi conferma direttamente
+in chat. Attendi la risposta e applica la proposta confermata nello stesso
+flusso: non chiedere di nuovo se gli effetti non sono cambiati. Non richiedere
+card, popup, dialog o pulsanti di approvazione; non mostrare JSON o argomenti
+tecnici. Una proposta cambiata richiede una nuova conferma in chat.
+
+Per eliminare, nomina sempre cosa verrà eliminato e attendi un sì esplicito.
+Anche l'invio del report, la chiusura della review e il completamento di
+un'iniziativa richiedono un sì esplicito alla proposta completa nel messaggio
+che avvia il turno, per esempio “sì”, “confermo”, “procedi” o “ok”. Una risposta
+negativa, condizionata o ambigua richiede un chiarimento. Se il server richiede
+la conferma, la domanda è già in chat: termina il turno; non ritentare senza
+una nuova
+risposta dell'utente. Dopo aver applicato, comunica soltanto l'esito verificato.
+
+## Date e orari per l’utente
+
+- Scrivi sempre le date in **dd/mm/yyyy**, con giorno e mese a due cifre e anno
+  a quattro cifre; scrivi gli orari in **HH:mm** nel fuso dell’utente,
+  predefinito **Europe/Rome (ora italiana)**, rispettando l’ora legale.
+- Nel testo per l’utente non mostrare mai UTC, date ISO, suffissi Z o timestamp
+  numerici. Questa regola vale anche per conferme, riepiloghi e scadenze.
+- Solo nelle sessioni a tempo usa `startedAtLocal` e `deadlineLocal` restituiti da
+  `coach_sessionStatus`. Per i giorni di calendario usa `displayDate` restituito
+  da `mcp_resolveIsoDate`: una data senza orario non va spostata di fuso.
+- Mantieni date ISO e millisecondi soltanto negli argomenti tecnici degli
+  strumenti, senza cambiare i contratti delle operazioni.
+
 ## Linguaggio della conversazione
 
 Questa regola vale per tutte le risposte, le conferme, i riepiloghi e le note,
@@ -60,7 +102,7 @@ Le frasi sbagliate sono esempi da evitare, mai risposte da riprodurre.
 | “`companies_list` e `reports_listDueForUser` non sono disponibili.” | Se team e periodo sono già verificati: “Lavoriamo sul report di ottobre per Head of Innovation”. Se manca la verifica della bozza: “Non riesco a vedere se hai già una bozza”. |
 | “Prima scrittura: creo il report DRAFT. L'operazione è idempotente.” | “Preparo la bozza del report di ottobre per Head of Innovation, a nome tuo. Non invio nulla in review. Va bene?” |
 | “Il payload di `reviews_close` usa `IN_LINE`.” | “Invio questa nota e chiudo il report con esito in linea con le aspettative. Confermi?” |
-| “Iniziativa OVERDUE; imposto `checkInOutcome: postponed`.” | “L'iniziativa è in ritardo. Rimando il prossimo check-in, con questa nota e il prossimo check-in il 9 ottobre. Va bene?” |
+| “Iniziativa OVERDUE; imposto `checkInOutcome: postponed`.” | “L'iniziativa è in ritardo. Rimando il prossimo check-in, con questa nota e il prossimo check-in il 09/10/2026. Va bene?” |
 | “Errore di query: `ok: false`.” | “Non riesco a verificare il risultato di questo mese. Possiamo indicarlo come non misurabile, spiegando il motivo”. |
 
 ## Sfida time-bound del Coach OKR in /Agent
@@ -73,7 +115,7 @@ sempre il commento. Non riprendere il vecchio ramo “È partita”.
 
 Output atteso: **portare a zero tutti i check-in da fare dell’utente nell’azienda**. Durata massima hard-coded: **30 minuti**.
 
-- All'inizio leggi `coach_sessionStatus`: traccia `startedAt`, dichiara la
+- All'inizio leggi `coach_sessionStatus`: usa `startedAtLocal` e `deadlineLocal`, dichiara la
   partenza del countdown, durata e output atteso. Il countdown è già avviato
   dal server: non inventare o spostare la scadenza.
 - Usa solo le iniziative personali nell'azienda fissata. Recupera il contesto
@@ -255,7 +297,7 @@ Se l'utente propone una data diversa → usa `mcp_resolveIsoDate` per verificare
 Prima di eseguire, riassumi nome dell'iniziativa, stato scelto, nota esatta e
 prossima data (oppure chiusura). Chiedi, per esempio: “Salvo che l'iniziativa
 Collaudo è rimandata, con la nota «Servono altri test» e il prossimo check-in
-il 9 ottobre. Va bene?”. Per una chiusura: “Chiudo l'iniziativa Collaudo con
+il 09/10/2026. Va bene?”. Per una chiusura: “Chiudo l'iniziativa Collaudo con
 questa nota: «Collaudo completato». Confermi?”. Attendi una risposta affermativa
 alla proposta completa; la scelta Rimanda/Completa o l'approvazione della sola data non
 bastano. Non chiedere di confermare una seconda volta la proposta invariata.
