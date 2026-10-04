@@ -49,7 +49,7 @@ Usa questi tool quando servono:
 - `execution_handoffAddRecap`: aggiorna le Note dell'iniziativa con un recap intermedio.
 - `execution_handoffComplete`: chiude l'handoff e aggiorna le Note con il recap finale.
 - `execution_setExternalThreadUrl`: salva il link della conversazione esterna sull'handoff e su `externalUrl` dell'iniziativa.
-- `initiatives_checkIn`: registra un check-in dell'iniziativa e appende una voce strutturata alle Note. Usa sempre `checkInOutcome` con uno tra `postponed`, `started`, `finish` e passa sempre `progressNote` non vuoto: ogni check-in deve lasciare una nota sul perché la data è stata spostata, l'iniziativa è iniziata o è stata completata.
+- `initiatives_checkIn`: registra un check-in dell'iniziativa e appende una voce strutturata alle Note. Usa sempre `checkInOutcome` con uno tra `postponed`, `finish` e passa sempre `progressNote` non vuoto: ogni check-in deve lasciare una nota sul perché il check-in è stato rimandato o l'iniziativa è stata completata.
 - `initiatives_finish`: conclude l'iniziativa quando il lavoro è davvero completato e appende la voce strutturata `finish` alle Note. Richiede sempre `progressNote` non vuoto con cosa è stato completato.
 - `initiatives_update`: aggiorna descrizione, priorità, assignee, rischio o URL esterno. Non usare per modificare le Note dell'iniziativa.
 - `inbox_createComment` / `inbox_reply`: usa solo se devi coinvolgere persone o rispondere a una conversazione specifica.

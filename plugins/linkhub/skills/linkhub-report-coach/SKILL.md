@@ -60,7 +60,7 @@ Le frasi sbagliate sono esempi da evitare, mai risposte da riprodurre.
 | “`companies_list` e `reports_listDueForUser` non sono disponibili.” | Se team e periodo sono già verificati: “Lavoriamo sul report di ottobre per Head of Innovation”. Se manca la verifica della bozza: “Non riesco a vedere se hai già una bozza”. |
 | “Prima scrittura: creo il report DRAFT. L'operazione è idempotente.” | “Preparo la bozza del report di ottobre per Head of Innovation, a nome tuo. Non invio nulla in review. Va bene?” |
 | “Il payload di `reviews_close` usa `IN_LINE`.” | “Invio questa nota e chiudo il report con esito in linea con le aspettative. Confermi?” |
-| “Iniziativa OVERDUE; imposto `checkInOutcome: started`.” | “L'iniziativa è in ritardo. Salvo che è iniziata, con questa nota e il prossimo check-in il 9 ottobre. Va bene?” |
+| “Iniziativa OVERDUE; imposto `checkInOutcome: postponed`.” | “L'iniziativa è in ritardo. Rimando il prossimo check-in, con questa nota e il prossimo check-in il 9 ottobre. Va bene?” |
 | “Errore di query: `ok: false`.” | “Non riesco a verificare il risultato di questo mese. Possiamo indicarlo come non misurabile, spiegando il motivo”. |
 
 ## Sfida time-bound del Coach OKR in /Agent

@@ -3,17 +3,17 @@
 ## Positive cases
 
 1. **Explicit risk context option** — Given a pending initiative with `teamId` and
-   `riskId`, when the user chooses D the agent reads `keyResults_byTeam` with
+   `riskId`, when the user asks for risk context the agent reads `keyResults_byTeam` with
    `limit: 200`, searches `risks_byKeyResult` with `limit: 200` until the exact
    risk ID is found, shows risk description, priority, and readable Key Result,
-   then asks A/B/C again for the same initiative.
+   then asks “Rimandi o completi?” again for the same initiative.
 2. **Natural-language context request** — Given the agent is collecting a status,
    note, or date, a request such as “what risk does this mitigate?” triggers the
    same read-only lookup and resumes the interrupted initiative without changing
    its counter.
 3. **No active linked risk** — Given a pending initiative whose `riskId` is null,
    the agent states that there is no active linked risk, makes no speculative
-   lookup, and returns to A/B/C.
+   lookup, and returns to “Rimandi o completi?”.
 4. **Unverifiable or saturated inventory** — If the exact risk ID is absent, the
    agent says the current context cannot be verified. An exact 200-row KR or risk
    response without a match is explicitly treated as potentially saturated.
@@ -66,3 +66,17 @@
 Questi casi verificano il linguaggio del workflow già selezionato: non estendono
 il routing a richieste tecniche generiche, ad altre skill o a team diversi nelle
 sessioni a tempo. Le chiamate interne corrette restano parte della verifica.
+
+## Check-in a due scelte (WZ-1807)
+
+- Rimanda chiede sempre un commento concreto e la prossima data; solo dopo
+  conferma della proposta completa invia `postponed`. La nota risultante usa
+  “Rimandata a…” seguito da data e commento.
+- Completa chiede sempre il commento e conferma la chiusura prima di `finish`.
+- Una risposta “Tutto ok” o “È partita” non determina un esito: chiarire Rimanda
+  o Completa, senza mai inviare `started`.
+- Commenti vuoti, di soli spazi o vaghi non autorizzano alcun salvataggio.
+- Una richiesta di contesto resta una lettura e riprende il passo interrotto.
+- Le note storiche restano intatte; nessun aggiornamento retroattivo delle note.
+- Un rinnovo della skill durante una conversazione aperta ripropone soltanto
+  Rimanda/Completa anche se la cronologia contiene vecchie scelte.

@@ -60,13 +60,17 @@ Le frasi sbagliate sono esempi da evitare, mai risposte da riprodurre.
 | “`companies_list` e `reports_listDueForUser` non sono disponibili.” | Se team e periodo sono già verificati: “Lavoriamo sul report di ottobre per Head of Innovation”. Se manca la verifica della bozza: “Non riesco a vedere se hai già una bozza”. |
 | “Prima scrittura: creo il report DRAFT. L'operazione è idempotente.” | “Preparo la bozza del report di ottobre per Head of Innovation, a nome tuo. Non invio nulla in review. Va bene?” |
 | “Il payload di `reviews_close` usa `IN_LINE`.” | “Invio questa nota e chiudo il report con esito in linea con le aspettative. Confermi?” |
-| “Iniziativa OVERDUE; imposto `checkInOutcome: started`.” | “L'iniziativa è in ritardo. Salvo che è iniziata, con questa nota e il prossimo check-in il 9 ottobre. Va bene?” |
+| “Iniziativa OVERDUE; imposto `checkInOutcome: postponed`.” | “L'iniziativa è in ritardo. Rimando il prossimo check-in, con questa nota e il prossimo check-in il 9 ottobre. Va bene?” |
 | “Errore di query: `ok: false`.” | “Non riesco a verificare il risultato di questo mese. Possiamo indicarlo come non misurabile, spiegando il motivo”. |
 
 ## Sfida time-bound del Coach OKR in /Agent
 
 Quando questa skill è eseguita in una sessione /Agent, questa sezione prevale
 sulle fasi successive di scelta team, ricerca trasversale o cambio skill.
+Anche nelle conversazioni già aperte, queste istruzioni sostituiscono le vecchie
+scelte presenti nella cronologia: proponi solo Rimanda o Completa e richiedi
+sempre il commento. Non riprendere il vecchio ramo “È partita”.
+
 Output atteso: **portare a zero tutti i check-in da fare dell’utente nell’azienda**. Durata massima hard-coded: **30 minuti**.
 
 - All'inizio leggi `coach_sessionStatus`: traccia `startedAt`, dichiara la
@@ -109,8 +113,8 @@ Rispondi nella lingua dell'utente / Reply in the user's language. Sii conciso. U
 1. **Una domanda alla volta** — non sovraccaricare l'utente con più richieste in una sola risposta.
 2. **Mostra il contatore** — mantieni sempre visibile quante iniziative restano (`X rimaste`).
 3. **Proponi la data di default** — suggerisci sempre una prossima data (es. +7 giorni o +14 giorni), l'utente conferma o modifica.
-4. **Nota obbligatoria** — ogni check-in o completamento deve lasciare una `progressNote` non vuota nelle Note dell'iniziativa.
-5. **Usa `checkInOutcome`** — `postponed`, `started` o `finish`; non confondere `finish` con `completed`.
+4. **Nota obbligatoria** — dopo la scelta Rimanda o Completa, chiedi sempre un commento concreto; ogni esito deve lasciare una `progressNote` non vuota nelle Note dell'iniziativa.
+5. **Usa `checkInOutcome`** — `postponed` o `finish`; non confondere `finish` con `completed`.
 6. **Distingui check-in da completamento** — se un'iniziativa è conclusa, usa `checkInOutcome: "finish"` oppure `initiatives_finish`.
 7. **Verifica la data col calendario** — usa sempre `mcp_resolveIsoDate` per confermare il giorno della settimana prima di eseguire il check-in.
 8. **Non inventare** — se non hai il `companyId`, recuperalo da `mcp_membershipProfile` prima di tutto.
@@ -123,24 +127,19 @@ Rispondi nella lingua dell'utente / Reply in the user's language. Sii conciso. U
 
 Ogni check-in appende una voce alle Note dell'iniziativa:
 
-**Rimandata / Iniziata (con spostamento data):**
+**Rimandata:**
 ```
-[GG/MM/YYYY] Spostato al GG/MM/YYYY
-Rimandata per testo scelto dall'utente
-```
-oppure
-```
-[GG/MM/YYYY] Spostato al GG/MM/YYYY
-Iniziato a testo scelto dall'utente
+[GG/MM/YYYY] Rimandata a GG/MM/YYYY
+testo scelto dall'utente
 ```
 
 **Completata:**
 ```
-[GG/MM/YYYY] Completato con
+[GG/MM/YYYY] Completato
 testo scelto dall'utente
 ```
 
-La riga `Spostato al ...` non compare con `finish`.
+La riga `Rimandata a ...` non compare con `finish`.
 
 ---
 
@@ -179,24 +178,22 @@ Per **ogni iniziativa**, segui questo pattern rigido:
 
 ### Step 1 — Domanda di stato
 
-Mostra il nome dell'iniziativa e chiedi. Se il risultato di
-`initiatives_listMinePending` contiene un `riskId`, offri anche l'opzione D:
+Mostra il nome dell'iniziativa e chiedi solo:
 
 > **[X/N] "[Nome Iniziativa]"**
-> Come sta andando? Scegli:
-> **A)** Tutto ok, prosegue come previsto
-> **B)** È partita / ci sono aggiornamenti
-> **C)** È completata, possiamo chiuderla
-> **D)** Ricordami quale rischio stiamo mitigando
+> **Rimandi o completi?**
 
-Attendi risposta prima di procedere.
+Attendi risposta prima di procedere. Non proporre “Tutto ok” o “È partita”
+come esiti separati. Se l'utente dice soltanto che è partita o prosegue,
+chiarisci se vuole rimandare il prossimo check-in o completare l'iniziativa.
+Poi chiedi sempre il commento obbligatorio nello Step 2.
 
-Considera come D anche richieste naturali come «che rischio mitiga?», «perché
-stiamo facendo questa iniziativa?» o «dammi il contesto», anche se arrivano
-negli step successivi. Non registrare un esito, non chiedere la nota e non ridurre
-il contatore finché l'utente non sceglie A, B o C.
+#### Contesto del rischio su richiesta
 
-#### Opzione D — Recupero del contesto del rischio
+Richieste naturali come «che rischio mitiga?», «perché stiamo facendo questa
+iniziativa?» o «dammi il contesto» attivano una lettura, anche se arrivano negli
+step successivi. Non registrare un esito e non ridurre il contatore. Dopo il
+contesto riprendi il passo interrotto; se manca la scelta chiedi “Rimandi o completi?”.
 
 Usa esclusivamente `teamId` e `riskId` restituiti per l'iniziativa corrente:
 
@@ -217,13 +214,13 @@ Contesto
 - Key Result: [indicatorDescription] ([indicatorSymbol])
 
 [X/N] "[Nome Iniziativa]"
-Come sta andando? A, B o C?
+Rimandi o completi?
 ```
 
 Se `riskId` è assente, spiega che l'iniziativa non ha più un rischio attivo
-collegato e ripeti A/B/C. Se nessuna lettura restituisce l'esatto `riskId`, non
+collegato e ripeti “Rimandi o completi?”. Se nessuna lettura restituisce l'esatto `riskId`, non
 presentare un'alternativa probabile: segnala che il contesto non è verificabile
-con i dati correnti e ripeti A/B/C. Una risposta di esattamente 200 KR o 200
+con i dati correnti e ripeti “Rimandi o completi?”. Una risposta di esattamente 200 KR o 200
 rischi senza corrispondenza può essere incompleta: spiega “Non riesco a verificare tutti i rischi collegati”
 invece di descrivere l'elenco come completo. Non citare limiti di righe o campi tecnici.
 
@@ -242,7 +239,7 @@ Se l'utente dà una risposta troppo vaga («ok», «tutto bene»), chiedi di esp
 
 ### Step 3 — Proposta data prossimo check-in
 
-*(Solo se risposta A o B — non per C)*
+*(Solo se sceglie Rimanda — non per Completa)*
 
 Proponi **+7 giorni** come default, salvo che l'utente chieda diversamente:
 
@@ -257,14 +254,14 @@ Se l'utente propone una data diversa → usa `mcp_resolveIsoDate` per verificare
 
 Prima di eseguire, riassumi nome dell'iniziativa, stato scelto, nota esatta e
 prossima data (oppure chiusura). Chiedi, per esempio: “Salvo che l'iniziativa
-Collaudo è iniziata, con la nota «Primi test completati» e il prossimo check-in
+Collaudo è rimandata, con la nota «Servono altri test» e il prossimo check-in
 il 9 ottobre. Va bene?”. Per una chiusura: “Chiudo l'iniziativa Collaudo con
 questa nota: «Collaudo completato». Confermi?”. Attendi una risposta affermativa
-alla proposta completa; la scelta A/B/C o l'approvazione della sola data non
+alla proposta completa; la scelta Rimanda/Completa o l'approvazione della sola data non
 bastano. Non chiedere di confermare una seconda volta la proposta invariata.
 Le chiamate seguenti sono istruzioni interne, mai testo da mostrare all'utente.
 
-**Se risposta A (`postponed`):**
+**Se sceglie Rimanda (`postponed`):**
 ```
 mcp_resolveIsoDate { isoDate: "YYYY-MM-DD" }
 initiatives_checkIn {
@@ -275,18 +272,7 @@ initiatives_checkIn {
 }
 ```
 
-**Se risposta B (`started`):**
-```
-mcp_resolveIsoDate { isoDate: "YYYY-MM-DD" }
-initiatives_checkIn {
-  initiativeId,
-  customNextCheckInDateIso,
-  checkInOutcome: "started",
-  progressNote: "..."
-}
-```
-
-**Se risposta C (`finish`):**
+**Se sceglie Completa (`finish`):**
 ```
 initiatives_checkIn {
   initiativeId,
@@ -340,7 +326,7 @@ Se vuota:
 | Utente non sa la data | Proponi sempre tu una data specifica (es. «tra 7 giorni, il [GG/MM]?») |
 | Utente non vuole scrivere una nota | Spiega che la nota è obbligatoria per tracciare l'avanzamento; chiedi almeno una frase |
 | Utente vuole saltare un'iniziativa | «Ok, la saltiamo per ora. Vuoi tornarci alla fine?» |
-| Utente chiede il rischio o il motivo dell'iniziativa | Recupera il contesto esatto con l'opzione D, poi torna alla stessa domanda senza modifiche |
+| Utente chiede il rischio o il motivo dell'iniziativa | Recupera il contesto esatto su richiesta, poi torna alla stessa domanda senza modifiche |
 | Errore MCP su check-in | “Non riesco a confermare che il check-in sia stato salvato”. Verifica lo stato prima di proporre un nuovo tentativo; non dichiarare successo e non duplicare un aggiornamento dall'esito incerto |
 | Più di 10 iniziative | Dopo ogni 5, chiedi «Vuoi una pausa o continuiamo?» |
 
@@ -351,12 +337,12 @@ Se vuota:
 | ❌ Non fare | ✅ Fai invece |
 |------------|--------------|
 | Fare check-in senza `progressNote` | Chiedi sempre una nota non vuota |
-| Chiamare `initiatives_checkIn` senza `checkInOutcome` | Imposta sempre `postponed`, `started` o `finish` |
+| Chiamare `initiatives_checkIn` senza `checkInOutcome` | Imposta sempre `postponed` o `finish` |
 | Usare `initiatives_update` sulle Note | Appendi solo via check-in/finish |
 | Fare più check-in senza chiedere lo stato | Una domanda di stato per ogni iniziativa |
 | Usare timestamp grezzi per la data | `mcp_resolveIsoDate` + `customNextCheckInDateIso` |
 | Chiedere data senza proporne una | Proponi sempre +7 giorni come default |
 | Chiudere un'iniziativa senza conferma esplicita | Mostra la proposta completa con la nota e attendi la conferma finale |
 | Indovinare il rischio dalla descrizione dell'iniziativa | Cerca l'esatto `riskId` tramite KR e rischi del team; se manca, dichiara il limite |
-| Trattare la richiesta di contesto come un esito | Mostra il rischio e ripeti A/B/C sulla stessa iniziativa |
+| Trattare la richiesta di contesto come un esito | Mostra il rischio e ripeti “Rimandi o completi?” sulla stessa iniziativa |
 | Mostrare dettagli tecnici MCP o ID | Mostra nome, scadenza e stato; solo su richiesta aggiungi il contesto business del rischio |

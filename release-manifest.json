@@ -1,83 +1,83 @@
 {
   "schemaVersion": 1,
   "plugin": "linkhub",
-  "version": "0.10.4",
-  "tag": "v0.10.4",
+  "version": "0.10.5",
+  "tag": "v0.10.5",
   "sourceRepository": "okrlinkhub/linkhub-w4",
-  "sourceSha": "03d3bb3d1168ac9feeb53ef16f44fa5f3f1091ed",
+  "sourceSha": "b4412dcc3705ba9a04d3a56f05e67df7ed16aa89",
   "distributionRepository": "okrlinkhub/linkhub-plugin",
   "skills": [
     {
       "name": "cluster-collaboration",
-      "filename": "cluster-collaboration-v0.10.4.zip",
+      "filename": "cluster-collaboration-v0.10.5.zip",
       "size": 9309,
       "sha256": "b8d74ca47ef1d37acd7a855daacae629fc367b36e86d55ee9155a69c313a15b9"
     },
     {
       "name": "coach-cluster-report",
-      "filename": "coach-cluster-report-v0.10.4.zip",
+      "filename": "coach-cluster-report-v0.10.5.zip",
       "size": 6986,
       "sha256": "2ea9a6a9148618420cc76204ace9b23b3c9dd0c7c6e3c0362f6bbc172c1b949a"
     },
     {
       "name": "lh-check-in-zero",
-      "filename": "lh-check-in-zero-v0.10.4.zip",
-      "size": 20237,
-      "sha256": "b95c9f06176f25d8a6ceb6cd6f5947ab58558f0f8569623ac88d880998346e9b"
+      "filename": "lh-check-in-zero-v0.10.5.zip",
+      "size": 20246,
+      "sha256": "db7d9684cbb71fbefde963c61b6a80cf4f986c48c69908235e5c4dcd78c50df9"
     },
     {
       "name": "lh-execution",
-      "filename": "lh-execution-v0.10.4.zip",
-      "size": 5893,
-      "sha256": "df8e46dfa6409d822f8f34618a8592b3a14d0cfdc9e22179631cff6a09e1ea67"
+      "filename": "lh-execution-v0.10.5.zip",
+      "size": 5874,
+      "sha256": "b4a28a05f81aac7eda9fa1c07997c706f895c504e9599280ce0c55d660aa2f27"
     },
     {
       "name": "lh-inbox-zero",
-      "filename": "lh-inbox-zero-v0.10.4.zip",
+      "filename": "lh-inbox-zero-v0.10.5.zip",
       "size": 11421,
       "sha256": "fb25543179a2d11d972059f67a0dd5cbf8f738af11abfb580821b5fd863383a2"
     },
     {
       "name": "linkhub-indicator-analyst",
-      "filename": "linkhub-indicator-analyst-v0.10.4.zip",
+      "filename": "linkhub-indicator-analyst-v0.10.5.zip",
       "size": 2720,
       "sha256": "27e52ead6cb6ec8c05f1c41c24e0ca913200883bbebb3bdd840c059abcd054d2"
     },
     {
       "name": "linkhub-kpi-interviewer",
-      "filename": "linkhub-kpi-interviewer-v0.10.4.zip",
+      "filename": "linkhub-kpi-interviewer-v0.10.5.zip",
       "size": 4278,
       "sha256": "4bafd3ae77859613cd725506513fdb3b077b4a1959b67cdb4cca1cf9517dc438"
     },
     {
       "name": "linkhub-operational-agent",
-      "filename": "linkhub-operational-agent-v0.10.4.zip",
+      "filename": "linkhub-operational-agent-v0.10.5.zip",
       "size": 23090,
       "sha256": "d6a485cd7d67f531d22d2384bc8c4c5e3bf73656a7311c11f1ee3601ee658596"
     },
     {
       "name": "linkhub-report-coach",
-      "filename": "linkhub-report-coach-v0.10.4.zip",
-      "size": 36421,
-      "sha256": "011173f5c7bb15749a2d064bd8bfdced648da40ad039774ea710b9fee32c27c0"
+      "filename": "linkhub-report-coach-v0.10.5.zip",
+      "size": 36419,
+      "sha256": "ae7ba6dd7e778753f0c30746c58d3b33d0a7ef9f24c002028071e8b1a3706373"
     },
     {
       "name": "linkhub-review-coach",
-      "filename": "linkhub-review-coach-v0.10.4.zip",
-      "size": 42655,
-      "sha256": "c12a0f641a64b023a4307f80b5ef70d5150bb923820918841afce74aca101d97"
+      "filename": "linkhub-review-coach-v0.10.5.zip",
+      "size": 42664,
+      "sha256": "d447e3b35534724ce9b4fe9db7fdeb45bdb42e895dc407191986a063169f8117"
     },
     {
       "name": "linkhub-strategy-canvas",
-      "filename": "linkhub-strategy-canvas-v0.10.4.zip",
+      "filename": "linkhub-strategy-canvas-v0.10.5.zip",
       "size": 52013,
       "sha256": "5a8f56da35a08362c3b3ff33cd10d3908e12027c16cac4058316bf0bb5a9c50c"
     },
     {
       "name": "linkhub-strategy-coach",
-      "filename": "linkhub-strategy-coach-v0.10.4.zip",
-      "size": 28903,
-      "sha256": "078b16f458dc4d90eb90b51f66836dd250e52b42f6c54a52086a1a2f189ad2ed"
+      "filename": "linkhub-strategy-coach-v0.10.5.zip",
+      "size": 28691,
+      "sha256": "83ca0818faf96a856631b7ea7dba52e44c1253141900ff314e5518f59ce32bbe"
     }
   ]
 }

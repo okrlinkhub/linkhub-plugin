@@ -61,7 +61,7 @@ hygiene snapshot.
 | `initiatives_create` | Nuova iniziativa |
 | `initiatives_update` | Modifica descrizione, assignee, priorità, riskId, checkInDays, URL esterno |
 | `initiatives_remove` | Soft-delete (errore / non più rilevante) |
-| `initiatives_checkIn` | Check-in + prossima data + append note strutturato (`postponed`, `started`, `finish`); `progressNote` obbligatoria |
+| `initiatives_checkIn` | Check-in + prossima data + append note strutturato (`postponed`, `finish`); `progressNote` obbligatoria |
 | `initiatives_finish` | Iniziativa completata + append note strutturato; `progressNote` obbligatoria |
 | `resultNext_skipWithDefaults` | Conferma i default già mostrati come obiettivo minimo e obiettivo massimo |
 | `resultNext_upsert` | Salva obiettivo minimo e obiettivo massimo personalizzati tramite i campi tecnici interni |

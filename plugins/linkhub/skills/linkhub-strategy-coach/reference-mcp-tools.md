@@ -39,7 +39,7 @@ filtri seguendo `nextCursor`; non escludere duplicati finché la paginazione non
 | `risks_remove` | Rischio risolto/obsoleto — **conferma utente** |
 | `initiatives_create` | Mitigazione rischio, scope ≤ ~30 giorni |
 | `initiatives_update` | Modifica descrizione, assignee, priorità, riskId, checkInDays, URL esterno — **non** le Note |
-| `initiatives_checkIn` | Check-in + prossima data + append note strutturato (`postponed`, `started`, `finish`); `progressNote` obbligatoria |
+| `initiatives_checkIn` | Check-in + prossima data + append note strutturato (`postponed`, `finish`); `progressNote` obbligatoria |
 | `initiatives_finish` | Iniziativa completata + append note strutturato; `progressNote` obbligatoria |
 
 ## Write (solo se esiste già un report DRAFT)
@@ -130,29 +130,24 @@ Se l'utente completa o aggiorna un'iniziativa **durante** la sessione strategica
 
 | Tool | Quando |
 |------|--------|
-| `initiatives_checkIn` | Rimando (`postponed`), avvio (`started`) o chiusura (`finish`) con nota obbligatoria |
+| `initiatives_checkIn` | Rimando (`postponed`) o chiusura (`finish`) con nota obbligatoria |
 | `initiatives_finish` | Solo chiusura; equivalente a `checkInOutcome: "finish"` |
 
-**Campi obbligatori:** `progressNote` non vuota; per `postponed`/`started` anche `customNextCheckInDateIso` (+ `mcp_resolveIsoDate`).
+**Campi obbligatori:** `progressNote` non vuota; per `postponed` anche `customNextCheckInDateIso` (+ `mcp_resolveIsoDate`).
 
 **Formato note append-only** (non usare `initiatives_update` sulle Note):
 
 ```
-[GG/MM/YYYY] Spostato al GG/MM/YYYY
-Rimandata per testo utente
+[GG/MM/YYYY] Rimandata a GG/MM/YYYY
+ testo utente
 ```
 
 ```
-[GG/MM/YYYY] Spostato al GG/MM/YYYY
-Iniziato a testo utente
-```
-
-```
-[GG/MM/YYYY] Completato con
+[GG/MM/YYYY] Completato
 testo utente
 ```
 
-La riga `Spostato al ...` non compare con `finish`.
+La riga `Rimandata a ...` non compare con `finish`.
 
 ## Checklist pesi
 

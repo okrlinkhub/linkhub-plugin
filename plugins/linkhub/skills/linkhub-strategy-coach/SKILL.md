@@ -275,21 +275,20 @@ Se durante la sessione l'utente **chiude** un'iniziativa esistente o appena crea
 
 1. Chiedi sempre una **`progressNote` non vuota** (1–2 frasi su cosa è successo).
 2. Usa `checkInOutcome`:
-   - `postponed` — prosegue come previsto, nuova data check-in
-   - `started` — ci sono aggiornamenti concreti
+   - `postponed` — rimanda il check-in a una nuova data
    - `finish` — iniziativa completata
-3. Per `postponed` / `started`: proponi prossima data (default +7 giorni), verifica con `mcp_resolveIsoDate`, passa `customNextCheckInDateIso`.
+3. Per `postponed`: proponi prossima data (default +7 giorni), verifica con `mcp_resolveIsoDate`, passa `customNextCheckInDateIso`.
 4. Append alle Note (automatico via MCP):
 
 ```
-[GG/MM/YYYY] Spostato al GG/MM/YYYY
-Rimandata per …
+[GG/MM/YYYY] Rimandata a GG/MM/YYYY
+ …
 ```
 
 oppure, per completamento:
 
 ```
-[GG/MM/YYYY] Completato con
+[GG/MM/YYYY] Completato
 …
 ```
 
