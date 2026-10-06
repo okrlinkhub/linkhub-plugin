@@ -75,31 +75,29 @@ decisione o il dato che non puoi ricavare.
 ### Nuova iniziativa assegnata
 
 Recupera l'iniziativa assegnata con `initiatives_listMinePending` passando il
-suo `initiativeId`. Dal risultato prendi `teamId` e `riskId`, poi recupera il
-record completo e le correlate con `initiatives_byTeam` passando `teamId`,
-`riskId` e `limit: 200`. Il tool restituisce `initiatives`, `hasMore` e
-`nextCursor`: accumula le pagine attive ripetendo gli stessi filtri finché
-`hasMore` è falso. Identifica l'iniziativa per ID e verifica almeno
-`createdBy`, `notes`, `riskId`, `teamId`, stato e `assigneeId`. Chiama
-`teams_listByCompany` con `companyId` e `limit: 200`, trova lo stesso `teamId` e
-recupera `teamLeaderId`. Poi carica rischio, Key Result e altre iniziative sullo
-stesso rischio. Non agire se l'iniziativa non è più attiva o assegnata alla tua
-identità. Se la lettura filtrata non contiene l'`initiativeId` corrente,
-fermati e avvisa l'owner: non trattare l'inventario come completo e non
-eseguire mutazioni. Non sostituire questi lettori con il riepilogo ridotto di
-`initiatives_listMinePending`.
+suo `initiativeId`. Usa `assignedContext`: contiene il record completo con
+`createdBy`, `notes`, `riskId`, `teamId`, stato e `assigneeId`, il rischio,
+il KR collegato e `teamLeaderId`. Questo percorso funziona anche se non sei
+membro del team e non apre il resto del team. Se `assignedContext` è nullo,
+l'iniziativa non è accessibile alla tua identità: fermati e avvisa l'owner.
+Non agire se non è più attiva o assegnata a te.
 
-Ogni pagina successiva deve usare lo stesso `teamId`, `riskId`, `limit` e valore
-di `includeFinished`, aggiungendo soltanto il `cursor` restituito. Se
-`hasMore: true` non fornisce `nextCursor`, il cursore si ripete o una pagina
-fallisce, puoi eseguire l'iniziativa identificata ma non dichiarare completo il
-contesto correlato e non creare o riconciliare follow-up. Avvisa l'owner
-indicando il team e il problema di paginazione.
+Chiama prima `teams_listMineByCompany` con `companyId` e `limit: 200` per
+riconoscere il team e il suo `teamLeaderId`. Se non compare, usa il
+`teamLeaderId` di `assignedContext`; non usare `teams_listByCompany` per
+aggirare il limite. Fuori dai tuoi team puoi eseguire, fare check-in e
+completare soltanto la tua iniziativa. Non leggere elenchi di obiettivi, KR,
+rischi, indicatori o iniziative del team e non creare follow-up.
+Se serve un follow-up, registra un check-in bloccato spiegando che manca
+l'appartenenza valida al team e avvisa il creatore/owner.
 
-Se conosci il `riskId` ma non il Key Result, usa `keyResults_byTeam` sul team
-dell'iniziativa e `risks_byKeyResult` sui KR restituiti finché trovi esattamente
-quel `riskId`. Non dedurre il rischio dalla descrizione e non fermarti al primo
-KR o rischio semanticamente simile.
+Se il team è tra i tuoi, carica le correlate con `initiatives_byTeam`
+passando `teamId`, `riskId` e `limit: 200`. Accumula le pagine attive con gli
+stessi filtri finché `hasMore` è falso. Se `nextCursor` manca, si ripete o una
+pagina fallisce, puoi eseguire l'iniziativa identificata nel contesto assegnato,
+ma non dichiarare completo l'inventario né creare o riconciliare follow-up.
+Avvisa l'owner del problema. Usa il rischio e il KR esatti di `assignedContext`,
+senza cercarli scorrendo tutti i KR o rischi del team.
 
 Risolvi la data con `mcp_resolveIsoDate`. Usa il fuso orario esplicito della
 company o dell'ambiente operativo; non inferirlo. Se manca, chiedilo subito al
@@ -158,17 +156,25 @@ Il prompt della routine deve eseguire questo flusso:
 1. Verifica che l'invocazione provenga dalla routine enabled e che l'ora locale
    sia nella finestra delle 09:00 (ora 09, minuto 00). Un `Run now` o una chat
    casuale fuori finestra non autorizzano il giro del mattino.
-2. Chiama `mcp_membershipProfile`, determina la data odierna nel fuso company e
-   recupera i team con `teams_listByCompany` passando il `companyId` del profilo
-   e `limit: 200`. Per ogni team chiama `initiatives_listMinePending` con
-   `teamId` e `limit: 100`, quindi deduplica per ID. Non usare una sola chiamata
-   company-wide: il tool non offre cursori e tronca la risposta a 100 righe.
-3. Se `teams_listByCompany` restituisce esattamente 200 team o una chiamata
-   team-scoped restituisce esattamente 100 iniziative, considera l'inventario
-   saturo. Processa comunque le righe visibili, ma avvisa subito l'authority
-   owner indicando il team coinvolto e che la copertura completa delle 09:00
-   non è verificabile. Non dichiarare il giro completo e non restare in
-   silenzio davanti a una saturazione che può nascondere iniziative dovute.
+2. Chiama `mcp_membershipProfile` e determina la data odierna nel fuso company.
+   Recupera le iniziative con una sola `initiatives_listMinePending`
+   `{ companyId, limit: 100 }`. Include le iniziative assegnate al bot anche
+   fuori dai suoi team. Con meno di 100 righe e `isLimited: false` l'inventario
+   è completo: non elencare team e non fare altre chiamate di inventario.
+3. Solo se la risposta contiene esattamente 100 righe, recupera i tuoi team
+   con `teams_listMineByCompany { companyId, limit: 200 }`, poi chiama
+   `initiatives_listMinePending { companyId, teamId, limit: 100 }` per ciascuno.
+   Conserva anche le righe della prima risposta, comprese quelle fuori team,
+   e deduplica per ID. Non usare mai `teams_listByCompany` nella Routine.
+   Se un team restituisce 100 iniziative, i team sono 200 o qualsiasi risposta
+   ha `isLimited: true`, considera l'inventario saturo. Anche con fan-out non
+   puoi provare la completezza delle assegnazioni fuori team: se la prima
+   risposta ha `hasOutsideTeamAssignments: true` (anche se le righe esterne
+   sono nascoste dal limite di 100) o una lettura per team fallisce, mantieni
+   l'avviso di copertura incompleta. Processa le righe visibili e avvisa
+   l'authority owner del limite; non dichiarare completo il giro.
+   `isLimited: true` con meno di 100 righe richiede lo stesso avviso, senza
+   fan-out: i filtri possono nascondere righe oltre il limite interno.
 4. Seleziona esclusivamente le iniziative attive, ancora assegnate al bot, con
    `nextCheckInDate` uguale a oggi o precedente a oggi. Ignora ogni data futura.
 5. Se la selezione è vuota e l'inventario non è saturo, non inviare messaggi e
@@ -190,7 +196,9 @@ stato corrente e annulla l'azione non più valida.
 
 ## Esecuzione immediata
 
-Prima di agire, rileggi conversazioni, Note, rischio e iniziative correlate.
+Prima di agire, rileggi conversazioni e `assignedContext` con
+`initiatives_listMinePending { initiativeId }`. Verifica assegnazione, stato,
+Note e rischio correnti. Leggi le iniziative correlate soltanto nei tuoi team.
 Definisci mentalmente il risultato osservabile che riduce il rischio. Poi
 esegui tutte le azioni in scope che non richiedono nuova autorità. Non attendere
 conferme per passaggi ordinari già contenuti nell'iniziativa; chiedi conferma
@@ -241,6 +249,10 @@ blocco. Non usare "Rimandato" come sostituto di un tentativo reale.
 
 ### Completato con secondo step
 
+Questo percorso richiede appartenenza valida al team. Fuori dai tuoi team
+usa il percorso bloccato: l’assegnazione corrente non autorizza a creare
+altre iniziative né a leggere l’inventario per deduplicarle.
+
 Definisci un follow-up autosufficiente e verificabile, per esempio "Verificare
 se X ha risposto e, in caso positivo, procedere a Y". Deve:
 
@@ -275,11 +287,10 @@ nota deterministica che includa l'ID del follow-up e chiudi sempre l'iniziativa
 corrente con `initiatives_checkIn`, `checkInOutcome: "finish"` e quella
 `progressNote`.
 
-Prima di ogni retry del finish rileggi l'iniziativa corrente tramite
-`initiatives_byTeam` usando lo stesso `teamId`, `riskId`, `limit: 200` e
-`includeFinished: true`. Segui le pagine finché trovi l'ID corrente o esaurisci
-l'inventario; applica le stesse protezioni contro cursori mancanti, ripetuti o
-falliti. Se è già `FINISHED` e le Note contengono l'ID del follow-up e la stessa
+Prima di ogni retry del finish rileggi l’iniziativa esatta con
+`initiatives_listMinePending { initiativeId }`: `assignedContext` include
+anche lo storico FINISHED assegnato a te. Se il contesto è nullo, fermati;
+non cercare di aggirare il limite con lettori del team. Se è già `FINISHED` e le Note contengono l'ID del follow-up e la stessa
 nota deterministica,
 considera il check-in persistito e
 non aggiungere un'altra Nota. Se è `FINISHED` con evidenza diversa, fermati e

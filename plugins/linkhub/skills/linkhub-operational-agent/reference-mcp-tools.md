@@ -9,10 +9,10 @@ quelli pubblicati dal server MCP LinkHub; non inventare tool alternativi.
 | --- | --- |
 | `mcp_membershipProfile` | Identità corrente, `userId`, `companyId` e membership |
 | `mcp_resolveIsoDate` | Verifica `YYYY-MM-DD`, timestamp e giorno della settimana |
-| `initiatives_listMinePending` | Recupera l'iniziativa assegnata; usa `initiativeId` quando noto |
+| `initiatives_listMinePending` | Inventario assegnato e, con `initiativeId`, `assignedContext` completo e limitato a quella iniziativa |
 | `initiatives_byTeam` | Controlla iniziativa, duplicati e altre azioni sul team |
-| `teams_listByCompany` | Richiede `companyId`; recupera team attivi e `teamLeaderId` |
-| `keyResults_byTeam` | Elenca i KR del team per risalire dal `riskId` al KR corretto |
+| `teams_listMineByCompany` | Richiede `companyId`; restituisce `{ teams, count }` dei tuoi team con `teamLeaderId`, fino a 200 |
+| `keyResults_byTeam` | Legge KR soltanto nei team accessibili |
 | `risks_byKeyResult` | Legge rischio e contesto del Key Result quando il KR è noto |
 | `teams_listMembers` | Verifica che il bot sia un assignee valido nel team |
 | `inbox_getConversation` | Legge l'intera conversazione prima di rispondere |
@@ -20,12 +20,20 @@ quelli pubblicati dal server MCP LinkHub; non inventare tool alternativi.
 
 `initiatives_listMinePending` accetta `companyId?`, `initiativeId?`, `teamId?`,
 `overdueOnly?` e `limit?`; il default è 50 e il massimo è 100, senza cursore o
-offset. `teams_listByCompany` richiede `companyId` e accetta `limit?`, con
-massimo 200. Per il giro delle 09:00 passagli il `companyId` del profilo e
-`limit: 200`, poi chiama il pending con `teamId` e `limit: 100` per ciascun
-team, deduplicando gli ID. Una risposta di esattamente 200 team o 100 iniziative
-è satura: processa le righe visibili ma avvisa l'owner che la copertura completa
-non è verificabile.
+offset. Restituisce `{ initiatives, count, isLimited, hasOutsideTeamAssignments, assignedContext }`.
+Con `initiativeId`, `assignedContext` include l'iniziativa completa (anche
+FINISHED), il suo rischio, KR e teamLeaderId soltanto se ancora assegnata a te.
+Non autorizza elenchi o modifiche generali sul team esterno.
+
+Alle 09:00 usa una sola `{ companyId, limit: 100 }`. Meno di 100 righe con
+`isLimited: false` significa inventario completo. Solo con esattamente 100,
+usa `teams_listMineByCompany { companyId, limit: 200 }` e pending per ogni
+team con `limit: 100`. Conserva le righe iniziali e deduplica per ID.
+Mai `teams_listByCompany` nella Routine. Sono saturi: 200 team, 100 iniziative
+per team, qualsiasi `isLimited: true`, una lettura fallita, oppure una
+risposta company-wide piena con `hasOutsideTeamAssignments: true`, anche
+se le assegnazioni esterne non compaiono nelle prime 100 righe. Processa il visibile e avvisa l'owner; non promettere copertura
+completa. Se `isLimited: true` ma count è minore di 100, avvisa senza fan-out.
 
 `initiatives_byTeam` richiede `teamId`; accetta `riskId?`, `includeFinished?`,
 `cursor?` e `limit?` fino a 200. Restituisce
@@ -45,9 +53,10 @@ riflette `hasMore`; `count` è il numero di righe della singola pagina, non il
 totale. Se `nextCursor` manca, si ripete o una pagina fallisce, considera
 l'inventario incompleto e non creare né scegliere follow-up.
 
-Quando l'iniziativa fornisce solo `riskId`, chiama `keyResults_byTeam` e poi
-`risks_byKeyResult` per ogni KR restituito finché trovi una corrispondenza esatta
-del `riskId`. Non usare somiglianze testuali.
+Per il rischio e KR dell'iniziativa usa `assignedContext` con il suo
+`initiativeId`. Fuori dai tuoi team non chiamare `keyResults_byTeam`,
+`risks_byKeyResult` o `initiatives_byTeam`; puoi fare check-in/finish della
+propria iniziativa, ma un follow-up richiede membership valida al team.
 
 ## Messaggi
 
@@ -134,7 +143,7 @@ Dopo create rileggi tutte le pagine attive di `initiatives_byTeam` con lo stesso
 `teamId` e `riskId` e conserva l'ID riconciliato. Per un
 follow-up creato o riusato, chiudi la sorgente con `initiatives_checkIn` e una
 nota deterministica che includa quell'ID. Prima di ogni retry rileggi stato e
-`notes` con `includeFinished: true`: se la sorgente è già `FINISHED` con lo
+`notes` in `assignedContext` tramite `initiatives_listMinePending { initiativeId }`: se la sorgente è già `FINISHED` con lo
 stesso ID e la stessa nota, non
 ripetere il check-in; se l'evidenza è diversa, fermati e segnala l'ambiguità.
 Non ripetere create dopo una risposta ambigua senza avere prima riconciliato.

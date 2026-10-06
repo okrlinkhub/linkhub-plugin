@@ -14,9 +14,9 @@
 10. **Silent empty morning** — At 09:00, when no pending initiative is due today or overdue, the routine sends no message and performs no mutation.
 11. **Moved check-in** — When an initiative moves from September 9 to September 16, the permanent routine ignores it on the 9th and automatically finds it on the 16th from the current `nextCheckInDate`.
 12. **Overdue ordering** — At 09:00, overdue initiatives are processed before initiatives due today, with fresh context before each execution.
-13. **Bounded inventory** — The morning routine partitions pending reads by every active company team, requests the documented maximum, deduplicates IDs, and alerts the owner instead of claiming complete coverage when a team or initiative result is saturated.
+13. **Bounded inventory** — The morning routine first makes one company-wide pending call with limit 100. With fewer than 100 rows and isLimited false, it performs no team-list fan-out. Only exactly 100 triggers teams_listMineByCompany (limit 200) and per-team pending (limit 100), retaining initial external-team assignments and deduplicating IDs. It alerts on saturation or incomplete external coverage.
 14. **Idempotent retry** — After an ambiguous create response or failed finish, the agent reconciles an existing same-risk, same-assignee, same-action follow-up and reuses it instead of creating a duplicate.
-15. **Idempotent finish** — Before retrying finish, the agent reads the source with `includeFinished: true`, following pages until its ID is found, and verifies its status and deterministic follow-up note; a persisted finish is not appended twice, while conflicting evidence fails closed.
+15. **Idempotent finish** — Before retrying finish, the agent reads the exact source via `initiatives_listMinePending { initiativeId }` and its `assignedContext`, including finished history, and verifies its status and deterministic follow-up note; a persisted finish is not appended twice, while conflicting evidence fails closed.
 16. **Paginated reconciliation** — When initiatives_byTeam returns `hasMore: true`, the agent follows every `nextCursor` with unchanged filters before creating or choosing a follow-up; missing, repeated, or failed cursors alert the owner and fail closed.
 17. **Risk-scoped reconciliation** — When the team's active inventory spans multiple pages, the agent passes the known riskId and reconciles against the complete same-risk inventory.
 18. **Completed history excluded** — With 130 completed and 74 active initiatives, the agent reads the active default and reconciles the 74 rows when `hasMore: false`; it does not request history for active duplicate detection.
@@ -44,7 +44,7 @@
 - Every reply and execution is preceded by fresh LinkHub context.
 - Each agent/company has one enabled, idempotent `0 9 * * *` routine with an explicit timezone, or a visible failure message to the creator/owner.
 - The routine treats current LinkHub `nextCheckInDate` as the only date source, acts only on today/overdue, and stays silent for an empty selection.
-- The routine partitions bounded reads by team and fails visibly when an API cap prevents it from proving complete coverage.
+- The normal routine uses one company-wide pending call; exactly 100 triggers own-team fan-out. API caps, failed reads and external-team saturation are visible.
 - Today's new assignments act immediately without a challenge round.
 - Every terminal path is one of: factual completion, factual postponement, or completion plus a self-assigned same-risk follow-up.
 - Follow-up creation is membership-checked and retry-safe through explicit same-risk reconciliation before create and finish.
@@ -60,3 +60,16 @@
 - Segnare letta una conversazione tramite una sessione Coach aggiorna solo lo stato dei messaggi assegnati, preservando lo stato separato delle menzioni.
 
 - Con più di 200 non letti assegnati, `inbox_summary.isLimited` è true: presenta «almeno N», rilegge dopo ogni conversazione e non confonde il campione con il totale. Zero è valido solo con `isLimited` false e, in /Agent, esito server success.
+
+## WZ-1821 authorization and inventory regressions
+
+- **99 pending, no cap**: one `{ companyId, limit: 100 }`, no team-list call.
+- **100 pending**: `teams_listMineByCompany` limit 200, pending per team limit 100, preserve the original 100 rows and deduplicate IDs.
+- **Saturated team or 200 teams**: process visible work and alert owner; never claim complete coverage.
+- **Internal scan cap with 12 rows**: `isLimited: true` means incomplete; alert without fan-out.
+- **External assignment**: use exact `assignedContext` for initiative, Notes, risk, KR and leader. Check-in and finish work without team membership. No team inventory or follow-up create is allowed.
+- **External assignment in the full company result**: retain it during fan-out and warn that its team cannot be exhaustively inventoried.
+- **Stale assignment**: a null context or changed assignee fails closed before any mutation.
+- **Bot owned by admin**: effective membership remains non-admin; inaccessible Finance reads fail.
+- **Forbidden bypass**: never call `teams_listByCompany` in the Routine or to obtain outside-team context.
+- **Finished retry**: read exact assignedContext, verify the existing deterministic finish note and avoid appending it twice.
