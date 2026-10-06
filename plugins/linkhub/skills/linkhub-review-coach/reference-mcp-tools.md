@@ -64,3 +64,27 @@ When reviewing in an isolated sandbox, invoke the indicator evidence functions t
 - `resultTracked_upsert`, `resultTracked_markUnmeasurable`, `resultTracked_markCompleted`: reporter evaluation semantics.
 - `resultNext_upsert`, `resultNext_skipWithDefaults`: overwrite or create reporter-side Next data.
 - `reports_submit`: DRAFT submission, not review closure.
+
+
+## Bonus validation tools (assigned validator, including non-admin)
+
+| Tool | Purpose |
+| --- | --- |
+| `bonusValidations_list { scope?, validationStatus?, validatorId?, teamId?, reporterId?, reviewerId?, trackingDate?, paginationOpts }` | Defaults to own assigned green reports awaiting validation. `validationStatus` is `IN_PROGRESS`, `IS_VALID`, `NOT_VALID` or `ALL` (all three states). Only admins may use `scope: "company"` or another validator. Each page contains up to 5 candidate reports; follow `continueCursor` until `isDone`, including empty pages. Includes report ID/slug/URL, team, people, tracking date, validation notes/author/time and informational caution signals. |
+| `bonusValidations_submit { reportId, validationStatus, motivation, confirmed? }` | Assigned validator or admin saves `IS_VALID` / `NOT_VALID` with mandatory nonblank motivation (maximum 3000 characters) and `confirmed: true` after exact-proposal confirmation. Shares the web UI's transaction: validation audit fields and linked `actualBonus`; does not change achievement or reopen review. |
+
+Start from the personal Review queue, never admin-only discovery or team fan-out.
+The annual history covers January 1 through the selected report's tracking date.
+Previous-period results use the latest earlier closed report of the same team;
+the previous-month interval uses the latest closed report in the previous calendar
+month and the same KR/indicator. Historical milestone snapshots are used instead
+of current milestones. The reviewer comparison covers each currently active team
+led by that reviewer in the same company at the exact tracking date; absent or
+ambiguous matches remain unknown. Current indicator configuration determines
+automation and improvement direction. Positive-weight KRs expose their result,
+score and effective reviewed/reported weight; no automatic validation follows.
+`suggestedNextIntervalsPresent` identifies recorded original suggestion provenance,
+not proof of the reviewer's final use of defaults. `suggestedDefaultsUsed` is null
+with a reason where that choice was never recorded. Read limits (100 period
+reports, 50 results per report, 10 reviewer-led teams) return unknown signals with
+reasons on saturation. No unknown total is presented as a complete count.

@@ -1,6 +1,6 @@
 interface:
   display_name: "LinkHub Review Coach"
-  short_description: "Review submitted LinkHub reports safely via MCP"
-  default_prompt: "Use $linkhub-review-coach to guide my submitted report review from notes and weight interview through separately confirmed closure."
+  short_description: "Review reports and validate assigned bonuses via MCP"
+  default_prompt: "Use $linkhub-review-coach to guide my submitted report review from notes and weight interview through separately confirmed closure, or validate my assigned green report bonuses from my personal queue."
 policy:
   allow_implicit_invocation: true

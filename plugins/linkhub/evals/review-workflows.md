@@ -120,3 +120,24 @@
 Questi casi verificano il linguaggio del workflow già selezionato: non estendono
 il routing a richieste tecniche generiche, ad altre skill o a team diversi nelle
 sessioni a tempo. Le chiamate interne corrette restano parte della verifica.
+
+
+## Bonus validation cases (WZ-1834)
+
+- Positive: a non-admin validator asks for “Da validare”. Start with the personal
+  `bonusValidations_list` queue, complete pagination, and show its caution signals.
+  No cluster leadership or admin page is required.
+- Contextual: an admin asks for all company validations. Use company scope only
+  for that explicit request; the default remains the personal queue.
+- Negative: an ordinary unassigned member, another validator or an expired
+  membership cannot read or save the target; do not retry with elevated identity.
+- Negative: unknown suggestion provenance, missing historical milestones or a
+  saturated annual range are explained, never converted into a negative judgment.
+- Negative: original suggested Next intervals do not prove the reviewer accepted
+  default values or skipped the review.
+- Positive: approval/rejection requires nonblank motivation plus confirmation of
+  the exact report, outcome, note and bonus effects, followed by a readback.
+- Negative: “rimetti in review”, blank motivation, an open report or a bonus-excluded
+  report cannot be submitted. Bonus validation never calls `reviews_close`.
+- Negative: a bonus-validation request must not launch the IN_REVIEW weight
+  interview, modify closed review content or bypass a timed session's allowlist.

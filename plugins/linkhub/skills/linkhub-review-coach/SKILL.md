@@ -8,7 +8,8 @@ description: >-
   next-period targets, reviewer notes, and separately confirmed closure. Use for
   reports already IN_REVIEW or when the user asks to review/approve a submitted
   report without the LinkHub UI; do not use to complete a DRAFT report or to
-  mutate a CLOSED_* report.
+  change a CLOSED_* report review. Also use for an assigned validator's bonus
+  validation of closed green reports; this separate flow never reopens reviews.
 ---
 
 ## Conferme solo in chat nel Coach OKR
@@ -139,7 +140,53 @@ Fuori da /Agent mantieni il workflow autonomo descritto di seguito: i tool
 
 # LinkHub Review Coach
 
-Use this workflow only for an `IN_REVIEW` report when the caller is the assigned reviewer or a company admin. Route a `DRAFT` report to `linkhub-report-coach`; treat a `CLOSED_*` report as read-only. Reply in the user's language. Preserve LinkHub names exactly; preserve enum values only in internal tool payloads and translate their user-facing labels.
+For review closure, use this workflow only for an `IN_REVIEW` report when the caller is the assigned reviewer or a company admin. For a request to validate a green report bonus, use the separate bonus-validation flow below. Route a `DRAFT` report to `linkhub-report-coach`; closed report review content remains read-only, while an assigned validator may separately approve or reject its bonus. Reply in the user's language. Preserve LinkHub names exactly; preserve enum values only in internal tool payloads and translate their user-facing labels.
+
+## Validazione bonus: partire dalla propria coda
+
+Quando la persona chiede di validare il bonus dei report verdi o la sua coda
+“Da validare”, segui questo percorso prima della discovery delle review.
+È pensato per qualsiasi validatore assegnato, anche senza permessi admin.
+Non richiede di essere leader di Cluster. Non usare la pagina admin come
+punto di partenza e non scorrere i team per ricostruire la coda.
+
+1. Leggi `mcp_membershipProfile`, poi `bonusValidations_list` con
+   `scope: "mine"`, `validationStatus: "IN_PROGRESS"` e
+   `paginationOpts: { numItems: 5, cursor: null }`. Segui `continueCursor`
+   finché `isDone` è vero, anche se una pagina è vuota. Mantieni gli stessi
+   filtri e non dichiarare completa una lettura interrotta. Solo su richiesta
+   esplicita di un admin usa `scope: "company"` o un altro `validatorId`.
+2. Mostra team, periodo, reporter, reviewer ed esito attuale. Chiedi quale
+   report affrontare se ne sono presenti più di uno. Per altri stati o filtri
+   usa lo stesso tool; il filtro sul validatore resta quello personale.
+3. Presenta i segnali della riga: report verdi dall'inizio dell'anno fino al
+   periodo scelto e validazioni, colore del team guidato dal reviewer nello
+   stesso periodo, completezza della review, sua nota, KR a peso positivo,
+   risultati, automazione, milestone storiche, confronto col precedente
+   periodo chiuso e intervallo di successo del mese precedente.
+   Sono informazioni per decidere, mai una regola di approvazione o rifiuto.
+   I valori null hanno una motivazione: non ricostruirli per supposizione.
+   `suggestedNextIntervalsPresent` prova soltanto la provenienza originale
+   degli intervalli Next. Non prova che il reviewer abbia saltato la review
+   o accettato i default: `suggestedDefaultsUsed` resta sconosciuto quando
+   quella scelta non è registrata. Le informazioni di automazione e direzione
+   provengono dalla configurazione attuale dell'indicatore.
+4. La decisione spetta alla persona: “approva” o “rifiuta”, con una motivazione
+   testuale non vuota. Mostra team, periodo, esito, motivazione e l'effetto
+   concreto: l'approvazione riconosce il bonus calcolato ai bonus con obiettivo
+   raggiunto; il rifiuto porta il bonus effettivo a zero. Non riapre il report.
+   Attendi una conferma esplicita della proposta completa e invariata.
+5. Chiama `bonusValidations_submit` con `reportId`, `validationStatus`
+   (`IS_VALID` o `NOT_VALID`), `motivation` e `confirmed: true` solo dopo
+   quella conferma. La conferma non amplia i permessi. Non usare
+   `reviews_close`, non modificare KR o note del report e non offrire
+   “rimetti in review”. Se una sessione a tempo non espone questi tool,
+   non tentare di aggirarne la allowlist.
+6. Rileggi `bonusValidations_list` nello stato scelto e con i filtri team/data,
+   seguendo le pagine necessarie per ritrovare il report. Verifica esito,
+   motivazione, autore e data prima di comunicare il salvataggio. Per un nuovo
+   report serve una nuova proposta e una nuova conferma. Un errore di permesso
+   o un dato non verificabile non autorizzano un retry come admin.
 
 ## Safety contract
 
