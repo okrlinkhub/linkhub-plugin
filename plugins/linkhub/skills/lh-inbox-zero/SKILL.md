@@ -8,9 +8,30 @@ description: >-
   o messaggi assegnati ad altri. Non includere le menzioni nel contatore.
 ---
 
+## Scelte guidate nel Coach integrato (web e mobile)
+
+Nel Coach integrato termina ogni domanda a scelta con un blocco terminale
+`linkhub-options`: oggetto JSON con `context: { "workflow": "inbox", "subject": "conversationId verificato", "step": "action" }` e `options`, array di 2–6 oggetti `{ "label": "…", "value": "…" }`.
+Il server lo rimuove dal testo visibile e lo salva sul turno. `label` è il
+bottone (massimo 200 caratteri), `value` è il messaggio completo inviato
+dall'utente (massimo 4000 caratteri); valori distinti, senza caratteri di
+controllo. Non aggiungere testo dopo il blocco e non includere la scelta
+personalizzata: l'app fornisce sempre **Scrivi una risposta**. Non mostrare
+A/B/C né chiedere di digitare lettere. Fuori dal Coach integrato presenta le
+stesse scelte in testo naturale, senza blocchi tecnici.
+
+Le scelte non salvano nulla da sole: valgono come normali messaggi dell'utente.
+La proposta finale del server fornisce Sì/Modifica; non ripeterla nel testo
+dell'assistente. Modifica richiede di raccogliere le correzioni e preparare
+una nuova proposta, senza eseguire quella precedente.
+
 ## Conferme solo in chat nel Coach OKR
 
-Questa regola riguarda il Coach OKR su web e mobile. Nel Coach integrato,
+Questa regola riguarda il Coach OKR su web e mobile. **Eccezione:
+`inbox_markConversationAsRead` si applica subito dopo la scelta Segna come
+letto, senza proposta né ulteriore conferma. Mantieni tutte le verifiche di
+perimetro. `inbox_reply` richiede sempre conferma della risposta esatta.**
+Nel Coach integrato, per tutte le altre scritture,
 prima di fare la domanda di conferma, prepara tutti gli argomenti e invoca
 una volta lo strumento di scrittura: il server registra la proposta senza
 applicarla e mostra direttamente in chat gli effetti esatti e la domanda di
@@ -24,8 +45,8 @@ Nel Coach integrato il riepilogo e la domanda sono il messaggio del server.
 Negli altri client, riepiloga ogni proposta in italiano semplice con gli
 effetti concreti e chiedi conferma direttamente
 in chat. Attendi la risposta e applica la proposta confermata nello stesso
-flusso: non chiedere di nuovo se gli effetti non sono cambiati. Non richiedere
-card, popup, dialog o pulsanti di approvazione; non mostrare JSON o argomenti
+flusso: non chiedere di nuovo se gli effetti non sono cambiati. Le scelte in chat Sì/Modifica sono normali risposte. Non richiedere
+card, popup o dialog di approvazione; non mostrare JSON o argomenti
 tecnici. Una proposta cambiata richiede una nuova conferma in chat.
 
 Per eliminare, nomina sempre cosa verrà eliminato e attendi un sì esplicito.
@@ -74,7 +95,8 @@ Output atteso: **portare a zero i messaggi non letti nell’azienda di cui l’u
   testo dell'utente o dall'esito di un turno: serve l'output verificato.
   La chiusura della pagina non conclude la sfida. La pausa è utilizzabile
   una sola volta e scade al rinnovo della quota (lunedì o primo del mese).
-- Le conferme delle scritture restano obbligatorie anche sotto pressione.
+- Le conferme delle risposte in uscita restano obbligatorie anche sotto pressione;
+  Segna come letto mantiene l’eccezione sopra.
   Non saltare verifiche né inventare misure per rispettare il tempo.
 
 Fuori da /Agent mantieni il workflow autonomo descritto di seguito: i tool
@@ -95,7 +117,7 @@ Rispondi nella lingua dell'utente / Reply in the user's language. Sii conciso. U
 1. **Una conversazione alla volta** — mai sovraccaricare l'utente.
 2. **Mostra sempre il contatore** — quante conversazioni non lette restano (`X rimaste`).
 3. **Riassumi il messaggio** — non mostrare il testo grezzo: sintetizza in 1-2 righe cosa richiede.
-4. **Proponi azioni concrete** — sempre A/B/C, mai domande aperte.
+4. **Proponi azioni concrete** — Segna come letto / Rispondi ora / Salta, con risposta personalizzata disponibile.
 5. **Segna come letto solo dopo decisione** — non marcare come letto prima che l'utente abbia scelto cosa fare.
 6. **Perimetro assegnatario** — usa solo `received`: i non letti sono messaggi in cui l’utente compare come assegnatario (`receiverId`). Le menzioni (`mentions`) sono fuori perimetro: non leggerle, non gestirle e non sommarle al contatore. Una menzione su un messaggio assegnato all’utente non cambia questa regola: conta solo il suo stato di lettura come assegnatario.
 
@@ -150,24 +172,37 @@ Poi presenta:
 > 📝 *[Sintesi in 1-2 righe di cosa dice/chiede il messaggio]*
 >
 > Cosa vuoi fare?
-> **A)** Segna come letto (nessuna risposta necessaria)
-> **B)** Rispondi ora
-> **C)** Salta (ci torno dopo)
+
+Nel Coach integrato aggiungi questo blocco dopo il riepilogo e la domanda:
+
+```linkhub-options
+{"options":[{"label":"Segna come letto","value":"Segna come letto"},{"label":"Rispondi ora","value":"Rispondi ora"},{"label":"Salta","value":"Salta questa conversazione"}],"context":{"workflow":"inbox","subject":"conversationId verificato della conversazione corrente","step":"action"}}
+```
+
+Fuori dal Coach integrato elenca le tre azioni in testo naturale.
 
 ---
 
 ### Step 2 — Esecuzione in base alla scelta
 
-**Se A (solo leggere):**
+**Se Segna come letto:**
+Applica direttamente, senza proposta né conferma aggiuntiva:
 ```
 inbox_markConversationAsRead { companyId, conversationId }
 ```
 > «✅ Segnato come letto.»
 
-**Se B (rispondere):**
+Comunica soltanto l’esito verificato e passa subito alla prossima conversazione.
+
+**Se Rispondi ora:**
 > Cosa vuoi rispondere? *(scrivi pure in modo grezzo, ci penso io a formularlo bene)*
 
-Attendi il testo → mostra la risposta formulata:
+Attendi il testo. Nel Coach integrato formula la risposta e invoca una volta
+`inbox_reply` con gli argomenti esatti: il server mostra la proposta con
+Sì/Modifica. Termina il turno e attendi; dopo il sì ripeti la stessa chiamata.
+Non aggiungere una domanda prima o dopo la proposta server.
+
+Fuori dal Coach integrato mostra la risposta formulata:
 
 > **Risposta proposta:**
 > "[Testo formulato da Claude in tono professionale]"
@@ -184,7 +219,7 @@ inbox_markConversationAsRead { companyId, conversationId }
 Se l'utente vuole allegare un file, chiedi prima l'URL HTTPS pubblico reale e
 il nome del file. Aggiungi `attachments` solo con i valori forniti dall'utente.
 
-**Se C (salta):**
+**Se Salta:**
 > «Ok, la saltiamo. Torniamo alla fine se avanza tempo.»
 
 *(Non marcare come letto)*
@@ -193,7 +228,7 @@ il nome del file. Aggiungi `attachments` solo con i valori forniti dall'utente.
 
 ## Fase 2 — Gestione messaggi saltati
 
-Se ci sono conversazioni saltate (scelta C):
+Se ci sono conversazioni saltate (scelta Salta):
 
 > «Hai saltato [N] conversazioni. Vuoi gestirle adesso o le lasciamo per dopo?»
 
@@ -216,7 +251,7 @@ inbox_summary { companyId }   ← verifica zero non letti assegnati (received); 
 
 ---
 
-## Formulazione risposte (Fase 1 Step B)
+## Formulazione risposte (Fase 1 Rispondi ora)
 
 Quando l'utente vuole rispondere, Claude formula il testo seguendo questi criteri:
 
@@ -250,7 +285,7 @@ Esempio:
 | ❌ Non fare | ✅ Fai invece |
 |------------|--------------|
 | Mostrare il testo grezzo del messaggio | Riassumi in 1-2 righe |
-| Marcare come letto senza decisione utente | Aspetta sempre la scelta A/B/C |
+| Marcare come letto senza decisione utente | Aspetta sempre la scelta dell’utente |
 | Scrivere risposte lunghissime | Max 4 righe, salvo contesto complesso |
-| Chiedere «cosa vuoi fare?» senza opzioni | Proponi sempre A/B/C |
+| Chiedere «cosa vuoi fare?» senza opzioni | Proponi Segna come letto / Rispondi ora / Salta |
 | Processare tutte le conversazioni in bulk | Una alla volta, sempre |

@@ -11,8 +11,8 @@
 | `reports_getWorkflowProgress` | reportId | KR status, next step, submit |
 | `objectives_byTeam` | teamId | KR annidati + objective |
 | `keyResults_byTeam` | teamId | slug, peso e valore tecnico usato internamente per l'obiettivo minimo |
-| `reports_getEvaluateContext` | reportId, keyResultId | indicator, ultimo valore operativo con data, tracked/next esistenti |
-| `reports_previewTrackedResult` | reportId, keyResultId, actualResultValue, forecastValue, targetValue | punteggio e classificazione canonici prima di confermare `resultTracked_upsert` |
+| `reports_getEvaluateContext` | reportId, keyResultId | indicator, ultimo valore operativo con data, tracked/next correnti, `isFirstTracking`, `previousInterval` valido o null |
+| `reports_previewTrackedResult` | reportId, keyResultId, actualResultValue, intervallSource?, forecastValue?, targetValue? | obiettivi risolti dal server, fonte, punteggio e classificazione canonici prima di confermare `resultTracked_upsert` |
 | `reports_getAnalyzeContext` | reportId, keyResultId | risks[], initiatives[] |
 | `risks_byKeyResult` | keyResultId | solo se serve lista estesa |
 | `initiatives_byTeam` | teamId, riskId?, includeFinished?, cursor?, limit? | active hygiene page in `initiatives`, with `hasMore` and `nextCursor` |
@@ -121,3 +121,27 @@ prima della conferma; tenere `intervallSource` interno.
   strumenti, stati tecnici, ID e payload MCP, anche su richiesta esplicita.
 - Numerare localmente i rischi di ogni KR come `R1`, `R2`, ... e mantenere la
   mappatura interna fino alla fine di quel KR.
+
+## Prima misurazione per KR (WZ-1841)
+
+`isFirstTracking` segue la stessa regola del report: true se non esiste un
+intervallo precedente valido, anche dopo un risultato non misurabile o con
+intervallo di direzione errata. `previousInterval` è null in questi casi;
+altrimenti contiene `forecastValue` e `targetValue`, preferendo i valori
+revisionati a quelli riportati. Non confondere `nextResult` del contesto
+(report corrente, periodo successivo) con questo intervallo precedente.
+
+Con true, la preview riceve solo il valore misurato e
+`intervallSource: FIRST_TRACKING` per l'intervallo, senza `forecastValue` o
+`targetValue`. Restituisce entrambi gli obiettivi calcolati, fonte, performance 0
+e classificazione. Nell'upsert copiare gli obiettivi della preview: il server
+li ricalcola e rifiuta valori o fonte incoerenti prima di salvare. Non chiedere
+né inventare questi valori; includerli permette alla conferma in chat del
+Coach integrato di mostrare gli effetti esatti. Gli argomenti obiettivo sono
+opzionali nel contratto MCP per il calcolo server, ma la skill copia la preview
+per vincolare la proposta confermata. La preview ignora intervalli client
+quando manca un intervallo precedente valido.
+Restano necessari gli altri campi di contesto e la classificazione confermata.
+Con false si usano gli obiettivi precedenti nel normale flusso confermato.
+La scelta non misurabile usa il tool dedicato, senza inventare valori.
+Gli obiettivi del prossimo periodo si raccolgono comunque nel normale Next.

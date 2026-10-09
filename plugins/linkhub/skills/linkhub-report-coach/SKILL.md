@@ -254,13 +254,41 @@ Propose exactly one of:
 
 Do not pass `weightReported` to `resultTracked_upsert`. Weight changes in a draft use only `keyResults_rebalanceWeightInDraftReport` and require their own confirmed write group.
 
-Before proposing `resultTracked_upsert`, call `reports_previewTrackedResult` with
-the exact report, KR, actual, minimum objective, and maximum objective values
-that will be written. Present the returned performance score and classification
-in readable terms alongside the actual value, evidence/source, interval source,
-and any note. Use the returned classification verbatim in the write. If any of
-these values change, preview again and obtain a new confirmation. Never guess
-the classification or silently choose an interval source.
+For every KR, use `reports_getEvaluateContext.isFirstTracking`; never infer
+first tracking from the team's report count, a current tracked result, or the
+latest indicator value. A new KR, a missing previous plan, a previously
+unmeasurable KR, or an invalid previous interval can each be first tracking.
+
+- When `isFirstTracking` is true, ask only for the verified result of this period
+  or whether it could not be measured. Never ask for this period's minimum or
+  maximum objective, and never calculate or invent them yourself. Explain once,
+  in simple words: “È la prima misurazione di questo KR: gli obiettivi di questo
+  periodo li imposta il sistema.” Call `reports_previewTrackedResult` with the
+  report, KR, actual value and `intervallSource: FIRST_TRACKING`, omitting
+  `forecastValue` and `targetValue`. The server returns both calculated objectives,
+  interval source, performance zero and classification.
+- When `isFirstTracking` is false, present the verified `previousInterval`
+  objectives and follow the normal evaluation/confirmation flow. Use those
+  values with `intervallSource: FROM_LAST_REPORT` in the preview. Any explicit
+  manual correction remains a separate confirmed proposal with `EDIT_MANUALLY`.
+  If the flag or required previous interval is missing, reread the context;
+  do not ask the user to reconstruct the missing server data.
+
+Before proposing `resultTracked_upsert`, present the preview's returned actual
+interval, performance score and classification in readable terms alongside the
+actual value, evidence/source, interval source and any note. Use the returned
+classification, interval source and objectives verbatim in the write. For first
+tracking, copy `forecastValue` and `targetValue` from the preview, never from a
+user-entered interval: the server recalculates and checks them before saving.
+This also lets the integrated Coach's server-authored confirmation show the
+exact calculated objectives. The confirmation authorizes this unchanged
+server-calculated proposal. If the actual, objectives, interval source
+or relevant context changes, preview again and obtain a new confirmation.
+Never guess the classification or silently choose an interval source.
+
+This rule applies only to Evaluate for the current period. Always keep the
+normal Analyze and Next steps: collect/confirm minimum and maximum objectives
+for the next period even after a first measurement or an unmeasurable result.
 
 Milestone corrections and the evaluation result are separate write groups. An
 approval for milestone changes never authorizes `resultTracked_upsert`.

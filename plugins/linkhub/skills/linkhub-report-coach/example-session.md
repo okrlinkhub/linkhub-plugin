@@ -120,3 +120,27 @@ Se mancano dati necessari per confermare i rischi:
 
 **Coach:** Non riesco a verificare l'elenco completo dei rischi. Prima di
 modificarli o pianificare il prossimo periodo, dobbiamo avere l'elenco completo.
+
+## Prima misurazione di un KR
+
+Contesto interno: `isFirstTracking: true`, `previousInterval: null`. Vale anche
+per un KR nuovo in un team con report precedenti o dopo un periodo non misurabile.
+
+Coach: «È la prima misurazione di questo KR: gli obiettivi di questo periodo li
+imposta il sistema. Qual è il valore di settembre, oppure non era misurabile?»
+Utente: «Abbiamo auditato con successo il 60%.»
+
+Il coach verifica il valore e la fonte, poi chiama la preview con valore 60 e
+fonte `FIRST_TRACKING`, senza minimo e massimo. Il sistema restituisce minimo
+60, massimo 78, performance 0 e `IN_LINE`.
+
+Riepilogo della proposta (nel Coach integrato lo mostra il server):
+«Per settembre registro il 60%. Il sistema imposta l'obiettivo minimo
+al 60% e quello massimo al 78%; la performance è zero perché è la prima
+misurazione. Confermi?»
+
+Negli altri client salva solo dopo il sì. Nel Coach integrato prepara la stessa
+proposta con il tool, lascia la conferma al messaggio del server e attende il sì.
+La proposta copia classificazione, fonte e obiettivi ricevuti dalla preview. Poi completa l'analisi dei rischi e propone normalmente gli obiettivi
+minimo e massimo per ottobre. Per un altro KR con `isFirstTracking: false`,
+mostra invece gli obiettivi del periodo provenienti dal report precedente.

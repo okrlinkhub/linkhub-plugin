@@ -11,9 +11,37 @@ description: >-
   check-in e conferma lo zero finale.
 ---
 
+## Scelte guidate nel Coach integrato (web e mobile)
+
+Nel Coach integrato termina ogni domanda a scelta con un blocco terminale
+`linkhub-options`: oggetto JSON con `options` (2–6 oggetti `{ "label": "…", "value": "…" }`)
+e `context: { "workflow": "check-in", "subject": "ID verificato dell’iniziativa", "step": "outcome" | "note" | "date" }`.
+Mantieni lo stesso subject nei tre passi. Il contesto non può contenere
+esito, Nota o data: questi dati vengono registrati solo dalle risposte dell’utente.
+Il server lo rimuove dal testo visibile e lo salva sul turno. `label` è il
+bottone (massimo 200 caratteri), `value` è il messaggio completo inviato
+dall'utente (massimo 4000 caratteri); valori distinti, senza caratteri di
+controllo. Non aggiungere testo dopo il blocco e non includere la scelta
+personalizzata: l'app fornisce sempre **Scrivi una risposta**. Non mostrare
+A/B/C né chiedere di digitare lettere. Fuori dal Coach integrato presenta le
+stesse scelte in testo naturale, senza blocchi tecnici.
+
+Le scelte non salvano nulla da sole: valgono come normali messaggi dell'utente.
+La proposta finale del server fornisce Sì/Modifica; non ripeterla nel testo
+dell'assistente. Modifica richiede di raccogliere le correzioni e preparare
+una nuova proposta, senza eseguire quella precedente.
+
 ## Conferme solo in chat nel Coach OKR
 
-Questa regola riguarda il Coach OKR su web e mobile. Nel Coach integrato,
+**Eccezione Check-in zero:** dopo aver raccolto la scelta Rimanda/Completa,
+la Nota esatta scelta o personalizzata e la data verificata quando necessaria,
+esegui `initiatives_checkIn` o `initiatives_finish` direttamente. Non chiedere
+un’ultima conferma, non preparare una proposta e non richiedere un sì dopo
+la Nota o la data. La scelta dell’esito e l’inserimento degli altri dati
+necessari costituiscono la richiesta di registrazione. Non inventare né
+riformulare la Nota scelta. Comunica l’esito solo dopo averlo verificato.
+Questa eccezione prevale sulle regole generiche successive e vale anche
+fuori dal Coach integrato. Per tutte le altre scritture nel Coach integrato,
 prima di fare la domanda di conferma, prepara tutti gli argomenti e invoca
 una volta lo strumento di scrittura: il server registra la proposta senza
 applicarla e mostra direttamente in chat gli effetti esatti e la domanda di
@@ -27,13 +55,12 @@ Nel Coach integrato il riepilogo e la domanda sono il messaggio del server.
 Negli altri client, riepiloga ogni proposta in italiano semplice con gli
 effetti concreti e chiedi conferma direttamente
 in chat. Attendi la risposta e applica la proposta confermata nello stesso
-flusso: non chiedere di nuovo se gli effetti non sono cambiati. Non richiedere
-card, popup, dialog o pulsanti di approvazione; non mostrare JSON o argomenti
+flusso: non chiedere di nuovo se gli effetti non sono cambiati. Le scelte in chat Sì/Modifica sono normali risposte. Non richiedere
+card, popup o dialog di approvazione; non mostrare JSON o argomenti
 tecnici. Una proposta cambiata richiede una nuova conferma in chat.
 
 Per eliminare, nomina sempre cosa verrà eliminato e attendi un sì esplicito.
-Anche l'invio del report, la chiusura della review e il completamento di
-un'iniziativa richiedono un sì esplicito alla proposta completa nel messaggio
+L’invio del report e la chiusura della review richiedono un sì esplicito alla proposta completa nel messaggio
 che avvia il turno, per esempio “sì”, “confermo”, “procedi” o “ok”. Una risposta
 negativa, condizionata o ambigua richiede un chiarimento. Se il server richiede
 la conferma, la domanda è già in chat: termina il turno; non ritentare senza
@@ -87,7 +114,7 @@ nelle altre lingue usa etichette altrettanto comprensibili.
   una nuova alla cieca. Usa il contesto verificato della sessione; prepara o
   recupera la bozza solo attraverso l'operazione prevista e dopo conferma.
   Se non puoi farlo in sicurezza, spiega il limite e fermati su quel passaggio.
-- Prima di salvare, mostra tutti gli effetti in una frase naturale con nomi,
+- Per le altre scritture, mostra tutti gli effetti in una frase naturale con nomi,
   periodo, valori, nota e destinatari pertinenti, poi attendi un sì esplicito.
   Una conferma vale per quella proposta invariata; l'invio in review o la
   chiusura richiedono la loro conferma finale separata. Dopo l'operazione
@@ -136,7 +163,8 @@ Output atteso: **portare a zero tutti i check-in da fare dell’utente nell’az
   motivo. Non dedurre success dal testo dell'utente o dall'esito di un turno: serve l'output verificato.
   La chiusura della pagina non conclude la sfida. La pausa è utilizzabile
   una sola volta e scade al rinnovo della quota (lunedì o primo del mese).
-- Le conferme prima di salvare restano obbligatorie anche sotto pressione.
+- Raccogli sempre esito, Nota e data quando necessaria prima di salvare,
+  senza conferma finale. Le conferme delle altre operazioni restano obbligatorie.
   Non saltare verifiche né inventare misure per rispettare il tempo.
 
 Fuori da /Agent mantieni il workflow autonomo descritto di seguito: i tool
@@ -225,6 +253,15 @@ Mostra il nome dell'iniziativa e chiedi solo:
 > **[X/N] "[Nome Iniziativa]"**
 > **Rimandi o completi?**
 
+Nel Coach integrato termina il messaggio con:
+
+```linkhub-options
+{"options":[{"label":"Rimanda","value":"Rimando l’iniziativa"},{"label":"Completa","value":"Completo l’iniziativa"}],"context":{"workflow":"check-in","subject":"ID verificato dell’iniziativa corrente","step":"outcome"}}
+```
+
+Ripeti queste opzioni anche quando torni alla domanda dopo una richiesta di
+contesto o un chiarimento.
+
 Attendi risposta prima di procedere. Non proporre “Tutto ok” o “È partita”
 come esiti separati. Se l'utente dice soltanto che è partita o prosegue,
 chiarisci se vuole rimandare il prossimo check-in o completare l'iniziativa.
@@ -275,6 +312,26 @@ Chiedi sempre una breve nota, anche se l'utente risponde in modo telegrafico:
 > **Cosa tracciamo nelle Note?**
 > *(1-2 frasi: cosa è successo, cosa resta da fare, perché sposti la data)*
 
+**Sempre almeno due proposte di Note**, anche dopo una risposta telegrafica,
+per entrambi gli esiti Rimanda e Completa. Scrivi due note diverse di 1–2 frasi,
+pertinenti al nome dell’iniziativa, all’esito scelto e al contesto già fornito.
+Presentale come suggerimenti che l’utente può scegliere o correggere: non
+inventare risultati, persone contattate o motivi del rinvio come fatti
+verificati. Se mancano dettagli, proponi formulazioni prudenti da validare.
+Per esempio, per un rinvio: “Rimando il confronto sulla doppia tassazione;
+resta da raccogliere il parere.” e “Il confronto sulla doppia tassazione resta
+da completare; lo riprendo al prossimo check-in.” Per un completamento,
+formula alternative coerenti con quanto l'utente ha dichiarato concluso.
+
+Nel Coach integrato emetti le due note come opzioni `linkhub-options`:
+Usa il contesto con `step: "note"` e lo stesso subject.
+`label` e `value` contengono il testo completo della nota, senza numeri o
+lettere da digitare. La scelta invia la nota come messaggio dell’utente;
+solo la nota scelta o personalizzata diventa `progressNote`. La voce
+**Scrivi una risposta** apre il composer e consente una nota personalizzata.
+Fuori dal Coach integrato offri sempre almeno due note in testo naturale,
+oltre alla possibilità di scriverne una propria.
+
 Se l'utente dà una risposta troppo vaga («ok», «tutto bene»), chiedi di espanderla leggermente prima del check-in.
 
 ---
@@ -283,24 +340,25 @@ Se l'utente dà una risposta troppo vaga («ok», «tutto bene»), chiedi di esp
 
 *(Solo se sceglie Rimanda — non per Completa)*
 
-Proponi **+7 giorni** come default, salvo che l'utente chieda diversamente:
-
-> **Prossimo check-in:** [data calcolata, es. "02/07/2026 (mercoledì)"]
-> Va bene, oppure preferisci un'altra data?
-
-Se l'utente propone una data diversa → usa `mcp_resolveIsoDate` per verificare il giorno e confermare.
+Se la data è già stata indicata (“Rimando a domani”), verificala senza
+chiederla di nuovo. Altrimenti proponi almeno due date concrete verificate
+col calendario, per esempio +7 e +14 giorni, oltre alla risposta personalizzata.
+Nel Coach integrato usa `context` con `step: "date"` e lo stesso subject;
+ciascun `value` contiene una sola data in gg/mm/aaaa (es. “Rimando al 16/10/2026”).
+Non chiedere un sì generico: la scelta indica già la data desiderata.
+Se la risposta è ambigua raccogli una data esplicita. Usa poi
+`customNextCheckInDateIso` con la data scelta, senza default impliciti.
 
 ---
 
-### Step 4 — Conferma ed esecuzione
+### Step 4 — Esecuzione diretta
 
-Prima di eseguire, riassumi nome dell'iniziativa, stato scelto, nota esatta e
-prossima data (oppure chiusura). Chiedi, per esempio: “Salvo che l'iniziativa
-Collaudo è rimandata, con la nota «Servono altri test» e il prossimo check-in
-il 09/10/2026. Va bene?”. Per una chiusura: “Chiudo l'iniziativa Collaudo con
-questa nota: «Collaudo completato». Confermi?”. Attendi una risposta affermativa
-alla proposta completa; la scelta Rimanda/Completa o l'approvazione della sola data non
-bastano. Non chiedere di confermare una seconda volta la proposta invariata.
+Quando hai esito, Nota non vuota e data verificata per Rimanda, registra subito
+il check-in o il completamento senza un’ultima domanda di conferma.
+Se la data è già stata indicata (per esempio “Rimando a domani”), verificala
+col calendario senza chiederla di nuovo. Usa la Nota esatta scelta o scritta
+dall’utente; non sostituirla con un suggerimento diverso. Se manca un dato,
+chiedi soltanto quello. Dopo l’esito verificato passa alla prossima iniziativa.
 Le chiamate seguenti sono istruzioni interne, mai testo da mostrare all'utente.
 
 **Se sceglie Rimanda (`postponed`):**
@@ -384,7 +442,7 @@ Se vuota:
 | Fare più check-in senza chiedere lo stato | Una domanda di stato per ogni iniziativa |
 | Usare timestamp grezzi per la data | `mcp_resolveIsoDate` + `customNextCheckInDateIso` |
 | Chiedere data senza proporne una | Proponi sempre +7 giorni come default |
-| Chiudere un'iniziativa senza conferma esplicita | Mostra la proposta completa con la nota e attendi la conferma finale |
+| Chiedere un sì aggiuntivo dopo esito, Nota e data | Registra direttamente quando i dati necessari sono stati raccolti |
 | Indovinare il rischio dalla descrizione dell'iniziativa | Cerca l'esatto `riskId` tramite KR e rischi del team; se manca, dichiara il limite |
 | Trattare la richiesta di contesto come un esito | Mostra il rischio e ripeti “Rimandi o completi?” sulla stessa iniziativa |
 | Mostrare dettagli tecnici MCP o ID | Mostra nome, scadenza e stato; solo su richiesta aggiungi il contesto business del rischio |

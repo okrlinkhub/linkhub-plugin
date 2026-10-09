@@ -23,7 +23,7 @@
 19. **Manual indicator KR setup** — Given an agreed new metric absent from `indicators_search`, the agent confirms description, `%` symbol and periodicity, calls `indicators_create`, then uses the returned `indicatorId` in `keyResults_create` without a UI handoff.
 20. **Symbol correction** — Given an existing manual percentage indicator with `#`, the agent resolves it, confirms the correction, calls `indicators_update` with `%`, rereads it, then proceeds with the KR.
 21. **Inverse indicator correction** — Given an existing manual indicator whose lower-is-better setting is wrong, the agent confirms the change, calls `indicators_update` with the explicit `isReverse` boolean, and rereads the same indicator to verify the new value without recreating it.
-22. **Result classification preview** — Given actual 24, minimum objective 20, and maximum objective 30, the agent calls `reports_previewTrackedResult`, presents the returned +40% and `ABOVE_EXPECTATIONS` classification plus the interval source, and writes only those confirmed values.
+22. **Result classification preview** — Given `isFirstTracking: false` with a valid previous interval, actual 24, minimum objective 20, and maximum objective 30, the agent calls `reports_previewTrackedResult`, presents the returned +40% and `ABOVE_EXPECTATIONS` classification plus the interval source, and writes only those confirmed values.
 23. **Next side effects** — Before `resultNext_upsert`, the agent explains that the same values update the live KR objectives and that the minimum is recorded as an indicator forecast for the next target date; a missing annual objective's zero is labelled a system placeholder.
 24. **Multiple highest risks preserved** — Given two `highest` risks on one KR, a confirmed creation or promotion of a third leaves both existing priorities unchanged. Selecting up to three risks for the reporter note affects only the note.
 
@@ -111,3 +111,46 @@ sessioni a tempo. Le chiamate interne corrette restano parte della verifica.
   comprende, dichiara che non può confermare lo stato senza annunciare l’invio.
 - **Fonte leggibile:** i dati verificati vengono presentati come “dati di
   misurazione”, distinti dalle “tappe di progetto”, senza nominare il database.
+
+## Prima misurazione per KR (WZ-1841)
+
+### Casi positivi e contestuali
+
+1. **Report misto:** KR A con `isFirstTracking: true`, KR B con false e
+   `previousInterval: { forecastValue: 20, targetValue: 30 }`. Per A chiede solo
+   valore o non misurabile, spiega in una frase gli obiettivi automatici e fa
+   preview senza obiettivi. Per B mostra e conferma 20/30 dal report precedente.
+2. **Primo report del team:** tutti i KR true; nessuna domanda sugli obiettivi
+   del periodo corrente. Dopo ogni Evaluate conserva Analyze e Next completi.
+3. **KR nuovo:** team con molti report ma nessun piano precedente per questo
+   KR; segue true anche se latestValue o un tracked corrente esistono.
+4. **Precedente non misurabile:** esiste un next precedente ma il tracked
+   precedente era non misurabile; segue true, senza domande su minimo/massimo.
+5. **Intervallo precedente non valido:** intervallo uguale o con direzione
+   sbagliata, indicatore normale o inverso; segue il flag true del server.
+6. **Preview e salvataggio:** valore 60, indicatore normale `%`; preview omette
+   obiettivi e restituisce 60/78, performance 0, fonte FIRST_TRACKING, IN_LINE.
+   La proposta usa termini leggibili e copia gli obiettivi restituiti per la
+   conferma server del Coach integrato; dopo il sì salva senza inventare valori.
+7. **Non misurabile corrente:** usa `resultTracked_markUnmeasurable`, senza
+   tradurre dati mancanti in zero; gli obiettivi del prossimo periodo restano
+   nel normale flusso Next basato sui dati disponibili.
+8. **Modifica del valore:** da 60 a 70 prima della conferma; nuova preview e
+   conferma dei nuovi obiettivi automatici, nessun salvataggio della vecchia proposta.
+
+### Casi negativi
+
+- Non chiede minimo/massimo corrente con flag true, nemmeno se l'utente li offre;
+  non li inventa né li calcola nel modello.
+- Non decide dal numero di report, dalla presenza di next corrente o latestValue.
+- Non tratta un precedente non misurabile come intervallo precedente valido.
+- Non espone FIRST_TRACKING, forecastValue, targetValue o nomi di strumenti.
+- Flag mancante o false senza intervallo: rilegge, senza indovinare o chiedere
+  all'utente di ricostruire gli obiettivi.
+- La regola non elimina le domande sugli obiettivi del prossimo periodo.
+- Preview rifiutata o classificazione incoerente: nessun falso salvataggio;
+  rilettura, nuova preview e nuova conferma prima di riprovare.
+
+- **Proposta obsoleta:** gli obiettivi copiati dalla preview o la fonte non
+  corrispondono più al calcolo server; il salvataggio è rifiutato, il coach
+  rilegge e richiede una nuova conferma della preview aggiornata.

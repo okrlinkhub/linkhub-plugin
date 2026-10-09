@@ -34,8 +34,8 @@
 - **Conferma naturale:** sessione italiana, team Head of Innovation, ottobre.
   Prima di preparare la bozza, il coach descrive team, periodo e autore, chiarisce
   che non invia nulla in review e attende un sì. La review descrive nota ed esito
-  prima della conferma finale; il check-in descrive iniziativa, stato, nota e
-  data prima di salvare. Nessuna conferma espone dati tecnici.
+  prima della conferma finale; il check-in raccoglie iniziativa, stato, Nota e
+  data quando necessaria, poi salva senza conferma finale. Nessuna conferma espone dati tecnici.
 - **Stati leggibili:** contesto con `DRAFT`, `OVERDUE`, `IN_REVIEW`, `CLOSED_*`,
   priorità `highest` ed esiti `IN_LINE`/`stable`: la conversazione usa “bozza”,
   “in ritardo”, “in review”, “chiuso”, “massima”, “in linea con le aspettative”
@@ -57,9 +57,8 @@
 - Una lettura fallita non giustifica una bozza duplicata, dati inventati,
   permessi aggirati o l'annuncio di un salvataggio non verificato.
 - Una conferma della bozza, di una nota o dei risultati non autorizza l'invio
-  in review; una scelta dell'esito non autorizza la chiusura senza conferma
-  finale. Per i check-in la sola scelta dello stato o della data non autorizza
-  il salvataggio della proposta completa.
+  in review. Per Check-in zero raccogli esito, Nota e data necessaria, poi salva
+  direttamente senza conferma finale; lo stato o la data da soli non bastano.
 - Un riepilogo non copia il valore interno `success`/`fail`: comunica
   “obiettivo raggiunto”/“obiettivo non raggiunto” solo dopo verifica.
 
@@ -69,10 +68,9 @@ sessioni a tempo. Le chiamate interne corrette restano parte della verifica.
 
 ## Check-in a due scelte (WZ-1807)
 
-- Rimanda chiede sempre un commento concreto e la prossima data; solo dopo
-  conferma della proposta completa invia `postponed`. La nota risultante usa
+- Rimanda chiede sempre un commento concreto e la prossima data; raccolti questi dati, senza conferma finale, invia `postponed`. La nota risultante usa
   “Rimandata a…” seguito da data e commento.
-- Completa chiede sempre il commento e conferma la chiusura prima di `finish`.
+- Completa chiede sempre il commento e poi applica `finish` senza conferma finale.
 - Una risposta “Tutto ok” o “È partita” non determina un esito: chiarire Rimanda
   o Completa, senza mai inviare `started`.
 - Commenti vuoti, di soli spazi o vaghi non autorizzano alcun salvataggio.
@@ -89,4 +87,25 @@ sessioni a tempo. Le chiamate interne corrette restano parte della verifica.
 - Contestuale: una sessione già aperta segue la stessa regola dopo un
   cambio di fuso e rispetta il cambio dell’ora legale.
 - Negativo: non mostrare UTC, ISO o timestamp; non spostare la scadenza,
-  non fermare il countdown e non saltare la conferma prima di salvare.
+  non fermare il countdown e non salvare senza i dati necessari.
+
+## Input guidato (WZ-1851)
+
+- Positivo: ogni domanda di stato offre Rimanda/Completa come opzioni
+  strutturate; nessuna lettera da digitare. Un chiarimento sul rischio riprende
+  la stessa iniziativa con le stesse scelte.
+- Contestuale: dopo “Rimando a domani”, chiede le Note con almeno due testi
+  completi pertinenti più la risposta personalizzata dell'app. Non richiede
+  nuovamente una data già fornita; la verifica con il calendario.
+- Positivo: anche Completa offre almeno due Note prima del salvataggio diretto.
+  La nota scelta è il valore inviato dall'utente e viene salvata senza riformulazioni.
+- Negativo: nessun suggerimento viene salvato senza scelta; note non verificate
+  non diventano fatti. Non salvare senza stato, Nota e data necessaria; non chiedere un sì aggiuntivo quando li hai raccolti.
+- Negativo: il blocco tecnico non appare in chat; solo l'ultimo turno senza
+  risposta offre scelte. Testo libero e riapertura non riattivano vecchie opzioni.
+- Vincolo server: ogni domanda nel Coach integrato porta il contesto workflow,
+  iniziativa verificata e passo. Le proposte di Note non diventano dati utente:
+  solo la risposta autenticata registra esito, Nota esatta e data.
+- Data mancante dopo Rimanda: almeno due date concrete selezionabili e risposta
+  personalizzata, senza un sì generico. Date ambigue, mutate o mai scelte non
+  concedono il salvataggio diretto; raccogli il dato mancante.
