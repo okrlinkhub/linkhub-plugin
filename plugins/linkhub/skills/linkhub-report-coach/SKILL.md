@@ -11,34 +11,54 @@ description: >-
   workshop with a company-admin coach, use `coach-cluster-report`.
 ---
 
-## Conferme solo in chat nel Coach OKR
+## Azioni dirette nel Coach Report e Review
 
-Questa regola riguarda il Coach OKR su web e mobile. Nel Coach integrato,
-prima di fare la domanda di conferma, prepara tutti gli argomenti e invoca
-una volta lo strumento di scrittura: il server registra la proposta senza
-applicarla e mostra direttamente in chat gli effetti esatti e la domanda di
-conferma, in italiano semplice. Non sostituire o ripetere quel riepilogo e
-quella domanda: termina il turno e attendi il sì. Nel turno successivo ripeti esattamente la stessa chiamata: solo la proposta
-invariata
-verrà applicata, senza una seconda domanda. Questa preparazione non è
-un salvataggio e non va presentata come un risultato.
+Su web, mobile e negli altri client, esegui subito le azioni lecite richieste
+nel report o nella review: non chiedere «Confermi?», «Va bene?» né una conferma
+con bottoni prima di milestone, rischi, iniziative, risultati, pesi, Next o note.
+Se un messaggio contiene più azioni, applicale tutte in sequenza nello stesso
+turno, rileggendo dopo ogni scrittura. Non ripetere la richiesta dell'utente
+come una nuova proposta da approvare.
 
-Nel Coach integrato il riepilogo e la domanda sono il messaggio del server.
-Negli altri client, riepiloga ogni proposta in italiano semplice con gli
-effetti concreti e chiedi conferma direttamente
-in chat. Attendi la risposta e applica la proposta confermata nello stesso
-flusso: non chiedere di nuovo se gli effetti non sono cambiati. Non richiedere
-card, popup, dialog o pulsanti di approvazione; non mostrare JSON o argomenti
-tecnici. Una proposta cambiata richiede una nuova conferma in chat.
+Non inventare valori, note o date. Se mancano dati indispensabili, chiedi solo
+quelli. Se proponi valori che l'utente non ha fornito, mostrali una volta e
+chiedi quale scelta applicare: «ok» o «metti 60 e 90» è già la decisione.
+Applica quella scelta senza una seconda domanda. Una modifica della proposta
+è la scelta da salvare se completa e valida; chiarisci solo ambiguità reali.
+Check-in e completamento richiedono sempre una nota non vuota.
 
-Per eliminare, nomina sempre cosa verrà eliminato e attendi un sì esplicito.
-Anche l'invio del report, la chiusura della review e il completamento di
-un'iniziativa richiedono un sì esplicito alla proposta completa nel messaggio
-che avvia il turno, per esempio “sì”, “confermo”, “procedi” o “ok”. Una risposta
-negativa, condizionata o ambigua richiede un chiarimento. Se il server richiede
-la conferma, la domanda è già in chat: termina il turno; non ritentare senza
-una nuova
-risposta dell'utente. Dopo aver applicato, comunica soltanto l'esito verificato.
+Conferma finale esplicita, una sola volta, solo per `reports_submit` e
+`reviews_close`, immediatamente dopo l'anteprima completa. Nel Coach integrato
+prepara gli argomenti esatti e invoca una volta lo strumento: il server registra
+la proposta senza applicarla e mostra anteprima e bottoni Sì/Modifica. Non
+ripetere il messaggio del server: termina il turno e attendi. Dopo un sì
+esplicito ripeti la chiamata invariata. Se l'utente modifica la proposta finale,
+prepara una nuova anteprima: la modifica non autorizza invio o chiusura.
+Negli altri client mostra l'anteprima completa e attendi un sì in chat una volta.
+Non mostrare card, popup, JSON, identificativi o nomi di strumenti all'utente.
+La validazione bonus è un flusso separato: conserva il suo consenso specifico.
+
+### Esito verificato e annullamento
+
+Prima di modificare, leggi e conserva nel contesto i valori precedenti e i dati
+necessari all'inversa. Dopo ogni azione o gruppo dello stesso messaggio,
+rileggi e scrivi una sola riga: «Fatto: riaperta “Processo ricorrente OPT
+Previmedical” e data prevista 12/10/2026. Se vuoi annullare, dimmelo.» Poi
+prosegui con il prossimo dato necessario: non chiedere «posso procedere?» e non
+offrire bottoni di consenso per continuare il report o la review. Nomina sempre l'elemento eliminato. Per Next indica anche che sono
+stati aggiornati gli obiettivi del KR attivo e gli eventuali valori collegati.
+Non dichiarare riuscita un'azione fallita o un gruppo applicato solo in parte.
+
+A «annulla» applica subito l'inversa disponibile, senza conferma: riapertura
+oppure completamento con la data precedente verificata, aggiornamento ai valori
+precedenti, eliminazione di un elemento appena creato o ricreazione dove
+possibile. Le eliminazioni di milestone, rischi e iniziative sono logiche, ma
+questa sessione non dispone di strumenti per ripristinarle tutte con lo stesso
+record. Non usare strumenti fuori perimetro. Ricrea solo con dati precedenti
+verificati e spiega che storico e collegamenti potrebbero non essere recuperati;
+non ricreare iniziative senza un rischio attivo. Se non puoi ripristinare un
+effetto, dichiaralo chiaramente e non promettere un annullamento completo.
+Invio report e chiusura review non sono annullabili dal Coach.
 
 ## Date e orari per l’utente
 
@@ -85,13 +105,12 @@ nelle altre lingue usa etichette altrettanto comprensibili.
   controlli, permessi e limiti di completezza per evitare una spiegazione.
 - Se non puoi verificare se esiste già una bozza, non promettere di crearne
   una nuova alla cieca. Usa il contesto verificato della sessione; prepara o
-  recupera la bozza solo attraverso l'operazione prevista e dopo conferma.
+  recupera la bozza solo attraverso l'operazione prevista, senza conferma aggiuntiva.
   Se non puoi farlo in sicurezza, spiega il limite e fermati su quel passaggio.
-- Prima di salvare, mostra tutti gli effetti in una frase naturale con nomi,
-  periodo, valori, nota e destinatari pertinenti, poi attendi un sì esplicito.
-  Una conferma vale per quella proposta invariata; l'invio in review o la
-  chiusura richiedono la loro conferma finale separata. Dopo l'operazione
-  comunica il risultato solo se verificato.
+- Applica le richieste complete senza conferma aggiuntiva. Mostra una volta
+  eventuali valori proposti e salva alla prima scelta dell'utente. Comunica
+  soltanto il risultato verificato e come tornare indietro. Invio e chiusura
+  richiedono la loro unica conferma finale con anteprima completa.
 
 ### Esempi di frasi sbagliate e giuste
 
@@ -100,9 +119,9 @@ Le frasi sbagliate sono esempi da evitare, mai risposte da riprodurre.
 | Sbagliato | Giusto |
 | --- | --- |
 | “`companies_list` e `reports_listDueForUser` non sono disponibili.” | Se team e periodo sono già verificati: “Lavoriamo sul report di ottobre per Head of Innovation”. Se manca la verifica della bozza: “Non riesco a vedere se hai già una bozza”. |
-| “Prima scrittura: creo il report DRAFT. L'operazione è idempotente.” | “Preparo la bozza del report di ottobre per Head of Innovation, a nome tuo. Non invio nulla in review. Va bene?” |
+| “Prima scrittura: creo il report DRAFT. L'operazione è idempotente.” | “La bozza del report di ottobre per Head of Innovation è pronta. Se vuoi annullare le modifiche, dimmelo.” |
 | “Il payload di `reviews_close` usa `IN_LINE`.” | “Invio questa nota e chiudo il report con esito in linea con le aspettative. Confermi?” |
-| “Iniziativa OVERDUE; imposto `checkInOutcome: postponed`.” | “L'iniziativa è in ritardo. Rimando il prossimo check-in, con questa nota e il prossimo check-in il 09/10/2026. Va bene?” |
+| “Iniziativa OVERDUE; imposto `checkInOutcome: postponed`.” | “Fatto: rimandato il check-in al 09/10/2026 con la tua nota. Se vuoi annullare, dimmelo.” |
 | “Errore di query: `ok: false`.” | “Non riesco a verificare il risultato di questo mese. Possiamo indicarlo come non misurabile, spiegando il motivo”. |
 
 ## Sfida time-bound del Coach OKR in /Agent
@@ -116,7 +135,7 @@ Output atteso: **completare e inviare il report in review**. Durata massima hard
   dal server: non inventare o spostare la scadenza.
 - Usa solo il team e report fissati nella sessione. Per check-in e inbox usa
   solo gli elementi personali nell'azienda fissata. Se manca un draft, crea
-  quello del team scelto dopo la conferma richiesta dal workflow.
+  quello del team scelto direttamente, dopo averne verificato il contesto.
 - Prima di ogni passo controlla `coach_sessionStatus` e il tempo residuo.
   Se sei in ritardo, aumenta il passo: meno approfondimenti, proposte dirette,
   una domanda breve e priorità alle operazioni che chiudono l'output.
@@ -131,7 +150,7 @@ Output atteso: **completare e inviare il report in review**. Durata massima hard
   motivo. Non dedurre success dal testo dell'utente o dall'esito di un turno: serve l'output verificato.
   La chiusura della pagina non conclude la sfida. La pausa è utilizzabile
   una sola volta e scade al rinnovo della quota (lunedì o primo del mese).
-- Le conferme prima di salvare restano obbligatorie anche sotto pressione.
+- La conferma finale di invio o chiusura resta obbligatoria anche sotto pressione.
   Non saltare verifiche né inventare misure per rispettare il tempo.
 
 Fuori da /Agent mantieni il workflow autonomo descritto di seguito: i tool
@@ -146,15 +165,15 @@ If the selected report is already `IN_REVIEW`, stop this workflow and route to `
 ## Safety contract
 
 - Reads may run automatically.
-- Before every logical group of writes, show its complete user-visible effects in readable business terms and wait for explicit confirmation. Keep record IDs, transport fields, and raw MCP payloads hidden including when requested.
-- A clear confirmation of the displayed proposal authorizes its immediate write. Never ask a second confirmation merely to repeat the same decision as JSON, IDs, or tool syntax. A confirmation covers only the displayed group; if its user-visible effects change, ask again.
+- Apply complete user requests immediately, including removals. For model-proposed values, show them once and apply the user’s first decision without reconfirmation. Keep record IDs and transport payloads hidden.
+- Reread after each write; report one verified outcome per user-requested group and the available undo. Never execute unchosen model-proposed values.
 - `reports_submit` always requires a new, separate confirmation immediately before the call. Never include it in an earlier approval.
 - Never invent a number, date, cause, SQL expression, measure, dimension, or catalog metric.
 - A numerical ClickHouse claim is allowed only after a successful `indicators_queryEvidence` or `indicators_queryCatalogEvidence` response.
 
 ## 1. Open the report
 
-Outside a timed /Agent session, read `mcp_membershipProfile`, `companies_list`, and `reports_listDueForUser`. In /Agent use the fixed session context instead; do not require unavailable cross-team discovery tools. If several teams or reports match, present the choices and ask the user to select one. Create a missing draft with `reports_createDraft` only after describing the team, reporting period, and resulting draft in readable terms and receiving confirmation.
+Outside a timed /Agent session, read `mcp_membershipProfile`, `companies_list`, and `reports_listDueForUser`. In /Agent use the fixed session context instead; do not require unavailable cross-team discovery tools. If several teams or reports match, present the choices and ask the user to select one. Create a missing draft with `reports_createDraft` directly once the selected team and reporting period are verified.
 
 Load `reports_getWorkflowProgress` and one team snapshot with `objectives_byTeam`, `keyResults_byTeam`, `initiatives_byTeam`, and `initiatives_listMinePending`. Do not fan out risk reads for every KR.
 Use the active default of `initiatives_byTeam` and read records from its
@@ -190,23 +209,21 @@ When the evaluate context says `hasMilestones: true`, always call
 2. Ask whether the milestone state is correct. Never calculate or silently
    repair the totals yourself, and never interpret an empty milestone list as
    zero progress.
-3. For changes, resolve each calendar date with `mcp_resolveIsoDate`, show the
-   readable milestone changes, and wait for confirmation before calling
-   `milestones_create`, `milestones_update`, `milestones_complete`, or
-   `milestones_reopen`. A planned date is removed internally only with an explicit
+3. For requested changes, resolve each calendar date with `mcp_resolveIsoDate`
+   and immediately call `milestones_create`, `milestones_update`,
+   `milestones_complete`, or `milestones_reopen`, without confirmation. A planned date is removed internally only with an explicit
    `forecastDateIso: null`.
-4. Treat `milestones_remove` as a destructive correction: identify the
-   milestone and explain that it will be removed, then obtain a separate,
-   explicitly highlighted confirmation. Keep IDs and the raw payload hidden
+4. When the user asks to remove a milestone, call `milestones_remove`
+   directly and name the removed milestone in the verified outcome. Keep IDs and the raw payload hidden
    including when requested. Do not substitute a removal when the user only needs
    `milestones_reopen`.
 5. After any milestone write, call `milestones_listByIndicator` again. Use only
    the returned `summary.achievedValue` as the verified LinkHub milestone value.
 6. Perform `resultTracked_upsert` only after the final milestone reread so the
-   report snapshot captures the confirmed state.
+   report snapshot captures the verified state.
 
 For a replacement, prefer `milestones_update` on the existing milestone and
-preserve fields not included in the confirmed proposal. These tools use the
+preserve fields not included in the user’s decision. These tools use the
 current user's MCP permissions; team-leader status alone does not grant milestone
 write access. If the backend denies permission, explain that the current user
 cannot edit this indicator's milestones; do not impersonate another user or
@@ -252,7 +269,7 @@ Propose exactly one of:
 - `resultTracked_markUnmeasurable` when evidence is unavailable;
 - `resultTracked_markCompleted` for a completed zero-weight objective.
 
-Do not pass `weightReported` to `resultTracked_upsert`. Weight changes in a draft use only `keyResults_rebalanceWeightInDraftReport` and require their own confirmed write group.
+Do not pass `weightReported` to `resultTracked_upsert`. Weight changes in a draft use only `keyResults_rebalanceWeightInDraftReport` and apply directly after the user chooses the complete allocation.
 
 For every KR, use `reports_getEvaluateContext.isFirstTracking`; never infer
 first tracking from the team's report count, a current tracked result, or the
@@ -268,9 +285,9 @@ unmeasurable KR, or an invalid previous interval can each be first tracking.
   `forecastValue` and `targetValue`. The server returns both calculated objectives,
   interval source, performance zero and classification.
 - When `isFirstTracking` is false, present the verified `previousInterval`
-  objectives and follow the normal evaluation/confirmation flow. Use those
+  objectives and follow the normal evaluation flow without confirmation. Use those
   values with `intervallSource: FROM_LAST_REPORT` in the preview. Any explicit
-  manual correction remains a separate confirmed proposal with `EDIT_MANUALLY`.
+  manual correction uses the user’s chosen values with `EDIT_MANUALLY`.
   If the flag or required previous interval is missing, reread the context;
   do not ask the user to reconstruct the missing server data.
 
@@ -280,14 +297,13 @@ actual value, evidence/source, interval source and any note. Use the returned
 classification, interval source and objectives verbatim in the write. For first
 tracking, copy `forecastValue` and `targetValue` from the preview, never from a
 user-entered interval: the server recalculates and checks them before saving.
-This also lets the integrated Coach's server-authored confirmation show the
-exact calculated objectives. The confirmation authorizes this unchanged
-server-calculated proposal. If the actual, objectives, interval source
-or relevant context changes, preview again and obtain a new confirmation.
+Save the exact server-calculated objectives directly after the verified
+measurement or user correction. If actuals, objectives, interval source or
+relevant context change, preview again before saving; do not ask for confirmation.
 Never guess the classification or silently choose an interval source.
 
 This rule applies only to Evaluate for the current period. Always keep the
-normal Analyze and Next steps: collect/confirm minimum and maximum objectives
+normal Analyze and Next steps: collect the user’s choice of minimum and maximum objectives
 for the next period even after a first measurement or an unmeasurable result.
 
 Milestone corrections and the evaluation result are separate write groups. An
@@ -303,7 +319,7 @@ write or Next proposal:
    `reports_getAnalyzeContext` contract returns at most 300 active risks and has
    no cursor. When it returns exactly 300 risks, treat the result as potentially
    truncated: explain that you cannot verify the complete risk list and stop before
-   confirmation, Analyze writes, or Next. Do not use `risks_byKeyResult` as a
+   Analyze writes or Next. Do not use `risks_byKeyResult` as a
    pagination substitute; it also has no cursor and returns at most 200 risks.
 2. Show a concise list of every current-KR risk whose priority is exactly
    `highest`. Prefix the complete current-KR risk list with stable local references
@@ -313,10 +329,10 @@ write or Next proposal:
    risks and that their priorities are correct. These confirmed risks are the
    primary explanations available to the reviewer for the reported result.
 4. If the user changes a priority, show the referenced risk, description, and
-   resulting priority in business terms and obtain confirmation before calling
-   `risks_update`.
+   resulting priority in business terms and apply the user's change immediately
+   with `risks_update`, without reconfirmation.
 5. After any risk write, reload the current-KR Analyze context, repeat the
-   completeness check, show the updated `highest` list, and confirm it again.
+   completeness check, show the updated `highest` list, without asking to reconfirm the saved change.
    Retain only the latest confirmed,
    still-current `highest` risks as candidates for the reporter note.
 
@@ -328,7 +344,7 @@ dates with `mcp_resolveIsoDate`. Never duplicate an existing initiative.
 Multiple risks of the same KR may have priority `highest` together. Creating or
 promoting a risk never lowers the other risks' priorities; omission from the
 confirmed list or the reporter-note shortlist is not a request to demote a risk.
-Change only priorities the user explicitly requested and confirmed. The
+Change only priorities the user explicitly requested or chose. The
 reviewer's minimum highest-risk coverage requirement does not apply to this
 reporter workflow.
 
@@ -347,7 +363,7 @@ asking the reporter to invent two numbers:
 - ground both proposed values in the starting point, verified indicator
   evidence when available, confirmed risks, active initiatives, annual
   objectives, and the KR weight;
-- ask once whether the reporter confirms or wants to modify the proposal.
+- ask once which proposed or modified values to apply; that answer directly authorizes saving.
 
 Never expose `forecast`, `target`, `forecastValue`, `targetValue`, or related MCP
 field names in user-facing messages; use them only to construct the internal
@@ -356,11 +372,11 @@ during the report, and do not repeat calls just because the conversation moved
 to Next.
 
 Use `resultNext_skipWithDefaults` only after presenting its resolved default
-values as obiettivo minimo and obiettivo massimo and receiving confirmation.
+values as obiettivo minimo and obiettivo massimo and receiving the user’s choice; apply it directly without another question.
 Otherwise use `resultNext_upsert` with the confirmed internal mapping. Recheck
 `reports_getWorkflowProgress` every one or two KRs.
 
-Before confirming `resultNext_upsert`, explain that it also updates the live
+Before the user chooses values for `resultNext_upsert`, explain that it also updates the live
 KR's minimum and maximum objectives and records the minimum as the indicator
 forecast for the report's next target date. Show that date and these effects
 alongside the report's Next values. If the returned annual final value is zero
@@ -369,7 +385,7 @@ not an agreed annual objective. Do not promise that only the report changes.
 
 ## 3. Initiative hygiene
 
-Before submission, process relevant pending check-ins. Every `initiatives_checkIn` or `initiatives_finish` needs a non-empty progress note. Show each proposed group and wait for confirmation.
+Before submission, process relevant pending check-ins. Every `initiatives_checkIn` or `initiatives_finish` needs a non-empty progress note. Collect only missing outcome, exact note and necessary date, then apply directly. Do not ask for confirmation.
 
 ## 4. Reporter note
 
@@ -391,7 +407,7 @@ only when relevant to the user; omit them from the reporter note unless a
 measurement limitation materially changes its interpretation. Do not cite a ClickHouse number that was not returned
 successfully. If more than three `highest` risks qualify, show the numbered
 candidates and ask which three best explain the results; never choose silently.
-Save with `reports_updateReporterNotes` only after confirmation.
+If the user supplied the note, save directly with `reports_updateReporterNotes`. If you drafted it, show it once and save the first accepted or corrected text without a second question. Read `reports_getSubmitContext` before editing to retain the previous `reporterNotes`, then read it again after saving to verify the exact text; workflow progress alone does not return the saved note.
 
 ## 5. Final check and submission
 
@@ -401,9 +417,7 @@ Call `reports_getSubmitContext` immediately before proposing submission. Submiss
 
 Strategy and execution evaluations belong to review closure, only when the reviewer also mentors the team leader. For that workflow use [the review coach](../linkhub-review-coach/SKILL.md); do not rate the mentee or collect closure scores during submission.
 
-Then show every user-visible submission effect in readable terms and ask a
-dedicated final question without exposing IDs or tool syntax. Call
-`reports_submit` only after that separate confirmation. Report the verified returned
+Then show the complete preview and every user-visible submission effect in readable terms. In the integrated Coach invoke `reports_submit` once to register the server proposal and its Sì/Modifica buttons, then end the turn. After explicit consent invoke the same arguments once to execute. In other clients ask the final question once and call `reports_submit` after consent. Report the verified returned
 status using the lowercase mapping in “Linguaggio della conversazione” and any
 remaining follow-up. For an unlisted state, describe only its verified business
 effect in simple words, without copying the raw value. If that effect is unclear,

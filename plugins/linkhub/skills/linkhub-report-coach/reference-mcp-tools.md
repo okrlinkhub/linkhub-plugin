@@ -12,7 +12,7 @@
 | `objectives_byTeam` | teamId | KR annidati + objective |
 | `keyResults_byTeam` | teamId | slug, peso e valore tecnico usato internamente per l'obiettivo minimo |
 | `reports_getEvaluateContext` | reportId, keyResultId | indicator, ultimo valore operativo con data, tracked/next correnti, `isFirstTracking`, `previousInterval` valido o null |
-| `reports_previewTrackedResult` | reportId, keyResultId, actualResultValue, intervallSource?, forecastValue?, targetValue? | obiettivi risolti dal server, fonte, punteggio e classificazione canonici prima di confermare `resultTracked_upsert` |
+| `reports_previewTrackedResult` | reportId, keyResultId, actualResultValue, intervallSource?, forecastValue?, targetValue? | obiettivi risolti dal server, fonte, punteggio e classificazione canonici prima di salvare direttamente `resultTracked_upsert` |
 | `reports_getAnalyzeContext` | reportId, keyResultId | risks[], initiatives[] |
 | `risks_byKeyResult` | keyResultId | solo se serve lista estesa |
 | `initiatives_byTeam` | teamId, riskId?, includeFinished?, cursor?, limit? | active hygiene page in `initiatives`, with `hasMore` and `nextCursor` |
@@ -56,7 +56,7 @@ hygiene snapshot.
 | `resultTracked_markCompleted` | Objective completato (weight→0) |
 | `risks_create` | Nuovo rischio in analyze / setup |
 | `risks_update` | Modifica descrizione, priorità, KPI trigger |
-| `risks_move` | Sposta un rischio attivo su un altro KR dello stesso team con `riskId` e `targetKeyResultId`; conserva ID e iniziative. Mostra il cambio e chiedi conferma prima di chiamarlo. |
+| `risks_move` | Sposta un rischio attivo su un altro KR dello stesso team con `riskId` e `targetKeyResultId`; conserva ID e iniziative. Applica il cambio richiesto subito e rileggi l’esito. |
 | `risks_remove` | Rischio risolto (soft-delete) |
 | `initiatives_create` | Nuova iniziativa |
 | `initiatives_update` | Modifica descrizione, assignee, priorità, riskId, checkInDays, URL esterno |
@@ -77,7 +77,7 @@ hygiene snapshot.
 | `milestones_update` | Modifica descrizione, peso o scadenza (`null` la rimuove) |
 | `milestones_complete` | Completa con `achievedAtIso` esplicita |
 | `milestones_reopen` | Corregge un completamento errato |
-| `milestones_remove` | Soft-delete distruttivo, con conferma separata |
+| `milestones_remove` | Soft-delete distruttivo, su richiesta esplicita, senza conferma aggiuntiva |
 
 ## Inbox (opzionale)
 
@@ -109,14 +109,14 @@ Prendili da `reports_getEvaluateContext` + `objectives_byTeam`.
 Per `resultTracked_upsert`, ricavare `resultType` da
 `reports_previewTrackedResult` con i valori esatti da scrivere; mostrare anche
 la provenienza degli obiettivi e la classificazione con etichette leggibili
-prima della conferma; tenere `intervallSource` interno.
+prima del salvataggio; tenere `intervallSource` interno.
 
 ## Linguaggio e conferme
 
 - Verso l'utente usare sempre **obiettivo minimo** e **obiettivo massimo**;
   `forecast*` e `target*` sono esclusivamente nomi di trasporto interni.
 - Mostrare valore operativo corrente, data e una proposta numerica prima di
-  chiedere conferma del Next.
+  raccogliere la scelta del Next e applicarla direttamente.
 - Mostrare gli effetti in parole semplici; tenere sempre interni nomi di
   strumenti, stati tecnici, ID e payload MCP, anche su richiesta esplicita.
 - Numerare localmente i rischi di ogni KR come `R1`, `R2`, ... e mantenere la
@@ -136,12 +136,12 @@ Con true, la preview riceve solo il valore misurato e
 `targetValue`. Restituisce entrambi gli obiettivi calcolati, fonte, performance 0
 e classificazione. Nell'upsert copiare gli obiettivi della preview: il server
 li ricalcola e rifiuta valori o fonte incoerenti prima di salvare. Non chiedere
-né inventare questi valori; includerli permette alla conferma in chat del
-Coach integrato di mostrare gli effetti esatti. Gli argomenti obiettivo sono
+né inventare questi valori; includerli permette di salvare gli esatti valori verificati dalla preview, senza
+conferma aggiuntiva. Gli argomenti obiettivo sono
 opzionali nel contratto MCP per il calcolo server, ma la skill copia la preview
-per vincolare la proposta confermata. La preview ignora intervalli client
+per salvare gli stessi valori verificati. La preview ignora intervalli client
 quando manca un intervallo precedente valido.
 Restano necessari gli altri campi di contesto e la classificazione confermata.
-Con false si usano gli obiettivi precedenti nel normale flusso confermato.
+Con false si usano gli obiettivi precedenti nel normale flusso diretto.
 La scelta non misurabile usa il tool dedicato, senza inventare valori.
 Gli obiettivi del prossimo periodo si raccolgono comunque nel normale Next.

@@ -7,9 +7,9 @@
 | `reviews_listMyClusterTargets` | Resolve the current user's cluster through the team configured as `teamClusterLeaderId`, then return only that cluster's active teams, people, and assigned pending reviews; returns `not_cluster_leader` instead of falling back to membership teams |
 | `reviews_getContext { reportId? \| reportSlug? }` | Complete reviewer snapshot, team leader, notes, KR/indicator details including each indicator's latest value and date, previous reports, untracked KRs, and readiness |
 | `reviews_getAnalyzeContext { reportId }` | All positive-weight review KRs, with compact stable risk references `R1...`, initiative references `I1...`, period relation, and per-KR `highest` coverage in one call |
-| `reviews_rebalanceRiskPriorities { reportId, changes[] }` | Atomic priority update for a confirmed risk group; rejects a final state that leaves any positive-weight KR without a `highest` risk |
-| `reviews_rebalanceWeights { reportId, allocations[] }` | Atomic complete 100% weight confirmation/rebalance; changed rows require reviewer notes |
-| `reviews_attachKeyResult { reportId, keyResultId, reviewerNotes }` | Attach an existing untracked active KR at zero, before a separately confirmed complete rebalance |
+| `reviews_rebalanceRiskPriorities { reportId, changes[] }` | Atomic priority update for the user-chosen risk group; rejects a final state that leaves any positive-weight KR without a `highest` risk |
+| `reviews_rebalanceWeights { reportId, allocations[] }` | Atomic complete user-chosen 100% weight rebalance; changed rows require reviewer notes |
+| `reviews_attachKeyResult { reportId, keyResultId, reviewerNotes }` | Attach an existing untracked active KR at zero, before the complete user-chosen rebalance |
 | `reviews_updateNextResult { resultNextId, forecastValueReviewed, targetValueReviewed, notes? }` | Reviewer-only Next validation with audit; preserves reported values |
 | `reviews_getCloseContext { reportId }` | Final completeness, recommendation, mentee and report-period evidence when the reviewer is also mentor |
 | `reviews_getEvaluationEvidence { reportId, kind, paginationOpts }` | Page all created risks/initiatives or resolved risks/completed initiatives in the report period. Follow continueCursor until isDone. |
@@ -18,8 +18,8 @@
 `allocations[]` items are `{ resultTrackedId, weightReviewed, reviewerNotes? }`. Include every active tracked result exactly once. Changed weights require `reviewerNotes`; unchanged weights may preserve existing reviewer notes by omitting the field. `trackedResults[].reporterNotes` and `trackedResults[].reviewerNotes` have distinct authors and must never be merged or copied into each other.
 
 The Next tool keeps technical field names for transport, but the interview must always present them as `obiettivo minimo` and `obiettivo massimo`. Base the proposal on `keyResults[].indicator.latestValue` when present, even if the reviewed-period result is marked unmeasurable.
-For a positive-weight KR, `forecastValueReviewed` and `targetValueReviewed` must be finite, different values forming a success interval in the indicator's direction. A neutral, not-yet-measurable increasing KR defaults to `0 / 10`, never `0 / 0`. The tool rejects equal values; correct the proposal and reconfirm it before retrying.
-If a zero-weight KR was marked `0 / 0` for removal or was newly attached with placeholder `0 / 0`, use `reviews_updateNextResult` to confirm and save a valid interval before giving it positive weight. The tool can correct the interval while the weight is zero; it does not restore the weight itself.
+For a positive-weight KR, `forecastValueReviewed` and `targetValueReviewed` must be finite, different values forming a success interval in the indicator's direction. A neutral, not-yet-measurable increasing KR defaults to `0 / 10`, never `0 / 0`. The tool rejects equal values; collect valid corrected values and apply them without reconfirmation.
+If a zero-weight KR was marked `0 / 0` for removal or was newly attached with placeholder `0 / 0`, use `reviews_updateNextResult` to save the user-chosen valid interval before giving it positive weight. The tool can correct the interval while the weight is zero; it does not restore the weight itself.
 
 ## Reused read tools
 
@@ -39,9 +39,9 @@ If a zero-weight KR was marked `0 / 0` for removal or was newly attached with pl
 | `milestones_update` | Update description, percentage weight or deadline; `forecastDateIso: null` removes the deadline |
 | `milestones_complete` | Complete on explicit `achievedAtIso` |
 | `milestones_reopen` | Clear an incorrect completion |
-| `milestones_remove` | Soft-delete after separate destructive confirmation |
+| `milestones_remove` | Soft-delete immediately on an explicit user request |
 
-Read before proposing, confirm the business effects, then reread
+Read before writing, apply complete requests directly, then reread
 `milestones_listByIndicator`. Preserve the reporter's historical tracked result.
 These tools retain MCP permission checks: the indicator assignee or a company/
 global admin may manage its milestones. Reviewer status alone does not grant
@@ -49,9 +49,9 @@ this permission. Timed sessions also restrict the indicator to the fixed team.
 
 ## Reused writes during Analyze
 
-Use `risks_create`, `risks_update`, `risks_move`, `risks_remove`, `initiatives_create`, `initiatives_update`, `initiatives_checkIn`, `initiatives_finish`, or `initiatives_remove` only after their complete user-visible effects have been shown in readable terms and confirmed. Every review `risks_create` call supplies `priority: "highest"`; never ask for its priority. `risks_move` accepts `riskId` and `targetKeyResultId` for an active target KR in the same team and preserves the risk and linked initiatives. Prefer `reviews_rebalanceRiskPriorities` over several `risks_update` calls for a confirmed group of explicitly requested priority changes. Include only those changes, never inferred demotions of unselected risks. The coverage check requires at least one `highest` per positive-weight KR and permits multiple `highest` risks on the same KR.
+Use `risks_create`, `risks_update`, `risks_move`, `risks_remove`, `initiatives_create`, `initiatives_update`, `initiatives_checkIn`, `initiatives_finish`, or `initiatives_remove` directly after the user’s request or first choice of proposed values, without another confirmation. Every review `risks_create` call supplies `priority: "highest"`; never ask for its priority. `risks_move` accepts `riskId` and `targetKeyResultId` for an active target KR in the same team and preserves the risk and linked initiatives. Prefer `reviews_rebalanceRiskPriorities` over several `risks_update` calls for a group of explicitly requested priority changes. Include only those changes, never inferred demotions of unselected risks. The coverage check requires at least one `highest` per positive-weight KR and permits multiple `highest` risks on the same KR.
 
-`initiatives_create` requires one active `riskId`. A reviewer-created initiative must name the selected stable risk reference in the readable proposal and explain how it mitigates that risk; never offer an unlinked initiative. If no suitable risk exists, create and confirm the risk first. Reviewer-created initiatives default to the `reviews_getContext.teamLeader` assignee and a 7-day check-in. Ask whether to include the standard assignment message; do not spend separate interview turns reconfirming those defaults.
+`initiatives_create` requires one active `riskId`. A reviewer-created initiative must name the selected stable risk reference in the readable proposal and explain how it mitigates that risk; never offer an unlinked initiative. If no suitable risk exists, create the user-chosen risk first without reconfirmation. Reviewer-created initiatives default to the `reviews_getContext.teamLeader` assignee and a 7-day check-in. Ask whether to include the standard assignment message; do not spend separate interview turns reconfirming those defaults.
 
 When reviewing in an isolated sandbox, invoke the indicator evidence functions through that sandbox as well. Never switch to a production-connected MCP. A failed evidence operation is not retried with speculative parameters or a different environment.
 

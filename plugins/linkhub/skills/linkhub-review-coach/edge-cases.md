@@ -13,9 +13,9 @@
 
 ## Snapshot completeness
 
-- Any `potentiallyTruncated: true`: fail closed. Do not confirm weights, risks, or closure from an incomplete set.
+- Any `potentiallyTruncated: true`: fail closed. Do not save weights or risks, or confirm closure, from an incomplete set.
 - Missing `resultNext` for a positive-weight tracked result: report the exact KR and stop before closure.
-- Untracked active KR: explain that it is outside the submitted report snapshot. If the reviewer wants it to govern the next period, show and confirm `reviews_attachKeyResult` first; it enters at zero, then requires a separately confirmed complete rebalance. Do not use reporter-side result creation.
+- Untracked active KR: explain that it is outside the submitted report snapshot. If the reviewer wants it to govern the next period, apply the requested `reviews_attachKeyResult` directly; it enters at zero, then requires a valid user-chosen complete rebalance. Do not use reporter-side result creation.
 - Removed or missing KR with positive proposed weight: stop. A historical snapshot may be set to zero, but an active replacement requires a deliberate product decision.
 
 ## Weights
@@ -26,7 +26,7 @@
 - Validate those constraints before showing the proposal, not only before the write. Report an inherited non-multiple accurately as current state, but never repeat it as a proposed value.
 - Every changed weight needs a non-empty, forward-looking rationale tied to priority before the next report, not merely to the observed result in the closed period.
 - Duplicate positive-weight indicators are invalid. Do not work around the backend by splitting calls.
-- A zero weight automatically marks its Next result as removed. Highlight this before confirmation.
+- A zero weight automatically marks its Next result as removed. Highlight this in the one proposal or verified outcome.
 
 ## Evidence and dates
 
@@ -40,9 +40,9 @@
 
 - Every positive-weight KR must retain at least one active `highest` risk before Next validation.
 - Coverage is a minimum, not an exclusivity rule: keep any number of `highest` risks on the same KR.
-- New review risks always start at `highest`, including when the KR already has one or more `highest` risks. Ask for creation confirmation, never for the priority.
-- Creating, promoting, or selecting a `highest` risk never demotes the other risks. An omitted reference keeps its priority; only an explicit, confirmed change to that risk may lower it.
-- A proposal that demotes the last `highest` risk of a KR is incomplete until another existing risk is promoted or a new `highest` risk is explicitly confirmed for that KR.
+- New review risks always start at `highest`, including when the KR already has one or more `highest` risks. Apply the creation request directly; never ask for the priority or reconfirmation.
+- Creating, promoting, or selecting a `highest` risk never demotes the other risks. An omitted reference keeps its priority; only an explicit user-chosen change to that risk may lower it.
+- A proposal that demotes the last `highest` risk of a KR is incomplete until another existing risk is promoted or a new `highest` risk is explicitly chosen for that KR.
 - Zero-weight KRs are excluded from this coverage requirement because they are outside the active next-period allocation.
 
 ## Empty and incomplete reports
