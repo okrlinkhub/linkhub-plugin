@@ -91,6 +91,10 @@ sessioni a tempo. Le chiamate interne corrette restano parte della verifica.
 
 ## Input guidato (WZ-1851)
 
+- Contatore dopo un salto nell’ordine: con 12 iniziative iniziali, completare
+  Latte+ per prima e creare il seguito lascia 11 pendenti; il prossimo check-in
+  è [2/12], senza ricominciare da [1/11]. Il seguito non cambia X o N.
+
 - Positivo: ogni domanda di stato offre Rimanda/Completa come opzioni
   strutturate; nessuna lettera da digitare. Un chiarimento sul rischio riprende
   la stessa iniziativa con le stesse scelte.

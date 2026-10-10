@@ -15,7 +15,7 @@ description: >-
 
 Nel Coach integrato termina ogni domanda a scelta con un blocco terminale
 `linkhub-options`: oggetto JSON con `options` (2–6 oggetti `{ "label": "…", "value": "…" }`)
-e `context: { "workflow": "check-in", "subject": "ID verificato dell’iniziativa", "step": "outcome" | "note" | "date" }`.
+e `context: { "workflow": "check-in", "subject": "ID verificato dell’iniziativa", "step": "outcome" | "note" | "date" | "follow-up" }`.
 Mantieni lo stesso subject nei tre passi. Il contesto non può contenere
 esito, Nota o data: questi dati vengono registrati solo dalle risposte dell’utente.
 Il server lo rimuove dal testo visibile e lo salva sul turno. `label` è il
@@ -27,7 +27,7 @@ A/B/C né chiedere di digitare lettere. Fuori dal Coach integrato presenta le
 stesse scelte in testo naturale, senza blocchi tecnici.
 
 Le scelte non salvano nulla da sole: valgono come normali messaggi dell'utente.
-La proposta finale del server fornisce Sì/Modifica; non ripeterla nel testo
+La proposta finale del next step fornisce Crea con i dati proposti/Modifica/Non serve; le altre proposte forniscono Sì/Modifica; non ripeterla nel testo
 dell'assistente. Modifica richiede di raccogliere le correzioni e preparare
 una nuova proposta, senza eseguire quella precedente.
 
@@ -137,7 +137,7 @@ Le frasi sbagliate sono esempi da evitare, mai risposte da riprodurre.
 Quando questa skill è eseguita in una sessione /Agent, questa sezione prevale
 sulle fasi successive di scelta team, ricerca trasversale o cambio skill.
 Anche nelle conversazioni già aperte, queste istruzioni sostituiscono le vecchie
-scelte presenti nella cronologia: proponi solo Rimanda o Completa e richiedi
+scelte presenti nella cronologia: proponi Rimanda, Completa o Completa e crea next step e richiedi
 sempre il commento. Non riprendere il vecchio ramo “È partita”.
 
 Output atteso: **portare a zero tutti i check-in da fare dell’utente nell’azienda**. Durata massima hard-coded: **30 minuti**.
@@ -164,7 +164,7 @@ Output atteso: **portare a zero tutti i check-in da fare dell’utente nell’az
   La chiusura della pagina non conclude la sfida. La pausa è utilizzabile
   una sola volta e scade al rinnovo della quota (lunedì o primo del mese).
 - Raccogli sempre esito, Nota e data quando necessaria prima di salvare,
-  senza conferma finale. Le conferme delle altre operazioni restano obbligatorie.
+  senza conferma finale. Il next step e la chiusura del rischio sono pertinenti alla sessione e seguono lo Step 5. Le loro conferme restano obbligatorie.
   Non saltare verifiche né inventare misure per rispettare il tempo.
 
 Fuori da /Agent mantieni il workflow autonomo descritto di seguito: i tool
@@ -244,6 +244,13 @@ Iniziamo dalla prima. Procedo?
 
 Ordina per: **in ritardo prima**, poi per scadenza crescente.
 
+Fissa N alla lunghezza della lista iniziale e mantienilo invariato per tutta
+la sessione. X conta soltanto i check-in originari effettivamente registrati,
+più quello che stai mostrando: un salto nell’ordine non riavvia X. Le letture
+successive dei pendenti servono alla verifica, non a ricalcolare N. Creare o
+chiudere il seguito non avanza X: dopo il primo completamento di 12 iniziative,
+la prossima è [2/12], anche se i pendenti rimasti sono 11.
+
 Per **ogni iniziativa**, segui questo pattern rigido:
 
 ### Step 1 — Domanda di stato
@@ -251,12 +258,12 @@ Per **ogni iniziativa**, segui questo pattern rigido:
 Mostra il nome dell'iniziativa e chiedi solo:
 
 > **[X/N] "[Nome Iniziativa]"**
-> **Rimandi o completi?**
+> **Rimandi, completi o completi e crei il next step?**
 
 Nel Coach integrato termina il messaggio con:
 
 ```linkhub-options
-{"options":[{"label":"Rimanda","value":"Rimando l’iniziativa"},{"label":"Completa","value":"Completo l’iniziativa"}],"context":{"workflow":"check-in","subject":"ID verificato dell’iniziativa corrente","step":"outcome"}}
+{"options":[{"label":"Rimanda","value":"Rimando l’iniziativa"},{"label":"Completa","value":"Completo l’iniziativa"},{"label":"Completa e crea next step","value":"Completo e creo il next step"}],"context":{"workflow":"check-in","subject":"ID verificato dell’iniziativa corrente","step":"outcome"}}
 ```
 
 Ripeti queste opzioni anche quando torni alla domanda dopo una richiesta di
@@ -274,34 +281,14 @@ iniziativa?» o «dammi il contesto» attivano una lettura, anche se arrivano ne
 step successivi. Non registrare un esito e non ridurre il contatore. Dopo il
 contesto riprendi il passo interrotto; se manca la scelta chiedi “Rimandi o completi?”.
 
-Usa esclusivamente `teamId` e `riskId` restituiti per l'iniziativa corrente:
-
-```
-1. keyResults_byTeam { teamId, limit: 200 }
-2. per ogni KR restituito, fino alla corrispondenza esatta:
-   risks_byKeyResult { keyResultId, limit: 200 }
-3. seleziona soltanto il rischio il cui _id è uguale al riskId dell'iniziativa
-```
-
-Non scegliere un rischio perché la descrizione sembra simile e non mostrare ID
-interni. Quando trovi la corrispondenza, mostra un riepilogo breve e leggibile:
-
-```
-Contesto
-- Rischio: [description]
-- Priorità: [priorità tradotta in italiano]
-- Key Result: [indicatorDescription] ([indicatorSymbol])
-
-[X/N] "[Nome Iniziativa]"
-Rimandi o completi?
-```
-
-Se `riskId` è assente, spiega che l'iniziativa non ha più un rischio attivo
-collegato e ripeti “Rimandi o completi?”. Se nessuna lettura restituisce l'esatto `riskId`, non
-presentare un'alternativa probabile: segnala che il contesto non è verificabile
-con i dati correnti e ripeti “Rimandi o completi?”. Una risposta di esattamente 200 KR o 200
-rischi senza corrispondenza può essere incompleta: spiega “Non riesco a verificare tutti i rischi collegati”
-invece di descrivere l'elenco come completo. Non citare limiti di righe o campi tecnici.
+Nel Coach integrato usa soltanto `coach_checkInContext { initiativeId }`:
+restituisce il rischio esatto, stato, KR e numero di iniziative aperte, oltre
+al team e owner verificati. Non usare `keyResults_byTeam` o `risks_byKeyResult`
+nella sessione. Mostra descrizione, priorità tradotta e KR in poche righe,
+poi riprendi lo stesso passo senza modificare il contatore. Fuori dal Coach
+usa il contesto esatto restituito da `initiatives_listMinePending { initiativeId }`.
+Non dedurre il rischio dal testo e non scegliere alternative simili. Se manca
+il rischio o la lettura non riesce, spiega il limite e riprendi il check-in.
 
 ---
 
@@ -358,7 +345,7 @@ il check-in o il completamento senza un’ultima domanda di conferma.
 Se la data è già stata indicata (per esempio “Rimando a domani”), verificala
 col calendario senza chiederla di nuovo. Usa la Nota esatta scelta o scritta
 dall’utente; non sostituirla con un suggerimento diverso. Se manca un dato,
-chiedi soltanto quello. Dopo l’esito verificato passa alla prossima iniziativa.
+chiedi soltanto quello. Dopo un rinvio verificato passa alla prossima iniziativa. Dopo un completamento verifica e gestisci il seguito nello Step 5 prima di avanzare.
 Le chiamate seguenti sono istruzioni interne, mai testo da mostrare all'utente.
 
 **Se sceglie Rimanda (`postponed`):**
@@ -390,15 +377,69 @@ Conferma breve:
 
 ---
 
-### Step 5 — Avanza o chiudi
+### Step 5 — Seguito del completamento sullo stesso rischio
 
-Mostra il contatore aggiornato e passa subito alla prossima:
+Nel Coach integrato, dopo `initiatives_finish` o un check-in con `finish`,
+leggi `coach_checkInContext` per l’iniziativa appena completata. Il server
+mantiene disponibile il seguito anche sull’ultimo check-in, entro il tempo
+residuo; non invocare un nuovo completamento finché non hai risolto la scelta.
 
-> **[X-1 rimaste]** Passiamo a "[Nome prossima iniziativa]"...
+- Se l’utente ha scelto **Completa e crea next step**, oppure chiede esplicitamente
+  di creare il seguito (anche nella Nota: “Fatto, next step chiarire a Mirko e
+  Dario…”), prepara sempre la nuova iniziativa sullo stesso rischio aperto,
+  anche se ci sono altre iniziative aperte. Non limitarti ad aggiungerlo alla Nota
+  e non rispondere che va creato a parte. La Nota del completamento rimane esatta.
+- Se `followUpPending` è falso, non riproporre una decisione già gestita. Una nuova richiesta esplicita resta consentita finché la sessione è attiva.
+- Se non è richiesto un next step, `followUpPending` è vero e il rischio è aperto senza iniziative aperte,
+  nomina il rischio e chiedi come proseguire con questi bottoni:
 
-Oppure, se era l'ultima:
+```linkhub-options
+{"options":[{"label":"Crea next step","value":"Crea il next step sullo stesso rischio"},{"label":"Chiudi il rischio","value":"Voglio chiudere questo rischio"},{"label":"Lascia così","value":"Lascia così"}],"context":{"workflow":"check-in","subject":"ID verificato dell’iniziativa appena completata","step":"follow-up"}}
+```
 
-> **🏆 Check-in Zero raggiunto!** Tutte le N iniziative sono state aggiornate.
+- Se restano altre iniziative aperte e non c’è una richiesta esplicita, non fare
+  una domanda automatica. Prosegui con il check-in successivo. Se era l’ultimo,
+  comunica “Zero check-in da fare” e termina il turno senza chiamare
+  `coach_continueCheckIn`: il seguito resta disponibile per una richiesta
+  successiva fino alla scadenza della sessione, senza cambiare il contatore.
+- Se il rischio è già chiuso o assente, non crearne un altro e non riaprirlo:
+  spiega il limite soltanto se impedisce la richiesta; se il seguito è ancora pendente, chiama `coach_continueCheckIn` per avanzare senza ulteriori modifiche.
+
+**Crea next step.** Proponi un titolo concreto ricavato dalla Nota (per il caso
+Latte+: “Chiarire a Mirko e Dario…”), lo stesso owner come default e una data
+verificata con `mcp_resolveIsoDate`. Se la Nota contiene una data, usala;
+altrimenti proponi +7 giorni. Se vuoi cambiare owner, leggi `teams_listMembers`
+solo per il team restituito dal contesto. Se manca il contenuto del seguito,
+chiedi quel dato. Non inventare azioni, persone o una scadenza come già decise.
+Prepara `coach_createCheckInNextStep { initiativeId, riskId, description, assigneeId,
+nextCheckInDateIso }`. Il server mostra la proposta esatta, incluso il rischio,
+con **Crea con i dati proposti / Modifica / Non serve**. Termina il turno senza
+aggiungere un’altra conferma. Dopo “Crea con i dati proposti” ripeti esattamente
+la chiamata; dopo Modifica raccogli le correzioni e prepara una nuova proposta.
+Non serve lascia il rischio invariato e consente di avanzare.
+
+**Chiudi il rischio.** Prepara `coach_closeCheckInRisk { initiativeId, riskId }`:
+il server nomina il rischio e richiede una conferma esplicita della proposta.
+Non interpretare il completamento dell’iniziativa come consenso alla chiusura.
+Ripeti la chiamata invariata dopo conferma; non chiudere se sono comparse altre
+iniziative aperte. La chiusura segue il comportamento web e conserva la possibilità
+di ripristino del rischio.
+
+**Lascia così.** Chiama `coach_continueCheckIn { initiativeId }` dopo la scelta
+registrata dell’utente, senza un altro sì. Non dichiara il rischio risolto.
+
+Dichiara creazione o chiusura soltanto dopo il risultato verificato. Se una
+scrittura fallisce o ha un risultato incerto, verifica prima di ritentare.
+La nuova iniziativa non entra nei pendenti di questa sessione, non aumenta N
+né X e non modifica l’output “Zero check-in da fare”. Sarà gestita normalmente
+nelle sessioni successive. Mostra il contatore aggiornato e passa alla prossima
+iniziativa originaria, oppure esegui la verifica finale.
+
+Fuori dal Coach integrato applica lo stesso criterio con le letture MCP
+consentite al client: verifica le iniziative aperte sul rischio esatto con
+`initiatives_byTeam { teamId, riskId }`, senza assumere completa una lista limitata;
+usa `initiatives_create` o `risks_remove` soltanto dopo conferma esplicita della
+proposta. Mantieni la lista iniziale separata dalle nuove iniziative.
 
 ---
 

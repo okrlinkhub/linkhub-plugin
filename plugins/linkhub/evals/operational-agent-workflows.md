@@ -73,3 +73,13 @@
 - **Bot owned by admin**: effective membership remains non-admin; inaccessible Finance reads fail.
 - **Forbidden bypass**: never call `teams_listByCompany` in the Routine or to obtain outside-team context.
 - **Finished retry**: read exact assignedContext, verify the existing deterministic finish note and avoid appending it twice.
+
+## Check-in zero: seguito del completamento (WZ-1860)
+
+- Caso Latte+: completamento con Nota “Fatto, next step chiarire a Mirko e Dario…”; propone e crea il seguito sul rischio esatto dopo il bottone di conferma. Non lo lascia soltanto nelle Note.
+- Nessun’altra iniziativa aperta: Crea next step / Chiudi il rischio / Lascia così.
+- Altra iniziativa aperta: nessuna domanda automatica; una richiesta esplicita crea comunque il next step confermato, anche in un messaggio successivo all’ultimo check-in personale. Zero e contatore restano invariati; senza altre richieste la sessione termina con successo alla scadenza.
+- Completa e crea next step funziona con le Note guidate di WZ-1851, senza una conferma supplementare del completamento.
+- Modifica invalida la proposta precedente; Non serve non crea nulla. Chiudere richiede una proposta che nomina il rischio.
+- Il seguito dell’ultimo check-in resta disponibile entro il tempo residuo. Nuova iniziativa esclusa da pendenti e contatore, zero invariato.
+- Rifiuta un altro rischio, un’iniziativa non completata nella sessione, owner non attivo, rischio chiuso e conferma ambigua. Non aggira la scadenza.
