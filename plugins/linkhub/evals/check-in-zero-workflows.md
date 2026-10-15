@@ -91,6 +91,21 @@ sessioni a tempo. Le chiamate interne corrette restano parte della verifica.
 
 ## Input guidato (WZ-1851)
 
+### Risposte manuali e recupero (WZ-1886)
+
+- Positivo: “Vorrei rimandare” scritto nel composer registra la scelta e
+  richiede una Nota personalizzata, poi una data se manca. “Voglio completare
+  l’iniziativa” richiede la Nota e salva senza conferma finale né data di rinvio.
+- Contestuale: “Rimando al 21/10/2026” conserva la data, chiede soltanto la
+  Nota e usa il testo esatto, inclusa la punteggiatura, per la stessa iniziativa.
+- Recupero: un tentativo prematuro restituisce il passaggio mancante senza
+  eccezione. Il coach fa una sola domanda con il relativo contesto, termina
+  il turno e attende. Un secondo tentativo, anche parallelo o con argomenti
+  diversi, non raggiunge di nuovo l’approvazione server in quel turno.
+- Negativo: “Vorrei rimandare?”, “rimando o completo” e scelte condizionali
+  non autorizzano un esito; il coach chiarisce. Una Nota riformulata non viene
+  salvata. Nessun recupero aggira identità, perimetro o scadenza della sessione.
+
 - Contatore dopo un salto nell’ordine: con 12 iniziative iniziali, completare
   Latte+ per prima e creare il seguito lascia 11 pendenti; il prossimo check-in
   è [2/12], senza ricominciare da [1/11]. Il seguito non cambia X o N.

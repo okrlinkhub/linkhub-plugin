@@ -94,7 +94,7 @@ Output atteso: **portare a zero i messaggi non letti nell’azienda di cui l’u
   dichiara **success** o **fail** con un breve motivo. Non dedurre success dal
   testo dell'utente o dall'esito di un turno: serve l'output verificato.
   La chiusura della pagina non conclude la sfida. La pausa è utilizzabile
-  una sola volta e scade al rinnovo della quota (lunedì o primo del mese).
+  una sola volta e scade alla mezzanotte successiva (ora italiana).
 - Le conferme delle risposte in uscita restano obbligatorie anche sotto pressione;
   Segna come letto mantiene l’eccezione sopra.
   Non saltare verifiche né inventare misure per rispettare il tempo.
@@ -115,7 +115,7 @@ Rispondi nella lingua dell'utente / Reply in the user's language. Sii conciso. U
 **Inbox zero non comprende le menzioni.** Vale sia in /Agent sia nel workflow autonomo: il successo dipende esclusivamente dai non letti assegnati all’utente, non dalle notifiche o dalle menzioni.
 
 1. **Una conversazione alla volta** — mai sovraccaricare l'utente.
-2. **Mostra sempre il contatore** — quante conversazioni non lette restano (`X rimaste`).
+2. **Un solo contatore nell’intestazione** — mostra l’avanzamento esclusivamente come `[X/N]` nell’intestazione del messaggio (Step 1). Non aggiungere mai «X rimaste», «N rimaste», «remaining» o un secondo contatore sotto il messaggio. Il riepilogo iniziale della Fase 0 resta invariato.
 3. **Riassumi il messaggio** — non mostrare il testo grezzo: sintetizza in 1-2 righe cosa richiede.
 4. **Proponi azioni concrete** — Segna come letto / Rispondi ora / Salta, con risposta personalizzata disponibile.
 5. **Segna come letto solo dopo decisione** — non marcare come letto prima che l'utente abbia scelto cosa fare.
@@ -166,7 +166,7 @@ Leggi la conversazione:
 inbox_getConversation { companyId, conversationId }
 ```
 
-Poi presenta:
+Poi presenta. `X` è la posizione della conversazione nel giro corrente, da 1 in avanti; `N` è il totale delle conversazioni non lette caricate per quel giro e resta fisso durante il giro, anche quando segni una conversazione come letta o la salti. Una conversazione saltata resta non letta. Se dopo il giro restano conversazioni, rileggi riepilogo e lista e avvia un nuovo giro da `[1/N]`. Con `isLimited: true`, specifica nell’intestazione che il totale è «almeno N» (`[X/almeno N]`, o equivalente nella lingua dell’utente): non presentare un campione come totale esatto.
 
 > **[X/N] Da: [NomeMittente]** — [data]
 > 📝 *[Sintesi in 1-2 righe di cosa dice/chiede il messaggio]*

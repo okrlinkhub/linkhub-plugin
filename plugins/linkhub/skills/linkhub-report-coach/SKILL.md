@@ -149,7 +149,7 @@ Output atteso: **completare e inviare il report in review**. Durata massima hard
   comunica “obiettivo raggiunto” o “obiettivo non raggiunto” con un breve
   motivo. Non dedurre success dal testo dell'utente o dall'esito di un turno: serve l'output verificato.
   La chiusura della pagina non conclude la sfida. La pausa è utilizzabile
-  una sola volta e scade al rinnovo della quota (lunedì o primo del mese).
+  una sola volta e scade all’inizio del mese successivo (ora italiana).
 - La conferma finale di invio o chiusura resta obbligatoria anche sotto pressione.
   Non saltare verifiche né inventare misure per rispettare il tempo.
 
