@@ -200,7 +200,9 @@ completo, verifica subito dopo ogni singolo update. Se ≠ 100%:
 - proponi ribilanciamento esplicito all'utente
 - applica `keyResults_update { keyResultId, weight }` sui KR coinvolti
 
-**Duplicati indicatore:** se peso > 0, lo stesso indicatore non può essere su due KR attivi del team — verifica errori backend e proponi indicatore diverso.
+**Tracciabilità KR:** l’indicatore di un KR esistente non si cambia e il KR non si sposta tra team. Per usare un indicatore diverso, proponi peso attuale 0% e un nuovo KR. Non eliminare un KR con pesi acquisiti o validati: sarà rimosso dal cron mensile solo quando anche l’ultimo peso validato sarà 0%. Le eccezioni di eliminazione sono limitate ai team in bozza o senza pesi acquisiti o validati, senza deroghe admin.
+
+**Duplicati indicatore:** lo stesso indicatore non può appartenere a due KR del team, anche a peso 0%. Se esiste già un KR a 0%, mostralo e proponi di rialzarne il peso, eventualmente spostandolo su un altro Objective dello stesso team. Le modifiche al peso attuale non riscrivono i pesi acquisiti del periodo.
 
 ---
 

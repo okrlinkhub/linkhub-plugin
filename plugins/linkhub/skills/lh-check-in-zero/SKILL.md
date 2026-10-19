@@ -307,23 +307,25 @@ il rischio o la lettura non riesce, spiega il limite e riprendi il check-in.
 Chiedi sempre una breve nota, anche se l'utente risponde in modo telegrafico:
 
 > **Cosa tracciamo nelle Note?**
-> *(1-2 frasi: cosa è successo, cosa resta da fare, perché sposti la data)*
+> *(Una frase breve: cosa è successo o cosa manca)*
 
 **Sempre almeno due proposte di Note**, anche dopo una risposta telegrafica,
-per entrambi gli esiti Rimanda e Completa. Scrivi due note diverse di 1–2 frasi,
+per entrambi gli esiti Rimanda e Completa. Scrivi due note diverse, ciascuna in una sola frase breve,
 pertinenti al nome dell’iniziativa, all’esito scelto e al contesto già fornito.
 Presentale come suggerimenti che l’utente può scegliere o correggere: non
 inventare risultati, persone contattate o motivi del rinvio come fatti
 verificati. Se mancano dettagli, proponi formulazioni prudenti da validare.
-Per esempio, per un rinvio: “Rimando il confronto sulla doppia tassazione;
-resta da raccogliere il parere.” e “Il confronto sulla doppia tassazione resta
-da completare; lo riprendo al prossimo check-in.” Per un completamento,
+Evita riempitivi come “lo riprendo al prossimo check-in”: la data viene raccolta
+separatamente. Per esempio, per un rinvio: “Manca il parere richiesto.” e
+“Il confronto è da completare.” Per un completamento,
 formula alternative coerenti con quanto l'utente ha dichiarato concluso.
 
 Nel Coach integrato emetti le due note come opzioni `linkhub-options`:
 Usa il contesto con `step: "note"` e lo stesso subject.
-`label` e `value` contengono il testo completo della nota, senza numeri o
-lettere da digitare. La scelta invia la nota come messaggio dell’utente;
+`label` è un titolo di 2–5 parole, idealmente entro 40 caratteri; `value`
+contiene la nota breve completa. Se coincidono, usa lo stesso testo. Non
+allungare le note per ripetere il nome dell’iniziativa o la prossima data.
+Non usare numeri o lettere da digitare. La scelta invia la nota come messaggio dell’utente;
 solo la nota scelta o personalizzata diventa `progressNote`. La voce
 **Scrivi una risposta** apre il composer e consente una nota personalizzata.
 Fuori dal Coach integrato offri sempre almeno due note in testo naturale,

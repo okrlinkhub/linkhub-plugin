@@ -31,3 +31,11 @@
 - Monthly report for one team → `linkhub-report-coach`.
 - Review of an `IN_REVIEW` report → `linkhub-review-coach`.
 - Educational canvas and export with no MCP writes → `linkhub-strategy-canvas`.
+
+## Key Result traceability
+
+- A reporter sets current weight to zero while validated period weight is 30%: keep evaluation required, request the verified final value and a valid interval, then use `resultTracked_markCompleted`. Never skip evaluation or call delete.
+- Current weight is zero and no final value is available: do not invent zero; propose restoring current weight before a normal or unmeasurable evaluation.
+- A user requests changing an existing KR indicator: propose retiring it at 0% and creating a different KR. If that indicator already belongs to a 0% KR, identify and reactivate that existing KR instead.
+- An admin requests deletion of a KR with validated history: explain the same lifecycle restriction; no admin bypass or workshop deletion workaround.
+- In a chained draft, weight rebalancing changes current planning without changing period weights or historical performance.

@@ -267,9 +267,11 @@ Propose exactly one of:
 
 - `resultTracked_upsert` for a verified value;
 - `resultTracked_markUnmeasurable` when evidence is unavailable;
-- `resultTracked_markCompleted` for a completed zero-weight objective.
+- `resultTracked_markCompleted` to complete an objective, always supplying the verified final `actualResultValue` and a valid interval. The server records performance with the validated period weight before setting current weight to zero.
 
-Do not pass `weightReported` to `resultTracked_upsert`. Weight changes in a draft use only `keyResults_rebalanceWeightInDraftReport` and apply directly after the user chooses the complete allocation.
+When current weight is zero but validated period weight is positive, evaluation is still required. Only completion is available while current weight remains zero. To save a normal evaluation or mark unmeasurable, ask the user to increase current weight first. Never invent a final value to complete a KR.
+
+Do not pass `weightReported` to `resultTracked_upsert`. Weight changes in a draft use `keyResults_rebalanceWeightInDraftReport` after the user chooses the allocation. They change current planning for the next period; captured period weights stay fixed, including in the first report.
 
 For every KR, use `reports_getEvaluateContext.isFirstTracking`; never infer
 first tracking from the team's report count, a current tracked result, or the

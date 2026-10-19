@@ -33,8 +33,8 @@ filtri seguendo `nextCursor`; non escludere duplicati finché la paginazione non
 | `objectives_update` | Affina title/description |
 | `objectives_remove` | Soft-delete (KR → orfani con snapshot) — **conferma utente** |
 | `keyResults_create` | Nuovo KR sotto objective esistente |
-| `keyResults_update` | Peso, indicatore, forecast/target, spostamento objective |
-| `keyResults_remove` | Soft-delete KR — **conferma utente** |
+| `keyResults_update` | Peso attuale, forecast/target, spostamento objective nello stesso team |
+| `keyResults_remove` | Solo eccezioni iniziali/bozza — **conferma utente**; altrimenti peso 0% |
 | `risks_create` | 1–3 rischi per KR (`reportId` opzionale, omit in setup) |
 | `risks_remove` | Rischio risolto/obsoleto — **conferma utente** |
 | `initiatives_create` | Mitigazione rischio, scope ≤ ~30 giorni |
@@ -74,7 +74,7 @@ al catalogo corrente quando l'admin apre le impostazioni MCP.
 |--------|---------|
 | `validateTitle` / `validateDescription` | Objectives, rischi, iniziative |
 | `validateWeight` | Peso KR 0–100 |
-| `assertIndicatorAvailableForPositiveWeightKeyResult` | Stesso indicatore non duplicato con peso > 0 |
+| `assertIndicatorAvailableForPositiveWeightKeyResult` | Stesso indicatore non duplicato nel team, anche con peso 0% |
 | `requirePrincipalTeamManageAccess` | Solo team gestibili dall'API key |
 | `keyResults_update` cross-team | **Bloccato** — KR non cambia team |
 | Soft-delete objective | KR orfani con `deletedObjectiveTitle` |

@@ -53,7 +53,7 @@ hygiene snapshot.
 | `keyResults_rebalanceWeightInDraftReport` | Cambio peso KR in DRAFT |
 | `resultTracked_upsert` | Evaluate con valore |
 | `resultTracked_markUnmeasurable` | Non so misurarlo |
-| `resultTracked_markCompleted` | Objective completato (weight→0) |
+| `resultTracked_markCompleted` | Registra valore finale e performance con peso validato, poi peso attuale→0 |
 | `risks_create` | Nuovo rischio in analyze / setup |
 | `risks_update` | Modifica descrizione, priorità, KPI trigger |
 | `risks_move` | Sposta un rischio attivo su un altro KR dello stesso team con `riskId` e `targetKeyResultId`; conserva ID e iniziative. Applica il cambio richiesto subito e rileggi l’esito. |

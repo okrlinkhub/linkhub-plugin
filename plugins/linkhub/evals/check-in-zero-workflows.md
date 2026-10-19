@@ -116,6 +116,7 @@ sessioni a tempo. Le chiamate interne corrette restano parte della verifica.
 - Contestuale: dopo “Rimando a domani”, chiede le Note con almeno due testi
   completi pertinenti più la risposta personalizzata dell'app. Non richiede
   nuovamente una data già fornita; la verifica con il calendario.
+- UI compatta: le nuove opzioni hanno titoli di 2–5 parole e note di una sola frase breve. Non aggiungono riempitivi come “lo riprendo al prossimo check-in”. Un titolo breve non cambia il `value` completo scelto né le Note storiche.
 - Positivo: anche Completa offre almeno due Note prima del salvataggio diretto.
   La nota scelta è il valore inviato dall'utente e viene salvata senza riformulazioni.
 - Negativo: nessun suggerimento viene salvato senza scelta; note non verificate

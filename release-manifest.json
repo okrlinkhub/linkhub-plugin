@@ -1,83 +1,83 @@
 {
   "schemaVersion": 1,
   "plugin": "linkhub",
-  "version": "0.10.17",
-  "tag": "v0.10.17",
+  "version": "0.10.19",
+  "tag": "v0.10.19",
   "sourceRepository": "okrlinkhub/linkhub-w4",
-  "sourceSha": "c2ecb178b0211fce7f586c76020f1a831e46d42f",
+  "sourceSha": "629185d59dcf10acb21970fdd26169cf51aeaab5",
   "distributionRepository": "okrlinkhub/linkhub-plugin",
   "skills": [
     {
       "name": "cluster-collaboration",
-      "filename": "cluster-collaboration-v0.10.17.zip",
+      "filename": "cluster-collaboration-v0.10.19.zip",
       "size": 9309,
       "sha256": "b8d74ca47ef1d37acd7a855daacae629fc367b36e86d55ee9155a69c313a15b9"
     },
     {
       "name": "coach-cluster-report",
-      "filename": "coach-cluster-report-v0.10.17.zip",
-      "size": 6986,
-      "sha256": "2ea9a6a9148618420cc76204ace9b23b3c9dd0c7c6e3c0362f6bbc172c1b949a"
+      "filename": "coach-cluster-report-v0.10.19.zip",
+      "size": 7059,
+      "sha256": "5e61757cc8e1c1f55a59a9ff9be2e7730573e6fead40a785ccf901eb734167a7"
     },
     {
       "name": "lh-check-in-zero",
-      "filename": "lh-check-in-zero-v0.10.17.zip",
-      "size": 31903,
-      "sha256": "fb9c13a8b0231724cd748273d93f167b2b5fce92c63105355ca28280e9c9ade4"
+      "filename": "lh-check-in-zero-v0.10.19.zip",
+      "size": 32057,
+      "sha256": "0bb2170eb1d5327ec84443f8c51153f81975f17379d8ce00be2c28fe9b263dfd"
     },
     {
       "name": "lh-execution",
-      "filename": "lh-execution-v0.10.17.zip",
+      "filename": "lh-execution-v0.10.19.zip",
       "size": 5874,
       "sha256": "b4a28a05f81aac7eda9fa1c07997c706f895c504e9599280ce0c55d660aa2f27"
     },
     {
       "name": "lh-inbox-zero",
-      "filename": "lh-inbox-zero-v0.10.17.zip",
+      "filename": "lh-inbox-zero-v0.10.19.zip",
       "size": 17127,
       "sha256": "4fcc818acc5b6286579d10aff69ffa4bf394e9360db8dac0c716a1e4d88e6967"
     },
     {
       "name": "linkhub-indicator-analyst",
-      "filename": "linkhub-indicator-analyst-v0.10.17.zip",
+      "filename": "linkhub-indicator-analyst-v0.10.19.zip",
       "size": 2720,
       "sha256": "27e52ead6cb6ec8c05f1c41c24e0ca913200883bbebb3bdd840c059abcd054d2"
     },
     {
       "name": "linkhub-kpi-interviewer",
-      "filename": "linkhub-kpi-interviewer-v0.10.17.zip",
+      "filename": "linkhub-kpi-interviewer-v0.10.19.zip",
       "size": 6991,
       "sha256": "9bbd4d29c6028e4555acdb978743ac0e13ce1c5a20b6e26f37a3c772b6d776ee"
     },
     {
       "name": "linkhub-operational-agent",
-      "filename": "linkhub-operational-agent-v0.10.17.zip",
+      "filename": "linkhub-operational-agent-v0.10.19.zip",
       "size": 24677,
       "sha256": "97debc20b541e412c3da394417bae2a30130159ce43f9f43c6ebf76f4a70c4ae"
     },
     {
       "name": "linkhub-report-coach",
-      "filename": "linkhub-report-coach-v0.10.17.zip",
-      "size": 42741,
-      "sha256": "1afdecef19a4c8b5717b914cd392bc075740e5532e9d90351e1f15afcb64ffc9"
+      "filename": "linkhub-report-coach-v0.10.19.zip",
+      "size": 43342,
+      "sha256": "b46d381a317d83f1f2d28b6b70d20a9d5426e65664396609331d97f057137407"
     },
     {
       "name": "linkhub-review-coach",
-      "filename": "linkhub-review-coach-v0.10.17.zip",
+      "filename": "linkhub-review-coach-v0.10.19.zip",
       "size": 52624,
       "sha256": "b28024a36d4e8d0c3022dbb715d4282728f112bd4c6f6d821b87f4201ef3b7d5"
     },
     {
       "name": "linkhub-strategy-canvas",
-      "filename": "linkhub-strategy-canvas-v0.10.17.zip",
+      "filename": "linkhub-strategy-canvas-v0.10.19.zip",
       "size": 52013,
       "sha256": "5a8f56da35a08362c3b3ff33cd10d3908e12027c16cac4058316bf0bb5a9c50c"
     },
     {
       "name": "linkhub-strategy-coach",
-      "filename": "linkhub-strategy-coach-v0.10.17.zip",
-      "size": 28691,
-      "sha256": "83ca0818faf96a856631b7ea7dba52e44c1253141900ff314e5518f59ce32bbe"
+      "filename": "linkhub-strategy-coach-v0.10.19.zip",
+      "size": 29335,
+      "sha256": "28c63a4d78fa41deb85e8da69f66f8da69bf74fafe0b0a6f8bb0c6a30d57d25c"
     }
   ]
 }
