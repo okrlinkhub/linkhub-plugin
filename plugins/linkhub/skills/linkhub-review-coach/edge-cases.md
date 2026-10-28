@@ -13,7 +13,7 @@
 
 ## Snapshot completeness
 
-- Any `potentiallyTruncated: true`: fail closed. Do not save weights or risks, or confirm closure, from an incomplete set.
+- An Analyze preview with `completeness.paginationRequired: true` must be completed through `reviews_getAnalyzePage` and `reviews_getAnalyzeText` as described in the skill. It does not require a manual inventory or abandoning Analyze. Other `potentiallyTruncated: true` contexts, or a failed continuation, remain incomplete: do not save dependent changes or confirm closure from them.
 - Missing `resultNext` for a positive-weight tracked result: report the exact KR and stop before closure.
 - Untracked active KR: explain that it is outside the submitted report snapshot. If the reviewer wants it to govern the next period, apply the requested `reviews_attachKeyResult` directly; it enters at zero, then requires a valid user-chosen complete rebalance. Do not use reporter-side result creation.
 - Removed or missing KR with positive proposed weight: stop. A historical snapshot may be set to zero, but an active replacement requires a deliberate product decision.

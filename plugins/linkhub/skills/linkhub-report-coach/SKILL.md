@@ -317,12 +317,27 @@ After the tracked-result write, always load risks and initiatives for the curren
 KR with `reports_getAnalyzeContext`; do not skip Analyze. Before any Analyze
 write or Next proposal:
 
-1. Verify that the risk list is complete before filtering it. The current
-   `reports_getAnalyzeContext` contract returns at most 300 active risks and has
-   no cursor. When it returns exactly 300 risks, treat the result as potentially
-   truncated: explain that you cannot verify the complete risk list and stop before
-   Analyze writes or Next. Do not use `risks_byKeyResult` as a
-   pagination substitute; it also has no cursor and returns at most 200 risks.
+1. Verify that the risk and initiative lists are complete before filtering.
+   `reports_getAnalyzeContext` is a bounded preview. When
+   `completeness.paginationRequired` is true, call `reports_getAnalyzePage` with
+   `kind: "risks"`, the current `keyResultId`, and `paginationOpts:
+   { numItems: 10, cursor: null }`; follow `continueCursor` until `isDone`.
+   Page `kind: "initiatives"` once for the whole report team, omitting both
+   `keyResultId` and `riskId`, and follow every cursor, including after empty
+   filtered pages. Group the complete inventory by returned `keyResultId` and
+   `riskId` and use the current KR's group. Reuse that inventory for subsequent
+   KRs in this report; after an initiative or risk write, refresh it before
+   dependent decisions. Do not rescan the team once per KR.
+   Do not use `risks_byKeyResult` as a
+   pagination substitute or ask the user to transcribe the inventory.
+   If `descriptionTruncated` is true, read the remaining text with
+   `reports_getAnalyzeText`, exactly one `riskId` or `initiativeId`,
+   `field: "description", offset: 240`, following `nextOffset` until `isDone`.
+   Read initiative notes on demand with `field: "notes", offset: 0`.
+   Pages have at most 10 compact rows; text chunks at most 1000 characters.
+   Do not request `endCursor`, reuse cursors across scopes, or treat a short
+   page as complete. A failed page blocks dependent decisions, but a partial
+   preview with working continuation does not: finish reading it autonomously.
 2. Show a concise list of every current-KR risk whose priority is exactly
    `highest`. Prefix the complete current-KR risk list with stable local references
    (`R1`, `R2`, ...) and reuse those references throughout that KR interview. If

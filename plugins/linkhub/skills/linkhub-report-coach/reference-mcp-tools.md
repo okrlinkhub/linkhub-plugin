@@ -13,7 +13,9 @@
 | `keyResults_byTeam` | teamId | slug, peso e valore tecnico usato internamente per l'obiettivo minimo |
 | `reports_getEvaluateContext` | reportId, keyResultId | indicator, ultimo valore operativo con data, tracked/next correnti, `isFirstTracking`, `previousInterval` valido o null |
 | `reports_previewTrackedResult` | reportId, keyResultId, actualResultValue, intervallSource?, forecastValue?, targetValue? | obiettivi risolti dal server, fonte, punteggio e classificazione canonici prima di salvare direttamente `resultTracked_upsert` |
-| `reports_getAnalyzeContext` | reportId, keyResultId | risks[], initiatives[] |
+| `reports_getAnalyzeContext` | Bounded preview; when completeness.paginationRequired is true, finish the inventory with getAnalyzePage |
+| `reports_getAnalyzePage { reportId, kind, keyResultId?, riskId?, paginationOpts }` | Page positive-weight keyResults, risks per KR, or initiatives per team/KR/risk. Use numItems 1–10, null first cursor, then continueCursor until isDone, including empty pages. |
+| `reports_getAnalyzeText { reportId, riskId?, initiativeId?, field, offset }` | Exactly one element; description or initiative notes in chunks of 1000 characters. Follow nextOffset until isDone. |
 | `risks_byKeyResult` | keyResultId | solo se serve lista estesa |
 | `initiatives_byTeam` | teamId, riskId?, includeFinished?, cursor?, limit? | active hygiene page in `initiatives`, with `hasMore` and `nextCursor` |
 | `initiatives_listMinePending` | companyId | check-in da fare |

@@ -6,7 +6,9 @@
 | --- | --- |
 | `reviews_listMyClusterTargets` | Resolve the current user's cluster through the team configured as `teamClusterLeaderId`, then return only that cluster's active teams, people, and assigned pending reviews; returns `not_cluster_leader` instead of falling back to membership teams |
 | `reviews_getContext { reportId? \| reportSlug? }` | Complete reviewer snapshot, team leader, notes, KR/indicator details including each indicator's latest value and date, previous reports, untracked KRs, and readiness |
-| `reviews_getAnalyzeContext { reportId }` | All positive-weight review KRs, with compact stable risk references `R1...`, initiative references `I1...`, period relation, and per-KR `highest` coverage in one call |
+| `reviews_getAnalyzeContext` | Bounded preview; when completeness.paginationRequired is true, finish the inventory with getAnalyzePage |
+| `reviews_getAnalyzePage { reportId, kind, keyResultId?, riskId?, paginationOpts }` | Page positive-weight keyResults, risks per KR, or initiatives per team/KR/risk. Use numItems 1–10, null first cursor, then continueCursor until isDone, including empty pages. |
+| `reviews_getAnalyzeText { reportId, riskId?, initiativeId?, field, offset }` | Exactly one element; description or initiative notes in chunks of 1000 characters. Follow nextOffset until isDone. |
 | `reviews_rebalanceRiskPriorities { reportId, changes[] }` | Atomic priority update for the user-chosen risk group; rejects a final state that leaves any positive-weight KR without a `highest` risk |
 | `reviews_rebalanceWeights { reportId, allocations[] }` | Atomic complete user-chosen 100% weight rebalance; changed rows require reviewer notes |
 | `reviews_attachKeyResult { reportId, keyResultId, reviewerNotes }` | Attach an existing untracked active KR at zero, before the complete user-chosen rebalance |
@@ -59,7 +61,7 @@ When reviewing in an isolated sandbox, invoke the indicator evidence functions t
 
 ## Do not use during review
 
-- `reports_getAnalyzeContext`: reporter-oriented, one-KR-at-a-time Analyze context; use the aggregated reviewer tool instead.
+- `reports_getAnalyzeContext`: reporter-oriented, one-KR-at-a-time Analyze context; use the reviewer tools with their reviewer authorization instead.
 - `keyResults_rebalanceWeightInDraftReport`: reporter DRAFT semantics.
 - `resultTracked_upsert`, `resultTracked_markUnmeasurable`, `resultTracked_markCompleted`: reporter evaluation semantics.
 - `resultNext_upsert`, `resultNext_skipWithDefaults`: overwrite or create reporter-side Next data.

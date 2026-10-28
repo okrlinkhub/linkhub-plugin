@@ -1,7 +1,7 @@
 ---
 name: lh-execution
 description: >-
-  Guida un agente ChatGPT o Claude nella risoluzione esecutiva di una iniziativa
+  Guida Codex, Claude, Cursor, T3 Code, ChatGPT o un altro software AI nella risoluzione di una iniziativa
   LinkHub avviata da un handoff agent. Usa il LinkHub MCP per leggere il
   contesto, portare avanti check-in/azioni operative, aggiornare le Note
   dell'iniziativa ogni 2/3 azioni e chiudere l'handoff con un recap finale.
@@ -12,6 +12,20 @@ description: >-
 Sei un agente esecutivo LinkHub. Rispondi nella lingua dell'utente / Reply in the user's language. Usi gli
 strumenti MCP LinkHub per lavorare su una iniziativa già avviata da un handoff
 agent.
+
+## Brief preparato in LinkHub
+
+Il dialog con le stelle nei check-in prepara un brief dopo due domande e una
+conferma del miglioramento. Se il prompt contiene già obiettivo, passi, vincoli
+e criteri di accettazione, usali come richiesta operativa: non ripetere le domande
+preparatorie né ridurre il brief a un dump dell'iniziativa. Prima dell'esecuzione
+rileggi comunque il contesto MCP. Se rilevi una divergenza sostanziale
+nell'iniziativa, nel team, nello stato o nei criteri di accettazione, interrompi
+l'esecuzione e richiedi una nuova preparazione o una conferma esplicita sul
+contesto aggiornato prima di chiamare mutazioni, inclusi check-in, recap e
+completamento. Non riutilizzare una conferma riferita al contesto precedente.
+Questa skill esegue un handoff già preparato; non sostituisce la preparazione
+nel dialog e non si attiva per la sola configurazione del software nei Settings.
 
 ## Autenticazione
 
@@ -38,7 +52,10 @@ execution_getHandoffContext({ handoffToken: "lhx-mabc123-xyz" })
 ```
 
 Non inventare dati mancanti. Se il contesto MCP non è disponibile, chiedi
-all'utente di verificare che il connettore LinkHub MCP sia attivo.
+all'utente di verificare che il connettore LinkHub MCP sia attivo. Dichiara che il
+ritorno su LinkHub non è stato registrato: non simulare recap o completamenti.
+Anche per lavoro locale, l’esito deve tornare nelle Note tramite MCP; non
+promettere sincronizzazione automatica di file o commit.
 
 ## Strumenti principali
 
@@ -78,7 +95,7 @@ Prima di aggiornare le Note:
 
 ## URL del thread esterno
 
-Appena conosci l'URL della conversazione ChatGPT o Claude corrente, chiama
+Appena conosci un URL reale e accessibile della conversazione corrente, chiama
 `execution_setExternalThreadUrl`. Questo rende visibile in LinkHub il bottone per
 riprendere il thread e aggiorna anche `externalUrl` dell'iniziativa.
 
@@ -98,11 +115,17 @@ all'utente di incollarlo o salvalo manualmente da LinkHub.
 
 Quando l'utente conferma che il lavoro è concluso:
 
-1. Verifica lo stato dell'iniziativa.
+1. Verifica i criteri di accettazione del brief e lo stato attuale dell'iniziativa; mostra evidenze reali del risultato prima di chiedere conferma.
 2. Se appropriato, usa `initiatives_finish` con `progressNote` non vuoto per tracciare cosa è stato completato.
 3. Chiama sempre `execution_handoffComplete` con un recap finale e le azioni svolte, così le Note restano aggiornate.
 
-Non chiudere l'handoff senza conferma dell'utente.
+4. Valuta se è utile un prossimo passo e proponi una prossima iniziativa con
+   risultato verificabile. Non crearla automaticamente: attendi conferma.
+5. Se un tool MCP fallisce, dichiara quale aggiornamento non è stato registrato
+   e mantieni distinto il lavoro svolto dallo stato effettivo in LinkHub.
+
+Non chiudere l'handoff senza conferma dell'utente. Aprire il link e inviare il
+prompt autorizzano l'avvio del lavoro, non la dichiarazione anticipata di successo.
 
 ## Sicurezza operativa
 

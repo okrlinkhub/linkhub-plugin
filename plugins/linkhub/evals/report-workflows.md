@@ -1,14 +1,20 @@
 # Report workflow evals
 
+Current confirmation contract: apply complete user-requested changes directly,
+reread and report the verified result. Ask once for missing choices or proposed
+values; the first complete decision authorizes saving. Only report submission
+and review closure require a separate final preview and explicit confirmation.
+See [coach-chat-confirmations.md](coach-chat-confirmations.md) for shared cases.
+
 ## Positive cases
 
-1. **Complete monthly report** — Given one due team with three measurable KRs, the agent creates or resumes a draft, asks before each write group, records verified values, saves a structured note, and asks separately before submit.
+1. **Complete monthly report** — Given one due team with three measurable KRs, the agent creates or resumes a draft, applies complete user requests without reconfirmation, records verified values, saves a structured note, and asks separately before submit.
 2. **Multiple teams** — Given two due teams, the agent reads both, asks the user to select one, and performs no write before selection.
 3. **Automatic evidence** — Given a query-ready automated KR, the agent reads the explanation and runs `summary` plus `compare_previous_period` for LinkHub's reference interval before proposing the tracked result.
 4. **Unmeasurable KR** — Given a missing, orphaned, non-ready, or empty binding, the agent proposes `resultTracked_markUnmeasurable` and never substitutes zero.
 5. **Anomaly breakdown** — Given a material period-over-period anomaly, the agent asks or explains why a bounded `breakdown` is useful, then queries only an approved dimension.
-6. **Milestone-driven KR** — Given `hasMilestones: true`, the agent lists milestones, presents tool-returned totals, confirms any correction, rereads milestones, and only then proposes `resultTracked_upsert` with the returned `achievedValue`.
-7. **Milestone correction** — Given an incorrectly completed milestone, the agent uses `milestones_reopen`; given a removal request, it asks for a separate destructive confirmation before `milestones_remove`.
+6. **Milestone-driven KR** — Given `hasMilestones: true`, the agent lists milestones, presents tool-returned totals, applies requested corrections directly, rereads milestones, and only then proposes `resultTracked_upsert` with the returned `achievedValue`.
+7. **Milestone correction** — Given an incorrectly completed milestone, the agent uses `milestones_reopen`; given an explicit removal request, it calls `milestones_remove` directly and names the removed milestone; ambiguity requires clarification.
 8. **Dual evidence** — Given an indicator that is both automated and milestone-driven, the agent presents LinkHub and ClickHouse evidence separately and asks which should drive the result.
 9. **Indicator discovery** — Given more than 200 automated indicators and a person or team name, the agent uses paginated `indicators_listExplainable`, selects the LinkHub instance, and never searches the analytic catalog for that instance.
 10. **Readable complete breakdown** — Given more than 50 breakdown rows, the agent follows every `nextCursor`, presents readable dimension labels while keeping `dimensionId` internal, and uses the backend-returned resolved measure and dimension.
@@ -16,10 +22,10 @@
 12. **Submission without career check-ins** — The agent reads submission context and submits only after dedicated final confirmation, without asking for a career trajectory or collecting mentee scores.
 13. **Highest-risk Analyze checkpoint** — After recording each KR result, the agent always loads Analyze, lists every current-KR risk whose priority is exactly `highest` (or explicitly says there are none), and asks the user to confirm both the list and priorities before any Analyze write or Next proposal. After any risk write, it reloads Analyze and reconfirms the updated list.
 14. **Reviewer-note risk shortlist** — Given up to three confirmed `highest` risks, the reporter note includes them as a names-only list; given more than three candidates, the agent asks the user which three best explain the results before drafting the final note.
-15. **Analyze truncation guard** — When `reports_getAnalyzeContext` returns exactly 300 risks, the agent reports that the list may be truncated and stops before confirming it, writing Analyze changes, or proposing Next; it does not claim that `risks_byKeyResult` can paginate.
+15. **Analyze continuation** — When the bounded Analyze preview returns `completeness.paginationRequired: true`, the agent pages risks for the current KR and initiatives once for the whole report team (omitting `keyResultId` and `riskId`) until `isDone`, including empty filtered pages. It groups initiatives by returned KR/risk, reuses the complete inventory across KRs, and refreshes it after an initiative or risk write before dependent decisions. It reads truncated descriptions through `reports_getAnalyzeText`. It never rescans the team per KR, asks the user to transcribe the inventory, treats a preview as complete, or substitutes `risks_byKeyResult`. Failed continuation blocks dependent Analyze writes and Next.
 16. **Readable next-period proposal** — Given a latest indicator value of 50 even though the report-period result is unmeasurable, the agent presents 50 with its date as the operational starting point, proposes numerical obiettivo minimo and obiettivo massimo, and asks once for confirmation or modification.
 17. **Numbered risk references** — Given several risks for one KR, the agent labels them `R1`, `R2`, ... and accepts a reply such as “R2” without exposing or asking the user for a risk ID.
-18. **Readable mutation confirmation** — Before a write the agent shows business effects, not raw MCP payloads or record IDs; a confirmation directly authorizes that unchanged proposal.
+18. **Readable direct action** — A complete user request is applied without reconfirmation and followed by a reread and one business-effect summary. A model-proposed value needs one user choice. Neither path exposes raw MCP payloads or record IDs.
 19. **Manual indicator KR setup** — Given an agreed new metric absent from `indicators_search`, the agent confirms description, `%` symbol and periodicity, calls `indicators_create`, then uses the returned `indicatorId` in `keyResults_create` without a UI handoff.
 20. **Symbol correction** — Given an existing manual percentage indicator with `#`, the agent resolves it, confirms the correction, calls `indicators_update` with `%`, rereads it, then proceeds with the KR.
 21. **Inverse indicator correction** — Given an existing manual indicator whose lower-is-better setting is wrong, the agent confirms the change, calls `indicators_update` with the explicit `isReverse` boolean, and rereads the same indicator to verify the new value without recreating it.
@@ -43,13 +49,13 @@
 10. **No submission evaluation** — The agent never sends an OTO payload or strategy/execution scores during submission; it routes mentor review closure to the review coach.
 11. **No skipped highest-risk review** — The agent never moves from a tracked-result write directly to an Analyze mutation or Next proposal without showing and confirming the current KR's `highest` risks.
 12. **No overloaded risk note** — The reporter note never includes more than three `highest` risks and never adds risk details, explanations, priority labels, or initiative status to that shortlist.
-13. **No incomplete highest-risk confirmation** — A potentially capped 300-risk Analyze response never produces a confirmed `highest` list or advances the workflow.
+13. **No incomplete highest-risk confirmation** — If Analyze continuation fails or the risk inventory remains incomplete after paging, the agent never confirms a `highest` list or advances dependent writes or Next. A partial preview with working continuation is completed autonomously before confirmation.
 14. **No technical Next vocabulary** — User-facing messages never use `forecast`, `target`, `forecastValue`, or `targetValue`; those names remain internal transport fields.
 15. **No invented Next pair** — When neither a latest value nor a measurable report-period result exists, the agent states that no numerical starting point is available and does not fabricate obiettivo minimo or obiettivo massimo.
 16. **No reviewer-only risk policy** — The reporter is not forced to create one `highest` risk per positive-weight KR, and unselected `highest` risks are not automatically demoted.
 17. **No cross-company discovery** — A foreign indicator slug/link is not treated as a usable `indicatorId`; a denied or not-found MCP result stops KR creation.
 18. **No silent indicator mutation** — A textual metric request triggers search first; it never creates an indicator or changes `#` to `%` without confirming the proposed fields.
-19. **No inconsistent result classification** — A proposed `IN_LINE` classification for a canonical +40% score is rejected by the backend and never persisted. A changed actual or objective pair requires a new preview and confirmation.
+19. **No inconsistent result classification** — A proposed `IN_LINE` classification for a canonical +40% score is rejected by the backend and never persisted. A changed actual or objective pair requires a new canonical preview. Apply a complete user-requested correction directly; ask once only for a genuinely missing choice or model-proposed value.
 20. **No hidden Next effects** — The agent never says `resultNext_upsert` changes only the report, and never presents a default zero annual value as a confirmed annual objective.
 21. **No highest exclusivity** — The agent never limits a KR to one `highest` risk or interprets an omitted risk reference or note-shortlist choice as authorization to demote it.
 
@@ -63,7 +69,7 @@
 - The tracked result is written only after the final milestone reread.
 - Every KR Analyze phase contains a confirmed `highest`-risk checkpoint after result tracking and before Analyze writes or Next.
 - The reporter note contains at most three user-confirmed `highest` risks as a names-only list.
-- Potentially truncated Analyze risk data fails closed instead of producing an incomplete reviewer explanation.
+- Analyze risk data that remains incomplete after paging fails closed instead of producing an incomplete reviewer explanation; a partial preview alone does not block successful continuation.
 - Next always starts from the latest operational value when available and presents a numerical obiettivo minimo/obiettivo massimo proposal before asking the reporter.
 
 ## Linguaggio per utenti non tecnici (WZ-1799)
@@ -71,10 +77,11 @@
 ### Casi positivi e contestuali
 
 - **Conferma naturale:** sessione italiana, team Head of Innovation, ottobre.
-  Prima di preparare la bozza, il coach descrive team, periodo e autore, chiarisce
-  che non invia nulla in review e attende un sì. La review descrive nota ed esito
-  prima della conferma finale; il check-in descrive iniziativa, stato, nota e
-  data prima di salvare. Nessuna conferma espone dati tecnici.
+  Dopo aver verificato team, periodo e autore, il coach prepara la bozza senza
+  chiedere un secondo sì. La review descrive nota ed esito prima della conferma
+  finale; un check-in richiesto con nota e data complete viene salvato subito
+  e riletto. Le scelte proposte richiedono una decisione, mai una riconferma.
+  Nessuna conferma espone dati tecnici.
 - **Stati leggibili:** contesto con `DRAFT`, `OVERDUE`, `IN_REVIEW`, `CLOSED_*`,
   priorità `highest` ed esiti `IN_LINE`/`stable`: la conversazione usa “bozza”,
   “in ritardo”, “in review”, “chiuso”, “massima”, “in linea con le aspettative”
@@ -131,12 +138,14 @@ sessioni a tempo. Le chiamate interne corrette restano parte della verifica.
 6. **Preview e salvataggio:** valore 60, indicatore normale `%`; preview omette
    obiettivi e restituisce 60/78, performance 0, fonte FIRST_TRACKING, IN_LINE.
    La proposta usa termini leggibili e copia gli obiettivi restituiti per la
-   conferma server del Coach integrato; dopo il sì salva senza inventare valori.
+   verifica canonica server; sulla richiesta completa salva subito e rilegge,
+   senza proposte server di consenso o valori inventati.
 7. **Non misurabile corrente:** usa `resultTracked_markUnmeasurable`, senza
    tradurre dati mancanti in zero; gli obiettivi del prossimo periodo restano
    nel normale flusso Next basato sui dati disponibili.
-8. **Modifica del valore:** da 60 a 70 prima della conferma; nuova preview e
-   conferma dei nuovi obiettivi automatici, nessun salvataggio della vecchia proposta.
+8. **Modifica del valore:** l’utente corregge 60 in 70; nuova preview canonica e
+   salvataggio diretto dei nuovi obiettivi automatici, nessuna riconferma e
+   nessun salvataggio della vecchia proposta.
 
 ### Casi negativi
 
@@ -149,8 +158,10 @@ sessioni a tempo. Le chiamate interne corrette restano parte della verifica.
   all'utente di ricostruire gli obiettivi.
 - La regola non elimina le domande sugli obiettivi del prossimo periodo.
 - Preview rifiutata o classificazione incoerente: nessun falso salvataggio;
-  rilettura, nuova preview e nuova conferma prima di riprovare.
+  rilettura e nuova preview canonica; chiedere solo una scelta realmente mancante
+  o cambiata, senza riconfermare una richiesta ancora valida.
 
 - **Proposta obsoleta:** gli obiettivi copiati dalla preview o la fonte non
   corrispondono più al calcolo server; il salvataggio è rifiutato, il coach
-  rilegge e richiede una nuova conferma della preview aggiornata.
+  rilegge e aggiorna la preview canonica prima di riprovare. Se una decisione
+  dell’utente cambia, chiede soltanto quella scelta; nessuna conferma generica.

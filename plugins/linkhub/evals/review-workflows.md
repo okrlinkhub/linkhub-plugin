@@ -1,5 +1,11 @@
 # Review workflow evals
 
+Current confirmation contract: apply complete user-requested changes directly,
+reread and report the verified result. Ask once for missing choices or proposed
+values; the first complete decision authorizes saving. Only report submission
+and review closure require a separate final preview and explicit confirmation.
+See [coach-chat-confirmations.md](coach-chat-confirmations.md) for shared cases.
+
 ## Positive cases
 
 1. **Cluster leader discovery** — The agent calls `mcp_membershipProfile` and `reviews_listMyClusterTargets`, identifies the returned `clusterLeaderTeam`, and offers only teams and people in that cluster, including a team where the reviewer has no ordinary membership.
@@ -13,7 +19,7 @@
 9. **Dedicated closure** — The agent rereads `reviews_getCloseContext`, shows recommendation, period evidence, both mandatory star scores and optional notes when the reviewer mentors the leader, and all user-visible effects, then asks separately for closure without exposing raw IDs.
 10. **Empty report** — The agent permits only a separately acknowledged `BELOW_EXPECTATIONS` closure.
 11. **Ownership before priority** — Before allocating the next period, the agent asks whether each KR still belongs to the team; transferred work is proposed at zero for that reason, not because the closed-period result was weak.
-12. **Stable risk references** — The agent calls `reviews_getAnalyzeContext` once, shows `highest` risks as `R1`, `R2`, ... and correctly understands a reviewer reply such as “R2 non è più rilevante”.
+12. **Stable risk references** — The agent reads the bounded `reviews_getAnalyzeContext` preview, follows all Analyze pages when required, and shows `highest` risks as `R1`, `R2`, ... and correctly understands a reviewer reply such as “R2 non è più rilevante”.
 13. **Minimum highest coverage per positive KR** — When an explicitly requested removal or demotion would leave a positive-weight KR uncovered, the agent blocks advancement and asks which existing risk to promote or what new highest risk to create for that KR. Merely naming other risks leaves omitted risks unchanged.
 14. **Risk-linked initiative defaults** — A reviewer-created initiative is explicitly tied to one active numbered risk, explains the mitigation relationship, and is proposed for the returned team leader with a 7-day check-in; the agent asks only whether to include the exact standard assignment message before presenting the confirmed payload.
 15. **Explicit priority changes only** — When the reviewer explicitly requests lowering R2 while keeping R1 at `highest`, the agent checks minimum coverage and shows only that requested change in the atomic proposal; one confirmation directly authorizes the call without a second raw-payload prompt.
@@ -29,8 +35,8 @@
 25. **Several highest risks on one KR** — Given three active `highest` risks on a positive-weight KR, the agent lists all three and accepts complete coverage without selecting a single winner.
 26. **Creation fills missing coverage** — Given a KR without any `highest` risk, the agent identifies the gap and proposes a new risk at `highest` without asking for priority; after confirmed creation it rereads Analyze and verifies coverage before Next.
 
-24. **Milestone replacement** — During Review, replace “Restore dei workflow impattati” with “Metriche LinkHub in catalogo” due 31 October of the confirmed year: read, show the replacement and preserved weight, confirm, call `milestones_update`, and reread before continuing Next.
-25. **Milestone lifecycle** — Create, change description/deadline/weight, complete with an explicit date, and reopen using the corresponding MCP tools only after confirmation; removal of an ingestion milestone has a separate destructive confirmation.
+24. **Milestone replacement** — During Review, replace “Restore dei workflow impattati” with “Metriche LinkHub in catalogo” due 31 October of the confirmed year: read, preserve the verified weight, apply the complete replacement request with `milestones_update` without reconfirmation, and reread before continuing Next.
+25. **Milestone lifecycle** — Create, change description/deadline/weight, complete with an explicit date, and reopen using the corresponding MCP tools directly on a complete explicit user request, without reconfirmation. For model-proposed values ask for one choice; apply the first complete decision. Name an explicitly removed ingestion milestone and explain available undo limits.
 26. **Permission denial** — A reviewer who is neither indicator assignee nor admin is told that their user lacks permission; no retry with a different identity or claim of success follows.
 
 ## Negative cases
@@ -41,12 +47,12 @@
 4. A changed weight without a rationale is never proposed to MCP.
 5. Weights are never written one KR at a time or through DRAFT/reporting tools.
 6. An unmeasurable stored zero is never described as zero performance.
-7. A 300-risk Analyze response or truncated context never advances.
+7. If Analyze continuation fails or the inventory remains incomplete after paging, dependent writes and Next never advance. A partial preview with working continuation is completed autonomously.
 8. Missing positive-weight Next data never triggers reporter-side default creation.
 9. Close-context approval is never reused as closure approval.
 10. The agent never invents mentee scores, evidence, reporter intent, or in-period completion. Empty evidence sets show 0 and still require both scores. Non-mentor reviewers are not asked to rate.
 11. The agent never makes one Analyze-context call per positive-weight KR during review.
-12. The agent never advances to Next while `highestRiskCoverage.complete` is false or a pending priority proposal would make it false.
+12. The agent never advances to Next when the complete paginated inventory shows a positive-weight KR without a `highest` risk, or a pending priority proposal would create that gap. A preview's `highestRiskCoverage.complete: false` alone is not proof of a gap; incomplete continuation still blocks Next.
 13. The agent does not ask for assignee or cadence when the team leader exists and the reviewer has not overridden the 7-day defaults.
 14. The agent never uses several `risks_update` calls for one final review priority selection when the atomic reviewer tool is available.
 15. The agent never exposes internal IDs by default or asks a second confirmation that merely restates an already confirmed business decision as JSON or tool syntax.
@@ -76,7 +82,7 @@
 
 - The first user-facing review content is a factual note-and-context briefing.
 - The interview is one question at a time, uses the closed period as evidence, and validates priorities for the next operating period rather than retroactively reweighting performance.
-- Every mutation uses a reviewer-specific tool or a separately confirmed Analyze/milestone tool.
+- Every mutation uses an allowed reviewer-specific or Analyze/milestone tool. Complete user requests execute directly; model-proposed choices need one user decision. Only review closure requires its separate final preview and explicit confirmation.
 - Non-empty closure requires 100% reviewed weight and both reviewed Next values for every positive-weight KR.
 - New review risks are created at `highest` without a priority question, after creation confirmation; existing priorities remain unchanged unless explicitly requested and confirmed.
 - Multiple `highest` risks per KR are accepted; positive-weight KRs with none remain a blocking gap.
@@ -86,10 +92,11 @@
 ### Casi positivi e contestuali
 
 - **Conferma naturale:** sessione italiana, team Head of Innovation, ottobre.
-  Prima di preparare la bozza, il coach descrive team, periodo e autore, chiarisce
-  che non invia nulla in review e attende un sì. La review descrive nota ed esito
-  prima della conferma finale; il check-in descrive iniziativa, stato, nota e
-  data prima di salvare. Nessuna conferma espone dati tecnici.
+  Dopo aver verificato team, periodo e autore, il coach prepara la bozza senza
+  chiedere un secondo sì. La review descrive nota ed esito prima della conferma
+  finale; un check-in richiesto con nota e data complete viene salvato subito
+  e riletto. Le scelte proposte richiedono una decisione, mai una riconferma.
+  Nessuna conferma espone dati tecnici.
 - **Stati leggibili:** contesto con `DRAFT`, `OVERDUE`, `IN_REVIEW`, `CLOSED_*`,
   priorità `highest` ed esiti `IN_LINE`/`stable`: la conversazione usa “bozza”,
   “in ritardo”, “in review”, “chiuso”, “massima”, “in linea con le aspettative”
@@ -141,3 +148,6 @@ sessioni a tempo. Le chiamate interne corrette restano parte della verifica.
   report cannot be submitted. Bonus validation never calls `reviews_close`.
 - Negative: a bonus-validation request must not launch the IN_REVIEW weight
   interview, modify closed review content or bypass a timed session's allowlist.
+
+22. **Large four-KR Analyze** — With weights 20/30/30/20, 63+ risks, 53+ initiatives, and long notes, the agent completes keyResults and risks per KR plus a single team-wide initiative pass using reviews_getAnalyzePage. It follows cursors even after empty pages, recovers long descriptions/needed notes via reviews_getAnalyzeText, verifies every KR has a highest risk, and continues the review without manual transcription or skipping Analyze. Small-team inline context still works.
+23. **Incomplete preview is not missing coverage** — A false coverage flag with paginationRequired is resolved by reading all pages. A highest risk beyond the first 300 is found. A failed page never becomes an assertion that a KR has no risks; unrelated report/team entities remain refused.

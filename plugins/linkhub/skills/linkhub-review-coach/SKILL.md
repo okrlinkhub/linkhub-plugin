@@ -289,11 +289,39 @@ If `untrackedKeyResults` contains a KR the reviewer wants to activate, explain t
 
 ## 3. Analyze current risks and initiatives
 
-Call `reviews_getAnalyzeContext` once. It returns every positive-weight KR with compact risks and initiatives.
+Call `reviews_getAnalyzeContext` for the small-team preview. This response is bounded,
+not an unlimited inventory. When `completeness.paginationRequired` is true, recover
+all data autonomously; never ask the user to list risks or skip Analyze:
 
-- If `completeness.potentiallyTruncated` is true, stop before Analyze writes or Next.
+1. Call `reviews_getAnalyzePage` with `kind: "keyResults"`, `paginationOpts:
+   { numItems: 10, cursor: null }`. Follow `continueCursor` until `isDone`.
+2. For every returned positive-weight KR, page `kind: "risks"` with its
+   `keyResultId`. Read every page before declaring the KR has no risks or no
+   `highest` risk. Coverage is computed from the complete inventory; a partial
+   preview's `highestRiskCoverage.complete: false` is not evidence of a missing risk.
+3. Page `kind: "initiatives"` once for the whole report team (omit `riskId` and
+   `keyResultId`), then group by the returned KR/risk IDs. This avoids one call per
+   risk. Follow the cursor even after an empty filtered page. Keep initiatives
+   linked to the positive-weight KRs and preserve `periodRelation`.
+4. Assign stable local references R1... and I1... to the complete inventory,
+   retaining the ID mapping across pages. Preserve existing references for the
+   same IDs after rereads; do not silently renumber the user's chosen risk.
+5. If `descriptionTruncated` is true, retrieve the remaining description with
+   `reviews_getAnalyzeText`: exactly one `riskId` or `initiativeId`, `field:
+   "description"`, `offset: 240`, then follow `nextOffset` until `isDone`.
+   Initiative notes are available with `field: "notes", offset: 0`; read them
+   when needed to evaluate an initiative, not all historical notes by default.
+
+Pages contain at most 10 compact rows; text chunks contain at most 1000
+characters. Start each collection with a null cursor. Do not reuse cursors
+between reports, KRs, risks or kinds, request an `endCursor`, or infer completeness
+from the page length. If data changes after a write, reread the affected
+collections before making the next decision. A failed page remains an explicit
+verification gap; never replace it with invented coverage or a manual inventory.
+
+- If `completeness.potentiallyTruncated` is true, finish the paginated recovery above before Analyze writes or Next. Stop only if continuation fails or the resulting inventory is still incomplete.
 - Show all current risks with priority `highest`, or state that none exist. Prefix each risk with its stable returned reference (`R1`, `R2`, ...), and use that reference in every follow-up question so the reviewer can answer concisely. Preserve returned initiative references (`I1`, `I2`, ...) too.
-- Require at least one active `highest` risk for every positive-weight KR. This is a minimum, never a maximum: two or more risks of the same KR may remain `highest` together. Treat `highestRiskCoverage.complete: false` as a blocking review gap: identify each KR in `keyResultsWithoutHighestRisk`, then ask the reviewer to promote an existing numbered risk or create one. Do not advance to Next until a reread reports complete coverage.
+- Require at least one active `highest` risk for every positive-weight KR. This is a minimum, never a maximum: two or more risks of the same KR may remain `highest` together. When the inline inventory is complete, use `highestRiskCoverage`; otherwise derive coverage from all completed pages. Only a missing `highest` in that complete inventory is a blocking review gap: identify the affected KR, then ask the reviewer to promote an existing numbered risk or create one. Do not advance to Next until a reread of the affected complete inventory verifies coverage.
 - Every new risk created during review starts at `highest`. Do not ask which priority to use or propose `high` to preserve another principal risk. Include the new risk's description, KR, and highest priority in the readable creation proposal, apply the user’s request directly by calling `risks_create` with `priority: "highest"`. Do not ask for an extra creation confirmation.
 - When demoting `highest` risks, evaluate the proposed final state across all positive-weight KRs. If the change would leave any KR without a `highest`, stop and resolve that KR in the same interview before showing the readable proposal for missing choices.
 - Creating or promoting a risk to `highest` never lowers another risk's priority. Preserve every existing priority unless the reviewer explicitly requests a change to that numbered risk; omission from a selection is not a demotion request. For a confirmed group of explicit priority changes, use one atomic `reviews_rebalanceRiskPriorities` proposal containing only those changes. Show references, descriptions, and resulting priorities, not risk IDs; the reviewer's first choice directly authorizes the write without a second question.

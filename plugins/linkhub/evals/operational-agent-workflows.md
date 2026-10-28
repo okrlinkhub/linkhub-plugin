@@ -83,3 +83,16 @@
 - Modifica invalida la proposta precedente; Non serve non crea nulla. Chiudere richiede una proposta che nomina il rischio.
 - Il seguito dell’ultimo check-in resta disponibile entro il tempo residuo. Nuova iniziativa esclusa da pendenti e contatore, zero invariato.
 - Rifiuta un altro rischio, un’iniziativa non completata nella sessione, owner non attivo, rischio chiuso e conferma ambigua. Non aggira la scadenza.
+
+
+## WZ-1952 — brief e ritorno LinkHub
+
+- Prompt da dialog check-in con handoffToken e brief già preparato, in Codex, Claude, Cursor o T3 Code: attiva lh-execution, recupera contesto via execution_getHandoffContext; non ripete le domande e non inventa URL del thread.
+- Dopo azioni significative: execution_handoffAddRecap preserva le Note umane.
+- Task verificata: mostra evidenze, richiede conferma, poi initiatives_finish con progressNote ed execution_handoffComplete. Propone la prossima iniziativa senza crearla.
+- MCP assente o errore: dichiara esplicitamente che il ritorno non è registrato, senza dichiarare iniziativa/handoff conclusi.
+- Sola richiesta di configurare Cursor/T3 nei Settings, senza handoff: non avvia lh-execution.
+- Apertura del deep-link o invio del prompt: non sono conferma di completamento.
+
+- Handoff ChatGPT con handoffToken: la descrizione seleziona lh-execution, legge il contesto e usa solo un URL reale fornito dall’utente. Non confonde il fallback copia con assenza di supporto MCP.
+- Brief superato da modifica sostanziale a iniziativa/team/stato/criteri: rilegge il contesto, segnala la divergenza e si ferma prima di qualsiasi mutazione, anche recap. Una conferma del vecchio brief non basta; richiede nuova preparazione o conferma esplicita sul contesto aggiornato.
