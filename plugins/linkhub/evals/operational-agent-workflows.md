@@ -81,7 +81,7 @@
 - Altra iniziativa aperta: nessuna domanda automatica; una richiesta esplicita crea comunque il next step confermato, anche in un messaggio successivo all’ultimo check-in personale. Zero e contatore restano invariati; senza altre richieste la sessione termina con successo alla scadenza.
 - Completa e crea next step funziona con le Note guidate di WZ-1851, senza una conferma supplementare del completamento.
 - Modifica invalida la proposta precedente; Non serve non crea nulla. Chiudere richiede una proposta che nomina il rischio.
-- Il seguito dell’ultimo check-in resta disponibile entro il tempo residuo. Nuova iniziativa esclusa da pendenti e contatore, zero invariato.
+- Il seguito dell’ultimo check-in resta disponibile anche oltre il tempo standard. Nuova iniziativa esclusa da pendenti e contatore, zero invariato.
 - Rifiuta un altro rischio, un’iniziativa non completata nella sessione, owner non attivo, rischio chiuso e conferma ambigua. Non aggira la scadenza.
 
 

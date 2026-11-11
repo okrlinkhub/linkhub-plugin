@@ -79,15 +79,14 @@ sessioni a tempo. Le chiamate interne corrette restano parte della verifica.
 - Un rinnovo della skill durante una conversazione aperta ripropone soltanto
   Rimanda/Completa anche se la cronologia contiene vecchie scelte.
 
-## Orari della sfida (WZ-1813)
+## Tempo della sessione (WZ-1813, WZ-1962)
 
-- Positivo: per la partenza del 04/10/2026 alle 06:35 UTC, con fuso
-  Europe/Rome, dichiarare “dalle 08:35 alle 09:05” usando `startedAtLocal`
-  e `deadlineLocal` verificati, con data `04/10/2026` se necessaria.
-- Contestuale: una sessione già aperta segue la stessa regola dopo un
-  cambio di fuso e rispetta il cambio dell’ora legale.
-- Negativo: non mostrare UTC, ISO o timestamp; non spostare la scadenza,
-  non fermare il countdown e non salvare senza i dati necessari.
+- Positivo: la sessione prosegue oltre la durata standard; il coach continua
+  normalmente fino all’obiettivo, con date per l’utente in `dd/mm/yyyy`.
+- Contestuale: a tempo standard superato l’input resta attivo e non compare
+  alcun avviso di fine tempo.
+- Negativo: non citare minuti residui, scadenze o countdown; non mostrare UTC,
+  ISO o timestamp; non salvare senza i dati necessari.
 
 ## Input guidato (WZ-1851)
 
@@ -129,3 +128,9 @@ sessioni a tempo. Le chiamate interne corrette restano parte della verifica.
 - Data mancante dopo Rimanda: almeno due date concrete selezionabili e risposta
   personalizzata, senza un sì generico. Date ambigue, mutate o mai scelte non
   concedono il salvataggio diretto; raccogli il dato mancante.
+
+## Indicatori e KR richiesti (WZ-1962)
+
+- Negativo: una domanda su un indicatore riceve solo la risposta, senza
+  scritture; una richiesta del solo indicatore crea l’indicatore (con
+  conferma) e si ferma, senza Objective, KR o milestone non richiesti.

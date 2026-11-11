@@ -165,3 +165,12 @@ sessioni a tempo. Le chiamate interne corrette restano parte della verifica.
   corrispondono più al calcolo server; il salvataggio è rifiutato, il coach
   rilegge e aggiorna la preview canonica prima di riprovare. Se una decisione
   dell’utente cambia, chiede soltanto quella scelta; nessuna conferma generica.
+
+## Indicatori e KR richiesti (WZ-1962)
+
+- Positivo: «crea il KR % completamento Journey Studio» cerca prima con
+  `indicators_search`, crea l’indicatore mancante e poi il KR con
+  `keyResults_create`.
+- Negativo: una domanda su un indicatore riceve solo la risposta, senza
+  scritture; una richiesta del solo indicatore crea l’indicatore e si ferma,
+  senza Objective, KR o milestone non richiesti.

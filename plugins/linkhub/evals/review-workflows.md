@@ -151,3 +151,21 @@ sessioni a tempo. Le chiamate interne corrette restano parte della verifica.
 
 22. **Large four-KR Analyze** — With weights 20/30/30/20, 63+ risks, 53+ initiatives, and long notes, the agent completes keyResults and risks per KR plus a single team-wide initiative pass using reviews_getAnalyzePage. It follows cursors even after empty pages, recovers long descriptions/needed notes via reviews_getAnalyzeText, verifies every KR has a highest risk, and continues the review without manual transcription or skipping Analyze. Small-team inline context still works.
 23. **Incomplete preview is not missing coverage** — A false coverage flag with paginationRequired is resolved by reading all pages. A highest risk beyond the first 300 is found. A failed page never becomes an assertion that a KR has no risks; unrelated report/team entities remain refused.
+
+## KR nuovo e indicatore mancante in review (WZ-1962)
+
+- Positivo: il reviewer chiede il KR «% completamento Journey Studio» al 40%.
+  Il coach cerca con `indicators_search`, non trova nulla, crea l’indicatore
+  manuale, salva il KR in attesa con `reviews_savePendingKeyResult`, ribilancia
+  i pesi al 100% e crea le milestone, senza dire «non ho lo strumento».
+- Contestuale: «esiste un indicatore automatico per lo SLA?» si risolve con
+  `indicators_search`/`indicators_listExplainable` e una risposta sui risultati.
+  Il KR in attesa compare nell’anteprima di chiusura come «nuovo» e nasce solo
+  con `reviews_close`.
+- Negativo: non chiamare `keyResults_create` su un team in review; non dire
+  che il KR è già nel team prima della chiusura; usa `milestones_requestChange`
+  solo se `milestones_create` è negato su un indicatore di completamento
+  progetto, e spiega il limite.
+- Negativo: «esiste un indicatore per lo SLA?» riceve solo la risposta, senza
+  scritture; una richiesta del solo indicatore crea l’indicatore e si ferma,
+  senza Objective, KR in attesa o milestone.

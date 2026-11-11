@@ -10,8 +10,10 @@
 | `reviews_getAnalyzePage { reportId, kind, keyResultId?, riskId?, paginationOpts }` | Page positive-weight keyResults, risks per KR, or initiatives per team/KR/risk. Use numItems 1–10, null first cursor, then continueCursor until isDone, including empty pages. |
 | `reviews_getAnalyzeText { reportId, riskId?, initiativeId?, field, offset }` | Exactly one element; description or initiative notes in chunks of 1000 characters. Follow nextOffset until isDone. |
 | `reviews_rebalanceRiskPriorities { reportId, changes[] }` | Atomic priority update for the user-chosen risk group; rejects a final state that leaves any positive-weight KR without a `highest` risk |
-| `reviews_rebalanceWeights { reportId, allocations[] }` | Atomic complete user-chosen 100% weight rebalance; changed rows require reviewer notes |
+| `reviews_rebalanceWeights { reportId, allocations[], pendingAllocations? }` | Atomic complete user-chosen 100% weight rebalance, pending KRs included; changed rows require reviewer notes |
 | `reviews_attachKeyResult { reportId, keyResultId, reviewerNotes }` | Attach an existing untracked active KR at zero, before the complete user-chosen rebalance |
+| `reviews_savePendingKeyResult { reportId, pendingKeyResultId?, objectiveId, indicatorId, weight, forecastValue, targetValue, reviewerNotes }` | Propose a new KR during the review. It is not created in the team yet; it counts in the next-period 100% and is created when `reviews_close` succeeds. Listed in `reviews_getContext.pendingKeyResults` |
+| `reviews_cancelPendingKeyResult { pendingKeyResultId }` | Cancel a pending KR; it is never created |
 | `reviews_updateNextResult { resultNextId, forecastValueReviewed, targetValueReviewed, notes? }` | Reviewer-only Next validation with audit; preserves reported values |
 | `reviews_getCloseContext { reportId }` | Final completeness, recommendation, mentee and report-period evidence when the reviewer is also mentor |
 | `reviews_getEvaluationEvidence { reportId, kind, paginationOpts }` | Page all created risks/initiatives or resolved risks/completed initiatives in the report period. Follow continueCursor until isDone. |
@@ -33,6 +35,18 @@ If a zero-weight KR was marked `0 / 0` for removal or was newly attached with pl
 
 `teams_listMineByCompany` is not a review-cluster discovery tool: it returns membership, directly led, or admin-visible teams and must not be used to infer the cluster leader team.
 
+## Indicator and Objective discovery or creation
+
+| Tool | Purpose |
+| --- | --- |
+| `indicators_search { query }` | Company manual and automated indicators by description or slug |
+| `indicators_listExplainable` | Company automated indicators |
+| `indicators_resolve { reference }` | Exact ID, slug or link |
+| `indicators_create` / `indicators_update` | Manual indicator for a new KR |
+| `objectives_byTeam` / `objectives_create` | Objective of the reviewed team |
+
+`pendingAllocations[]` items are `{ pendingKeyResultId, weight }`; when present, list every pending KR. Never call `keyResults_create` on a team in review.
+
 ## Milestone writes
 
 | Tool | Purpose |
@@ -42,6 +56,7 @@ If a zero-weight KR was marked `0 / 0` for removal or was newly attached with pl
 | `milestones_complete` | Complete on explicit `achievedAtIso` |
 | `milestones_reopen` | Clear an incorrect completion |
 | `milestones_remove` | Soft-delete immediately on an explicit user request |
+| `milestones_requestChange` / `milestones_listChangeRequests` | Completion-project indicators without reviewer rights: request the change, then read its status |
 
 Read before writing, apply complete requests directly, then reread
 `milestones_listByIndicator`. Preserve the reporter's historical tracked result.

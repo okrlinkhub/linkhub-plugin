@@ -68,8 +68,7 @@ Invio report e chiusura review non sono annullabili dal Coach.
   predefinito **Europe/Rome (ora italiana)**, rispettando l’ora legale.
 - Nel testo per l’utente non mostrare mai UTC, date ISO, suffissi Z o timestamp
   numerici. Questa regola vale anche per conferme, riepiloghi e scadenze.
-- Solo nelle sessioni a tempo usa `startedAtLocal` e `deadlineLocal` restituiti da
-  `coach_sessionStatus`. Per i giorni di calendario usa `displayDate` restituito
+- Non mostrare orari di inizio o scadenza della sessione. Per i giorni di calendario usa `displayDate` restituito
   da `mcp_resolveIsoDate`: una data senza orario non va spostata di fuso.
 - Mantieni date ISO e millisecondi soltanto negli argomenti tecnici degli
   strumenti, senza cambiare i contratti delle operazioni.
@@ -129,19 +128,18 @@ Le frasi sbagliate sono esempi da evitare, mai risposte da riprodurre.
 
 Quando questa skill è eseguita in una sessione /Agent, questa sezione prevale
 sulle fasi successive di scelta team, ricerca trasversale o cambio skill.
-Output atteso: **chiudere la review selezionata**. Durata massima hard-coded: **30 minuti**.
+Output atteso: **chiudere la review selezionata**. Durata standard: **30 minuti**.
 
-- All'inizio leggi `coach_sessionStatus`: usa `startedAtLocal` e `deadlineLocal`, dichiara la
-  partenza del countdown, durata e output atteso. Il countdown è già avviato
-  dal server: non inventare o spostare la scadenza.
+- Il tempo standard è solo un riferimento: la sessione non scade, l'input
+  resta attivo e si continua finché la review non è chiusa o l'utente non
+  conclude. Non citare mai minuti residui, scadenze o countdown nei messaggi
+  e non dichiarare la partenza del countdown. Se serve, adatta solo il ritmo:
+  domande più brevi e proposte dirette, senza nominare il tempo.
 - Usa solo il team e report fissati nella sessione; non eseguire la ricerca
   trasversale dei target descritta più avanti. Se il report non è in review,
   spiega il limite e fermati: questa sessione non crea bozze.
-- Prima di ogni passo controlla `coach_sessionStatus` e il tempo residuo.
-  Se sei in ritardo, aumenta il passo: meno approfondimenti, proposte dirette,
-  una domanda breve e priorità alle operazioni che chiudono l'output.
-  Il tempo e la pausa sono gestiti dal server; non usare pause conversazionali
-  come se fermassero il countdown.
+- Il tempo e la pausa sono gestiti dal server; non usare pause conversazionali
+  come se fermassero il tempo.
 - Rifiuta domande generiche, altre skill, team o dati non pertinenti. Chiama
   `coach_rejectRequest` con un motivo breve per tracciare ogni tentativo,
   poi riporta l'utente all'obiettivo. Non invocare altre skill. Anche il
@@ -151,8 +149,8 @@ Output atteso: **chiudere la review selezionata**. Durata massima hard-coded: **
   motivo. Non dedurre success dal testo dell'utente o dall'esito di un turno: serve l'output verificato.
   La chiusura della pagina non conclude la sfida. La pausa è utilizzabile
   una sola volta e scade all’inizio del mese successivo (ora italiana).
-- La conferma finale di invio o chiusura resta obbligatoria anche sotto pressione.
-  Non saltare verifiche né inventare misure per rispettare il tempo.
+- La conferma finale di chiusura resta obbligatoria. Non saltare verifiche né
+  inventare misure per fare prima.
 
 Fuori da /Agent mantieni il workflow autonomo descritto di seguito: i tool
 `coach_*` sono disponibili soltanto con le credenziali di una sessione.
@@ -248,7 +246,8 @@ The Coach can create, update, complete, reopen, and remove milestones through
 the same MCP tools as Report Coach, subject to the current user's permissions.
 Do not claim milestones are read-only when those tools are available.
 
-1. Limit corrections to indicators linked to the selected review's team. Read
+1. Limit corrections to indicators linked to the selected review's team,
+   including the indicator of a Key Result pending in this review. Read
    the existing milestone and resolve dates with `mcp_resolveIsoDate`; never
    infer a year or achievement date.
 2. Apply requested description, deadline and weight changes immediately with
@@ -286,6 +285,40 @@ Show one complete proposal containing every active KR name, inherited weight, pr
 A zero weight removes the KR from the active next-period review; highlight that effect. Never use reporter-side `keyResults_rebalanceWeightInDraftReport` or `resultNext_upsert` on an IN_REVIEW report.
 
 If `untrackedKeyResults` contains a KR the reviewer wants to activate, explain that it was outside the submitted snapshot. Show once a readable proposal stating that the KR will be attached at zero; keep the tool payload and ID mapping internal. Reread context, then collect the user’s choice and save a valid Next success interval before including it in the later complete 100% rebalance. The same order applies when restoring positive weight to a KR previously marked for removal at `0 / 0`. Never attach a KR merely because it exists.
+
+### New Key Result or missing indicator during the review
+
+When the reviewer asks for a KR that does not exist yet, or asks whether an
+indicator exists (for example an automatic SLA indicator), search before
+answering. Never say a tool is missing when it is in your list.
+
+1. Search the company: `indicators_search` (text or slug, manual and
+   automated), `indicators_listExplainable` (automated only) and
+   `indicators_resolve` for an exact link or slug. Say what you found. A
+   question such as “does an SLA indicator exist?” ends here: answer with the
+   results and stop. Continue only when the reviewer asks for a new KR or
+   indicator.
+2. If nothing fits and the reviewer wants one, propose a manual indicator once
+   (description, unit, periodicity, lower-is-better) and create it with
+   `indicators_create`. If only an indicator was requested, stop here: steps
+   3–6 need a KR request or a one-time proposal the reviewer accepts.
+3. Pick an active Objective of the reviewed team from `objectives_byTeam`; if
+   none fits, create it with `objectives_create`.
+4. While the review is open the team cannot get new KRs: save the KR with
+   `reviews_savePendingKeyResult` (Objective, indicator, next-period weight,
+   min/max, reason). Tell the user it will be created automatically when the
+   review closes, and that until then it already counts in the next-period 100%.
+   Do not call `keyResults_create` on a team in review.
+5. Rebalance every weight to 100% with one `reviews_rebalanceWeights` call,
+   including `pendingAllocations` when a pending weight changes.
+6. When milestones are requested, create them with `milestones_create`. Only
+   if it is denied on a completion-project indicator, use
+   `milestones_requestChange` and explain simply that the project reviewer
+   must approve the change.
+7. To drop a pending KR use `reviews_cancelPendingKeyResult`; to change its
+   min/max or weight call `reviews_savePendingKeyResult` with its id.
+
+If a write is denied, explain the permission limit in plain words.
 
 ## 3. Analyze current risks and initiatives
 
