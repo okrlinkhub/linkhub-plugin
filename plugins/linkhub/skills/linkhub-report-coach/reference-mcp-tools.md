@@ -65,8 +65,8 @@ hygiene snapshot.
 | `initiatives_remove` | Soft-delete (errore / non più rilevante) |
 | `initiatives_checkIn` | Check-in + prossima data + append note strutturato (`postponed`, `finish`); `progressNote` obbligatoria |
 | `initiatives_finish` | Iniziativa completata + append note strutturato; `progressNote` obbligatoria |
-| `resultNext_skipWithDefaults` | Conferma i default già mostrati come obiettivo minimo e obiettivo massimo |
-| `resultNext_upsert` | Salva obiettivo minimo e obiettivo massimo personalizzati tramite i campi tecnici interni |
+| `resultNext_skipWithDefaults` | Conferma i default già mostrati come obiettivo minimo e obiettivo massimo; non usarlo se, con milestone, i default spezzano la scala delle tappe |
+| `resultNext_upsert` | Salva obiettivo minimo e obiettivo massimo personalizzati tramite i campi tecnici interni, inclusa la scala delle milestone (minimo = completato + tappe in scadenza) |
 | `reports_updateReporterNotes` | Salva nota senza submit |
 | `reports_getSubmitContext` | Legge lo stato del report prima del submit; nessun check-in carriera |
 | `reports_submit` | DRAFT → IN_REVIEW; nessuna valutazione individuale all’invio |

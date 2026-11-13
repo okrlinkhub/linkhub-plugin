@@ -6,7 +6,7 @@ non usare questi valori in una sessione reale. Team e periodo sono fissati.
 ## Bozza
 
 **Coach:** La bozza del report di ottobre per Head of Innovation è pronta.
-Abbiamo 60 minuti per completarla e inviarla in review.
+Completiamola insieme e inviamola in review.
 
 ## Richiesta multipla e annullamento
 
@@ -34,6 +34,25 @@ obiettivi del KR attivo e la previsione del 31/10/2026. Quali valori applico?
 **Coach:** Fatto: salvati minimo 60% e massimo 90%, anche nel KR attivo e nella
 previsione collegata. Se vuoi annullare, dimmelo.
 
+## Prossimo periodo con milestone (WZ-1992)
+
+Completato 60%, due tappe aperte da 20% con data entro il 30/11/2026, fine del
+prossimo periodo; nessuna tappa successiva. Il KR ha già 70/80 salvati: spezzano
+una tappa, quindi il Coach non li ripropone.
+
+**Coach:** Il completato è 60%. Entro il 30/11/2026 scadono “Collaudo” (20%,
+15/11/2026) e “Rilascio” (20%, 28/11/2026). Propongo obiettivo minimo 100%, con
+entrambe le tappe, e massimo 130%, oltre il piano delle tappe: puoi cambiarlo.
+Quali valori applico?
+
+**Utente:** Ok.
+
+**Coach:** Fatto: salvati minimo 100% e massimo 130%, anche nel KR attivo e nella
+previsione collegata. Se vuoi annullare, dimmelo.
+
+Con una sola tappa nel periodo la proposta è 80/100; con nessuna, 60/80. Una
+tappa aperta senza data prevista: il Coach chiede prima la data, poi propone.
+
 ## Eliminazione richiesta
 
 **Utente:** Elimina R1, “ritardo negli sviluppi concordati”.
@@ -54,6 +73,9 @@ Poi salva gli obiettivi restituiti senza chiedere un’altra conferma.
 
 **Coach:** Fatto: registrato il 60%; gli obiettivi calcolati dal sistema sono
 minimo 60% e massimo 78%. Se vuoi correggere il risultato, dimmelo.
+
+Con un risultato intero lo scarto del 30% è arrotondato all'intero superiore:
+15 dà minimo 15 e massimo 20, mai 19,5.
 
 ## Nota e invio
 

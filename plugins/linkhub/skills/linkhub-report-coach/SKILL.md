@@ -132,10 +132,12 @@ Output atteso: **completare e inviare il report in review**. Durata standard: **
 - Il tempo standard è solo un riferimento: la sessione non scade, l'input
   resta attivo e si continua finché l'utente non conclude. Non citare mai
   minuti residui, scadenze o countdown nei messaggi e non dichiarare la
-  partenza del countdown. Se serve, adatta solo il ritmo, senza nominare il tempo.
+  partenza del countdown.
 - Usa solo il team e report fissati nella sessione. Per check-in e inbox usa
   solo gli elementi personali nell'azienda fissata. Se manca un draft, crea
   quello del team scelto direttamente, dopo averne verificato il contesto.
+- Non mettere fretta: niente «accelero», «passo più rapido» o passaggi
+  accorciati. Conferme di nota finale e invio restano complete.
 - Il tempo e la pausa sono gestiti dal server; non usare pause conversazionali
   come se fermassero il tempo.
 - Rifiuta domande generiche, altre skill, team o dati non pertinenti. Chiama
@@ -214,6 +216,10 @@ When the evaluate context says `hasMilestones: true`, always call
    directly and name the removed milestone in the verified outcome. Keep IDs and the raw payload hidden
    including when requested. Do not substitute a removal when the user only needs
    `milestones_reopen`.
+   To complete a milestone, use the date the user gives; otherwise use
+   today's date without insisting. Every milestone completed at report time
+   counts in this report, even when completed after the period end, so never
+   reopen or exclude it for its date.
 5. After any milestone write, call `milestones_listByIndicator` again. Use only
    the returned `summary.achievedValue` as the verified LinkHub milestone value.
 6. Perform `resultTracked_upsert` only after the final milestone reread so the
@@ -282,7 +288,11 @@ unmeasurable KR, or an invalid previous interval can each be first tracking.
   periodo li imposta il sistema.” Call `reports_previewTrackedResult` with the
   report, KR, actual value and `intervallSource: FIRST_TRACKING`, omitting
   `forecastValue` and `targetValue`. The server returns both calculated objectives,
-  interval source, performance zero and classification.
+  interval source, performance zero and classification. If the user asks how
+  they are set: minimum = this result, maximum = result + 30% in the indicator's
+  direction, rounded up to a whole number when the result is whole (15 → 20,
+  60 → 78). A % indicator at 100 (at 0 when lower is better) gets 130 (−30);
+  any other result of 0 gets 100 (−100 when lower is better).
 - When `isFirstTracking` is false, present the verified `previousInterval`
   objectives and follow the normal evaluation flow without confirmation. Use those
   values with `intervallSource: FROM_LAST_REPORT` in the preview. Any explicit
@@ -354,6 +364,9 @@ Then ask whether observed risks still explain the gap. Propose removals, new
 risks, initiative check-ins, or new initiatives as one clearly scoped write
 group. Before creating an initiative, call `teams_listMembers`; resolve calendar
 dates with `mcp_resolveIsoDate`. Never duplicate an existing initiative.
+State every default you apply instead of “predefinita”: risk priority «media»
+unless chosen, the initiative assignee by name, and the check-in interval in
+days.
 
 Multiple risks of the same KR may have priority `highest` together. Creating or
 promoting a risk never lowers the other risks' priorities; omission from the
@@ -378,6 +391,52 @@ asking the reporter to invent two numbers:
   evidence when available, confirmed risks, active initiatives, annual
   objectives, and the KR weight;
 - ask once which proposed or modified values to apply; that answer directly authorizes saving.
+
+#### Indicators with milestones: the milestone scale (WZ-1992)
+
+When the indicator has milestones, build the proposal only on the milestone
+scale. Milestone indicators are output indicators and always follow this
+normal rule; no mirrored inverse rule exists. Reuse the latest
+`milestones_listByIndicator` read and the report's next target date (the end of
+the next report period). Let:
+
+- **A** = the verified `summary.achievedValue` (every milestone completed at
+  report time counts, whatever its recorded completion date);
+- **D** = sum of the `value` of every open milestone whose planned date falls on
+  or before the next target date, overdue open milestones included;
+- **N** = `value` of the first open milestone planned after that date.
+
+Then **obiettivo minimo = A + D** and **obiettivo massimo = minimo + N**. With no
+milestone after the period, the maximum is **130** when the minimum is 100;
+otherwise use minimum + 30. Present that maximum as “oltre il piano delle tappe”
+and editable. Never cap at 100 (achieved 100, due 20, next 20 → 120 / 140).
+Never propose minimum = maximum or a value that splits a milestone: from 60
+with two open 20% milestones, 70 is never valid.
+
+| Raggiunto | Tappe aperte | Minimo | Massimo |
+| --- | --- | --- | --- |
+| 60 | 20 dopo il periodo | 60 | 80 |
+| 60 | 20 nel periodo, 20 dopo | 80 | 100 |
+| 60 | 20 + 20 nel periodo | 100 | 130 |
+
+- If any open milestone has no planned date, ask for it first and save it with
+  `milestones_update`; make no numerical proposal until every open date is known.
+  If that update is denied, use the user's date for the proposal, say it is not
+  saved on the milestone and, when relevant, offer `milestones_requestChange`.
+- List the milestones used for the minimum and the maximum with description,
+  weight and planned date (dd/mm/yyyy).
+- If the KR's saved defaults (for example 70/80) differ from this scale, do not
+  offer `resultNext_skipWithDefaults`; save the chosen values with
+  `resultNext_upsert`. A user's different choice is still saved as given.
+- Indicators without milestones keep the qualitative proposal above; zero-weight
+  KRs still skip Next.
+
+#### Ambitious minimum check
+
+If the minimum the user chooses is far above the current result or the
+milestone pace (for example from 10% to 50% without matching due milestones),
+ask one short verification question before saving: “Il minimo passa da 10% a
+50%: su cosa si basa?” Then save the values the user keeps; never block them.
 
 Never expose `forecast`, `target`, `forecastValue`, `targetValue`, or related MCP
 field names in user-facing messages; use them only to construct the internal
@@ -412,7 +471,7 @@ when it is denied on a completion-project indicator use
 
 ## 3. Initiative hygiene
 
-Before submission, process relevant pending check-ins. Every `initiatives_checkIn` or `initiatives_finish` needs a non-empty progress note. Collect only missing outcome, exact note and necessary date, then apply directly. Do not ask for confirmation.
+Before submission, process relevant pending check-ins. Every `initiatives_checkIn` or `initiatives_finish` needs a non-empty progress note. Collect only missing outcome, exact note and necessary date, then apply directly. To complete an initiative, ask for one short sentence on its outcome; use a generic note only when the user has nothing to add. Do not ask for confirmation.
 
 ## 4. Reporter note
 

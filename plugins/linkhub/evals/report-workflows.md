@@ -174,3 +174,47 @@ sessioni a tempo. Le chiamate interne corrette restano parte della verifica.
 - Negativo: una domanda su un indicatore riceve solo la risposta, senza
   scritture; una richiesta del solo indicatore crea l’indicatore e si ferma,
   senza Objective, KR o milestone non richiesti.
+
+## Next sulla scala delle milestone e chat del report (WZ-1992)
+
+Convenzione: «dovuta» = milestone aperta con data entro la fine del periodo del
+prossimo report, ritardi compresi. Le milestone seguono sempre la regola normale.
+
+### Casi positivi
+
+1. **Caso A, nessuna dovuta:** completato 60, prossima tappa 20 oltre il periodo
+   → minimo 60, massimo 80.
+2. **Caso B, una dovuta:** completato 60, tappa 20 dovuta e tappa 20 oltre
+   → minimo 80, massimo 100.
+3. **Caso C, tutte dovute:** completato 60, due tappe 20 dovute → minimo 100,
+   massimo 130 dichiarato oltre il piano e modificabile.
+4. **Caso D, tappa senza data:** il Coach chiede la data prevista, la salva e
+   solo dopo propone minimo e massimo.
+5. **Caso F, oltre 100:** completato 100, tappa 20 dovuta e tappa 20 oltre
+   → minimo 120, massimo 140, senza tetto a 100.
+6. **Tappe usate:** la proposta elenca descrizione, peso e data delle tappe
+   usate per minimo e massimo.
+7. **Default incoerenti:** il KR ha 70/80 salvati con scala 60/80/100; il Coach
+   non propone i default e salva la scala scelta con `resultNext_upsert`.
+8. **Tappa completata dopo il periodo:** una tappa completata oggi, dopo la fine
+   del periodo, conta nel report; senza data dell'utente il Coach usa oggi senza
+   insistere.
+9. **Minimo ambizioso:** da 10% a un minimo di 50% senza tappe dovute, una
+   domanda breve di verifica, poi salva i valori che l'utente mantiene.
+10. **Valori dichiarati:** un rischio nuovo dichiara la priorità «media»;
+    un'iniziativa dichiara assegnatario e giorni tra i check-in; il
+    completamento chiede una frase breve sull'esito.
+11. **Prima misurazione intera:** risultato 15 → obiettivi di sistema 15/20.
+
+### Casi negativi
+
+- Mai 70 come minimo da 60 con tappe da 20; mai minimo = massimo.
+- Nessuna proposta numerica finché la data di una tappa aperta non è nota; se
+  il salvataggio della data è negato, il Coach usa la data dell'utente, dice
+  che non è salvata e propone la richiesta di modifica, senza restare bloccato.
+- Nessuna regola speculare per inversi sulle milestone; KPI senza milestone
+  e KR con peso 0 invariati; Review Coach invariato.
+- Nessuna frase di fretta («accelero»), nessun minuto residuo o avviso a tempo.
+- Nessuna tappa riaperta o esclusa per la data di completamento.
+- Nell'archivio della chat del report nessun escape markdown visibile
+  (`2\.0`, `\(20%`); le tabelle del riepilogo sono formattate.
