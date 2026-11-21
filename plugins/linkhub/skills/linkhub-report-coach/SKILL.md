@@ -227,8 +227,8 @@ When the evaluate context says `hasMilestones: true`, always call
 
 For a replacement, prefer `milestones_update` on the existing milestone and
 preserve fields not included in the user’s decision. These tools use the
-current user's MCP permissions; team-leader status alone does not grant milestone
-write access. If the backend denies permission, explain that the current user
+current user's MCP permissions, which follow the milestone rules in
+`reference-mcp-tools.md`. If the backend denies permission, explain that the current user
 cannot edit this indicator's milestones; do not impersonate another user or
 claim success. Do not describe milestones as read-only when the write tools are
 available. Limit writes to indicators linked to the session's fixed team.

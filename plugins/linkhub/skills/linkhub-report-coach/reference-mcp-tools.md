@@ -97,7 +97,9 @@ hygiene snapshot.
 - Ogni tracked ha resultNext (`assertReportHasRequiredResultNext`)
 - Pesi team = 100% (UI; verificare lato coach)
 - Somma `value` delle milestone attive ≤ 100%
-- Scrittura milestone consentita solo ad assignee indicatore o admin company
+- Milestone su indicatori ordinari: ogni membro company non guest (utente umano via OAuth) crea, modifica ed elimina quelle aperte; quelle raggiunte restano ad assignee indicatore o admin
+- Milestone su indicatori di completamento progetto (PROJECTS/DRAFT): struttura solo al reviewer; gli altri utenti, assignee e admin compresi, usano `milestones_requestChange`
+- Completare o riaprire una milestone: solo assignee indicatore o admin
 - `resultTracked_upsert` cattura lo snapshot milestone: eseguirlo dopo l'ultima rilettura
 
 ## Campi copy-paste da evaluate context

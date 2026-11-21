@@ -60,9 +60,14 @@ If a zero-weight KR was marked `0 / 0` for removal or was newly attached with pl
 
 Read before writing, apply complete requests directly, then reread
 `milestones_listByIndicator`. Preserve the reporter's historical tracked result.
-These tools retain MCP permission checks: the indicator assignee or a company/
-global admin may manage its milestones. Reviewer status alone does not grant
-this permission. Timed sessions also restrict the indicator to the fixed team.
+These tools retain MCP permission checks. On ordinary indicators any non-guest
+company member using personal OAuth may create, update or remove open milestones; achieved
+milestones stay with the indicator assignee or a company/global admin. On
+completion-project indicators only a current project reviewer changes the
+structure; other users, assignee and admins included, use
+`milestones_requestChange`. Completing and
+reopening stay with the assignee or admins. Timed sessions also restrict the
+indicator to the fixed team.
 
 ## Reused writes during Analyze
 
