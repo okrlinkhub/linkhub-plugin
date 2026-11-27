@@ -5,6 +5,15 @@ pubblicati dal server MCP LinkHub; non inventare tool alternativi. Tutti i tool
 agiscono nella company del token OAuth. Gli account bot (API key) sono
 rifiutati da focus e panchina: il focus è personale.
 
+## Istruzioni del server
+
+Il server MCP LinkHub invia nella risposta `initialize` il campo
+`instructions`: nelle richieste di lavoro chiama `me_whoami` prima di
+rispondere e usa le skill `focus` e `filtro-impegni`. È lo stesso testo di
+«Copia per il tuo LLM» e di [snippet-claude-md.md](../filtro-impegni/snippet-claude-md.md); l'utente non deve
+configurare nulla. Alcuni client lo ignorano: in quel caso serve lo snippet.
+Le sessioni del Coach LinkHub non lo ricevono, perché hanno già la loro skill.
+
 ## Letture
 
 | Tool | Input | Uso |
@@ -13,7 +22,8 @@ rifiutati da focus e panchina: il focus è personale.
 | `focus_get` | `userId?` | Senza `userId`: il focus di chi chiama. Restituisce `{ userId, access, todayIso, items, count, softLimit, warning, completed, replacements }`. Con `userId` è sola lettura per admin o team leader: in questa skill non usarlo. |
 | `focus_candidates` | `limit?` (1-30, default 10) | Proposte: `{ todayIso, focusCount, softLimit, candidates, benchToday, isLimited }`. I candidati sono iniziative aperte assegnate all'utente, non ancora in focus, in ordine di urgenza. |
 | `keyResults_byTeam` | `teamId`, `limit?` | KR del team, solo per promuovere un elemento della panchina. |
-| `risks_byKeyResult` | `keyResultId`, `limit?` | Rischi attivi del KR: serve un `riskId` per `bench_promote`. |
+| `bench_list` | `statuses?`, `dateIso?`, `limit?` | Elementi della panchina con titolo e nota: serve la nota prima di proporre il rischio di `bench_promote`. |
+| `risks_byKeyResult` | `keyResultId`, `limit?` | Rischi attivi del KR: solo se l'utente vuole usare un rischio esistente in `bench_promote`. |
 
 Ogni elemento di `items`, `candidates` e `replacements` ha `_id`, `slug`,
 `description`, `status` (`ON_TIME` o `OVERDUE`), `teamId`, `teamName`,
@@ -35,7 +45,7 @@ panchina con la data di oggi: possibili promozioni, mai iniziative in focus.
 | Tool | Input | Effetto |
 | --- | --- | --- |
 | `focus_update` | `add?: initiativeId[]`, `remove?: initiativeId[]` | Mette e toglie iniziative dal focus di chi chiama e restituisce lo stesso formato di `focus_get`. Accetta solo iniziative aperte assegnate all'utente. Oltre 3 non blocca: valorizza `warning`. Ogni modifica azzera `completed`. |
-| `bench_promote` | `benchItemId`, `teamId`, `riskId`, `checkInDays`, `description?`, `assigneeId?`, `priority?`, `externalUrl?` | Trasforma un elemento della panchina in un'iniziativa vera; dopo si può metterla in focus. |
+| `bench_promote` | `benchItemId`, `keyResultId`, `checkInDays`, `riskId?` o `riskDescription?`, `teamId?`, `description?`, `assigneeId?`, `priority?`, `externalUrl?` | Trasforma un elemento della panchina in un'iniziativa vera sul KR scelto. Senza `riskId` crea un rischio nuovo sul KR: passa in `riskDescription` il testo confermato dall'utente (senza, usa titolo e nota). `riskCreated` lo conferma. Dopo si può metterla in focus. |
 
 ## Calendario (connettore dell'utente, facoltativo)
 

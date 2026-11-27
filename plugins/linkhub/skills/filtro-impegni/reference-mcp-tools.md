@@ -5,6 +5,15 @@ pubblicati dal server MCP LinkHub; non inventare tool alternativi. Tutti i tool
 agiscono nella company del token OAuth. Panchina e focus rifiutano gli account
 bot (API key).
 
+## Istruzioni del server
+
+Il server MCP LinkHub invia nella risposta `initialize` il campo
+`instructions`: nelle richieste di lavoro chiama `me_whoami` prima di
+rispondere e usa le skill `focus` e `filtro-impegni`. È lo stesso testo di
+«Copia per il tuo LLM» e di [snippet-claude-md.md](snippet-claude-md.md); l'utente non deve
+configurare nulla. Alcuni client lo ignorano: in quel caso serve lo snippet.
+Le sessioni del Coach LinkHub non lo ricevono, perché hanno già la loro skill.
+
 ## Letture
 
 | Tool | Input | Uso |

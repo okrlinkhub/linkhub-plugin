@@ -89,10 +89,14 @@ chiamata `focus_update` con `add` e `remove`. Mostra il focus restituito
 (non quello che avevi proposto). Se c'è `warning`, ricorda il consiglio di
 restare a 3 e proponi quale togliere.
 
-Per promuovere un elemento della panchina: scegli con l'utente team, rischio
-attivo (`risks_byKeyResult` a partire dal KR del team) e frequenza di
-check-in, conferma, `bench_promote`, poi proponi di metterla in focus con
-`focus_update`.
+Per promuovere un elemento della panchina: leggi prima l'elemento completo con
+`bench_list` (`benchToday` non ha la nota; se non lo trovi, chiedi all'utente il
+testo del rischio). Scegli con l'utente il KR
+(`keyResults_byTeam`) e la frequenza di check-in (7 giorni); il rischio è nuovo,
+con il testo da titolo e nota dell'elemento che l'utente può correggere (passa
+sempre in `riskDescription` il testo esatto confermato), oppure
+un rischio esistente del KR se lo chiede (`risks_byKeyResult`). Conferma,
+`bench_promote`, poi proponi di metterla in focus con `focus_update`.
 
 ## Fase 5 — Tempo in calendario (facoltativa)
 

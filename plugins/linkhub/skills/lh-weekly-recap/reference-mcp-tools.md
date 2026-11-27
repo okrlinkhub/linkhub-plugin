@@ -26,9 +26,13 @@ personale dell'utente: gli agenti operativi vengono rifiutati.
 
 ## Modifiche (sempre dopo un sì sulla proposta esatta)
 
-- `bench_promote { benchItemId, teamId, riskId, checkInDays, description?,
-  assigneeId?, priority?, externalUrl? }` — crea l'iniziativa come
-  `initiatives_create` e segna l'elemento come promosso.
+- `bench_promote { benchItemId, keyResultId, riskId?, riskDescription?,
+  checkInDays, teamId?, description?, assigneeId?, priority?, externalUrl? }` —
+  KR obbligatorio, team del KR. Senza `riskId` crea un rischio nuovo sul KR:
+  passa in `riskDescription` il testo esatto confermato (senza, usa titolo e
+  nota dell'elemento); mai entrambi. Crea
+  l'iniziativa come `initiatives_create`, segna l'elemento come promosso e
+  restituisce `riskCreated`.
 - `bench_update { benchItemId, title?, note?, dateIso?, keyResultId?, teamId?,
   status?, declinedReason?, declinedOnIso? }` — aggiorna un elemento aperto o un
   no; `status: "OPEN"` riapre un no, `status: "DECLINED"` richiede il motivo.

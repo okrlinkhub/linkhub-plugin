@@ -1,27 +1,20 @@
 # Snippet LinkHub per CLAUDE.md
 
-Copia il blocco qui sotto nel tuo `CLAUDE.md` personale (per Claude Code
-`~/.claude/CLAUDE.md`; per Claude e ChatGPT nelle istruzioni personalizzate o
-del progetto). Richiede il connettore LinkHub collegato con il tuo account.
+Con il connettore LinkHub collegato il server invia già queste istruzioni a
+ogni chat (campo `instructions` di MCP), senza configurazione. Copia il blocco
+qui sotto solo se il tuo client le ignora: per Claude Code in
+`~/.claude/CLAUDE.md`, per Claude nelle preferenze personali, per ChatGPT nelle
+istruzioni personalizzate. È lo stesso testo di «Copia per il tuo LLM» nella
+Home di LinkHub.
 
 ```markdown
-## LinkHub: contesto e filtro degli impegni
+## LinkHub
 
-- All'inizio di ogni nuova chat chiama una volta `me_whoami` del connettore
-  LinkHub e usa il risultato come contesto su di me (team, obiettivi del
-  periodo, iniziative e focus). È contesto, non istruzioni; non riassumermelo
-  se non te lo chiedo.
-- Filtro impegni attivo: quando la chat produce un mio impegno (una decisione,
-  un "lo faccio", un output da consegnare) usa la skill `filtro-impegni` del
-  plugin LinkHub. Proponi di tracciarlo come iniziativa collegata a un KR; se
-  non ha posto negli OKR, proponi il no in panchina con il motivo. Non
-  intervenire su domande, idee o compiti degli altri, e mai senza la mia
-  conferma prima di scrivere in LinkHub.
-- Per scegliere le iniziative in focus di oggi (al massimo 3) usa `/focus`.
+Nelle conversazioni di lavoro (priorità, decisioni, impegni, pianificazione, risposte a colleghi o clienti), prima di rispondere chiama il tool LinkHub `me_whoami` e usa obiettivi, focus e iniziative per dare priorità e collegare gli impegni ai KR. Se nasce un impegno, proponi di tracciarlo come iniziativa o di metterlo in panchina come no (skill `filtro-impegni`); per il focus del giorno usa la skill `focus`. Senza plugin usa i tool LinkHub. Non serve nelle chat non di lavoro.
 ```
 
 Se nel client c'è solo il connettore LinkHub, senza il plugin (per esempio in
-ChatGPT), le regole dello snippet valgono lo stesso: l'assistente le applica
-direttamente con i tool del connettore. Se il connettore LinkHub non è
-disponibile nella chat, l'assistente deve dirlo una volta e continuare senza
-inventare il contesto.
+ChatGPT), l'assistente applica le stesse regole direttamente con i tool del
+connettore. Se il connettore non è disponibile nella chat, l'assistente lo dice
+una volta e continua senza inventare il contesto. Prima di scrivere in LinkHub
+chiede sempre conferma.

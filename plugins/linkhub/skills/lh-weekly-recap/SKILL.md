@@ -116,19 +116,22 @@ non compare, dì che non riesci a leggerne i dettagli e passa al successivo.
 Elementi aperti già collegati a un KR vivo. Per ciascuno chiedi: **"La promuovi
 a iniziativa, la lasci in panchina o la elimini?"**
 
-Per promuovere servono il team, un rischio attivo **dello stesso team** e la
-frequenza dei check-in:
-- rischio e team: leggi i rischi del KR collegato con `risks_byKeyResult`; il
-  team è quello del KR (`keyResult.teamId`). Proponi i rischi restituiti, senza
-  scegliere per somiglianza del testo. Se l'elemento indica un team diverso da
-  quello del KR, dillo e lascia scegliere: il team del KR oppure un KR del team
-  dell'elemento (`keyResults_byTeam`, poi `risks_byKeyResult` su quel KR);
-- se non c'è un rischio attivo, dillo e lascia l'elemento in panchina;
+Per promuovere servono il KR e la frequenza dei check-in; il rischio lo
+propone LinkHub:
+- KR: quello collegato all'elemento; il team è quello del KR. Se l'elemento
+  indica un team diverso da quello del KR, dillo e lascia scegliere: il KR
+  collegato oppure un KR del team dell'elemento (`keyResults_byTeam`);
+- rischio: di norma è un **rischio nuovo** sul KR, con il testo ricavato da
+  titolo e nota dell'elemento; mostralo, lascia correggerlo e passa sempre in
+  `riskDescription` il testo esatto confermato. Solo se l'utente
+  lo chiede, leggi i rischi del KR con `risks_byKeyResult` e usa quello che
+  sceglie, senza scegliere per somiglianza del testo;
 - check-in: proponi 7 giorni.
 
-Proponi in una frase: titolo dell'iniziativa, team, rischio, assegnatario (tu) e
-check-in ogni N giorni, poi attendi il sì. Applica con `bench_promote
-{ benchItemId, teamId, riskId, checkInDays, description? }`. Dopo il risultato
+Proponi in una frase: titolo dell'iniziativa, KR, rischio (nuovo con il testo,
+oppure quello esistente scelto), assegnatario (tu) e check-in ogni N giorni,
+poi attendi il sì. Applica con `bench_promote { benchItemId, keyResultId,
+riskDescription? | riskId?, checkInDays, description? }`. Dopo il risultato
 verificato ricorda che la nuova iniziativa non entra nel focus da sola: domani,
 con la skill `focus`, l'utente sceglie se è una delle 3 giuste.
 
@@ -182,7 +185,7 @@ al giorno che fanno la differenza". Non fare altre domande.
 |------------|--------------|
 | Inventare chiusure, valori o confronti | Usa solo i dati del recap |
 | Promuovere o eliminare senza un sì sull'elemento esatto | Una proposta, un sì, un elemento alla volta |
-| Scegliere il rischio per somiglianza del testo | Proponi i rischi attivi letti per il KR o il team |
+| Scegliere il rischio per somiglianza del testo | Proponi un rischio nuovo sul KR; un esistente solo se richiesto, tra quelli del KR scelto (`risks_byKeyResult`) |
 | Mettere titoli o motivi dei no nel testo da inoltrare | Solo il numero dei no |
 | Dire che il recap è stato inviato | Il testo si copia o si invia dalla pagina con un clic |
 | Usarla con un agente operativo o per un collega | Il recap è solo del proprietario dell'account |

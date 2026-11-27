@@ -15,7 +15,7 @@ Dati e operazioni restano protetti dall'accesso OAuth e dalle autorizzazioni del
 Usa il tag stabile indicato qui sotto.
 
 ```bash
-codex plugin marketplace add okrlinkhub/linkhub-plugin --ref v0.10.27
+codex plugin marketplace add okrlinkhub/linkhub-plugin --ref v0.10.29
 codex plugin add linkhub@linkhub-private
 ```
 
@@ -44,19 +44,20 @@ Puoi iniziare con uno di questi prompt:
 - **`lh-weekly-recap`**: a fine settimana rivede chiusure ed effetto sui KR, pulisce la panchina
   e prepara il testo da inoltrare.
 
-Per attivare focus e filtro in ogni chat copia lo snippet di
+Focus e filtro sono attivi in ogni chat senza configurazione: il server LinkHub invia le sue
+istruzioni MCP, che nelle richieste di lavoro fanno leggere `me_whoami` prima di rispondere. Se
+il tuo client le ignora, copia lo snippet di
 [`skills/filtro-impegni/snippet-claude-md.md`](plugins/linkhub/skills/filtro-impegni/snippet-claude-md.md)
-nel tuo `CLAUDE.md` o nelle istruzioni personalizzate: richiama `me_whoami` all'inizio di ogni
-nuova chat e attiva il filtro.
+nel tuo `CLAUDE.md` o nelle istruzioni personalizzate.
 
 ## Aggiornamento
 
 LinkHub pubblica ogni versione come tag immutabile. Per passare a un nuovo tag, sostituisci
-`v0.10.27` con la versione comunicata:
+`v0.10.29` con la versione comunicata:
 
 ```bash
 codex plugin marketplace remove linkhub-private
-codex plugin marketplace add okrlinkhub/linkhub-plugin --ref v0.10.27
+codex plugin marketplace add okrlinkhub/linkhub-plugin --ref v0.10.29
 codex plugin add linkhub@linkhub-private
 ```
 

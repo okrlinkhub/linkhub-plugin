@@ -48,9 +48,9 @@ impegni insieme, elencali e trattali uno alla volta.
   funzionano solo con l'accesso OAuth personale e fermati.
 
 Per nomi, input e campi esatti dei tool leggi
-[reference-mcp-tools.md](reference-mcp-tools.md). Per attivare il filtro in
-ogni nuova chat, l'utente copia nel proprio `CLAUDE.md` o nelle istruzioni
-personalizzate lo snippet in [snippet-claude-md.md](snippet-claude-md.md).
+[reference-mcp-tools.md](reference-mcp-tools.md). Il server LinkHub attiva
+già il filtro in ogni chat con le sue istruzioni MCP; se il client le ignora,
+l'utente copia lo snippet in [snippet-claude-md.md](snippet-claude-md.md).
 
 ## Passo 1 — Riconosci l'impegno
 
@@ -82,7 +82,7 @@ valutarla con /focus.
 
 Se il KR non ha rischi attivi, non crearne uno di nascosto: proponi di
 metterla in panchina collegata al KR (`bench_add` con `keyResultId`, `teamId`,
-stato aperto), da promuovere a iniziativa quando il team definisce il rischio.
+stato aperto): la promozione (`bench_promote`) propone poi un rischio nuovo sul KR.
 
 ## Passo 3b — Nessun collegamento
 

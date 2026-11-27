@@ -38,7 +38,8 @@
   compiti che l'assistente svolge nella chat stessa: il filtro non interviene.
 - Dopo un «lascia stare» lo stesso impegno non viene riproposto.
 - Un elemento della panchina non entra nel focus con `focus_update`: prima
-  `bench_promote` con team, rischio e check-in confermati.
+  `bench_promote` con KR, rischio (nuovo con il testo mostrato o esistente
+  scelto) e check-in confermati.
 - KR senza rischi attivi: nessun rischio creato di nascosto; proposta di
   panchina aperta collegata al KR.
 - Account bot (API key): focus e panchina rifiutati, la skill lo spiega e si

@@ -40,8 +40,9 @@
 
 - Nessuna promozione, eliminazione o riapertura senza un sì sulla proposta
   esatta; mai più elementi in un'unica conferma.
-- Il rischio di una promozione non viene scelto per somiglianza del testo; senza
-  un rischio attivo l'elemento resta in panchina.
+- Il rischio di una promozione è di norma nuovo, con il testo mostrato prima del
+  sì; un rischio esistente solo se l'utente lo sceglie, mai per somiglianza del
+  testo.
 - Il testo da inoltrare non contiene titoli o motivi dei no, né elementi della
   panchina.
 - Il coach non dichiara mai di aver inviato il recap.
