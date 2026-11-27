@@ -8,7 +8,11 @@ description: >-
   iniziative in sospeso", "aggiorno le iniziative", "quanti check-in ho". La skill
   gestisce l'intero flusso MCP: carica le iniziative, pone una domanda alla volta
   per ogni check-in, raccoglie una nota obbligatoria, risolve la data, esegue il
-  check-in e conferma lo zero finale.
+  check-in e conferma lo zero finale. Copre anche la chiusura della giornata
+  ("chiudo la giornata", "fine giornata", "chiusura di oggi"): prepara una bozza
+  di check-in dalle Note delle iniziative, senza ricostruire le chat, che l'utente
+  conferma, sposta o chiude. Non usarla per il riepilogo della settimana o la
+  pulizia della panchina: usa lh-weekly-recap.
 ---
 
 ## Scelte guidate nel Coach integrato (web e mobile)
@@ -176,6 +180,86 @@ Output atteso: **portare a zero tutti i check-in da fare dell’utente nell’az
 
 Fuori da /Agent mantieni il workflow autonomo descritto di seguito: i tool
 `coach_*` sono disponibili soltanto con le credenziali di una sessione.
+
+## Chiusura della giornata
+
+Usa questa modalità quando l'utente chiude la giornata ("chiudo la giornata",
+"fine giornata", "facciamo la chiusura di oggi"), fuori dalla sfida /Agent.
+Nella sfida /Agent resta il flusso standard delle fasi successive. L'obiettivo
+è lo stesso, nessun check-in in sospeso, ma ogni check-in parte da una
+**bozza preparata dalle Note dell'iniziativa**. Le Note sono il diario del
+lavoro: lì tornano i recap delle sessioni AI e i check-in precedenti.
+
+- **Non ricostruire le chat.** Non chiedere all'utente di incollare
+  conversazioni, non riassumere thread esterni e non dedurre il lavoro dalla
+  memoria della chat corrente. Se le Note non dicono cosa è successo oggi,
+  la bozza lo dichiara e chiede all'utente una frase.
+- **Iniziative da chiudere oggi:** quelle in focus (`focus_get`, senza
+  `userId`) più quelle con il check-in dovuto oggi
+  (`initiatives_listMinePending`), senza duplicati; prima le iniziative in focus.
+  Se il focus non è disponibile, usa i soli check-in dovuti oggi senza spiegare
+  il motivo tecnico. Le iniziative in focus già completate (`completed`) si
+  citano una volta come fatte, senza un nuovo check-in.
+- **Arretrato:** i check-in in ritardo da prima di oggi non entrano nella
+  chiusura della giornata, salvo che siano in focus. Alla fine indica quanti
+  sono e chiedi se smaltirli subito con il flusso standard o un altro giorno.
+- Fissa N a questo elenco iniziale e applica il contatore [X/N] come nella
+  Fase 1.
+- Per classificare i check-in in sospeso confronta il giorno di calendario
+  locale di `nextCheckInDate` con oggi: lo stesso giorno è "dovuto oggi", un giorno
+  precedente è arretrato, domani serve solo per il promemoria finale. Le
+  iniziative con il check-in in un giorno successivo restano fuori, salvo che
+  siano in focus.
+
+### Bozza per ogni iniziativa
+
+1. Leggi le Note con `initiatives_listMinePending { initiativeId }`: il testo è
+   in `assignedContext.initiative.notes`. Considera soltanto le voci di oggi:
+   i check-in con intestazione `[GG/MM/YYYY]` di oggi e i recap delle sessioni
+   AI (sezioni `### Handoff`) con "Ultimo aggiornamento" di oggi. Quella data è
+   il giorno UTC: un recap delle prime ore dopo la mezzanotte italiana può
+   riportare ieri. Le voci più vecchie servono solo come contesto.
+2. Prepara una bozza con tre elementi, ricavati solo dalle Note:
+   - **esito proposto:** Completa se le Note dicono che il lavoro è concluso,
+     altrimenti Rimanda;
+   - **Nota proposta:** una o due frasi brevi su cosa è stato fatto oggi e cosa
+     manca, con le parole delle Note; nessun risultato, persona o motivo che
+     le Note non riportano;
+   - **prossimo check-in** (solo per Rimanda): domani lavorativo se l'iniziativa
+     resta in focus, altrimenti oggi + `checkInDays`, verificato con
+     `mcp_resolveIsoDate`.
+3. Mostra la bozza in poche righe e chiedi una sola scelta:
+
+> **[X/N] "[Nome Iniziativa]"**
+> Dalle Note di oggi: *[sintesi in una riga]*
+> Bozza: rimando al [gg/mm/aaaa] con la nota «[Nota proposta]».
+> **Confermi, sposti o chiudi?**
+
+Presenta le scelte in testo naturale: **Conferma la bozza**, **Sposta**,
+**Chiudi l'iniziativa** e, se le Note lo chiedono, **Chiudi e crea next step**.
+La chiusura della giornata non si usa mai nel Coach integrato (/Agent): lì vale
+il flusso standard degli Step 1–4, con le sue opzioni guidate.
+
+- **Conferma la bozza:** registra subito il check-in con esito, Nota e data
+  della bozza (Step 4), senza un'altra domanda.
+- **Sposta:** proponi due date verificate e registra con la
+  Nota della bozza, salvo correzioni dell'utente.
+- **Chiudi:** registra il completamento con la Nota della bozza, riformulata al
+  passato solo se la bozza era un rinvio; se cambi il testo, mostra la nuova Nota
+  e chiedi la scelta fra le due. Poi segui lo Step 5.
+- Una correzione scritta dall'utente sostituisce la parte corrispondente della
+  bozza e vale come conferma di quella parte. Usa la Nota esatta confermata.
+- **Note vuote o senza voci di oggi:** non preparare una bozza inventata. Dillo
+  in una frase ("Nelle Note non trovo novità di oggi") e torna agli Step 1–3.
+
+### Chiusura
+
+Dopo l'ultima iniziativa verifica che le iniziative della giornata non siano
+più in sospeso (`initiatives_listMinePending`). Poi riepiloga la giornata in tre
+righe al massimo: iniziative chiuse, rinviate e la prima in calendario per
+domani; aggiungi il numero dei check-in arretrati, se ce ne sono. Se domani ci sono più di 3 iniziative dovute,
+ricorda che bastano 3 iniziative giuste al giorno e che si scelgono domattina
+con la skill `focus`.
 
 # LH Check-in Zero
 
@@ -499,6 +583,8 @@ reviewer. Se il team è in review, spiega che il KR si propone dalla review.
 | ❌ Non fare | ✅ Fai invece |
 |------------|--------------|
 | Fare check-in senza `progressNote` | Chiedi sempre una nota non vuota |
+| Ricostruire la giornata dalle chat o chiedere di incollarle | Prepara la bozza dalle Note dell'iniziativa; se mancano novità, chiedi una frase |
+| Registrare una bozza senza la scelta dell'utente | Mostra la bozza e attendi Conferma, Sposta o Chiudi |
 | Chiamare `initiatives_checkIn` senza `checkInOutcome` | Imposta sempre `postponed` o `finish` |
 | Usare `initiatives_update` sulle Note | Appendi solo via check-in/finish |
 | Fare più check-in senza chiedere lo stato | Una domanda di stato per ogni iniziativa |

@@ -1,7 +1,7 @@
 {
   "name": "linkhub",
-  "version": "0.10.25",
-  "description": "Learn and design LinkHub OKRs, complete and review reports, explain indicators, and run risk-focused operational agents.",
+  "version": "0.10.27",
+  "description": "Learn and design LinkHub OKRs, complete and review reports, explain indicators, choose your daily focus, filter new commitments, close the day from initiative notes, review the week, and run risk-focused operational agents.",
   "author": {
     "name": "LinkHub",
     "url": "https://www.okrlinkhub.com"
@@ -16,7 +16,8 @@
     "strategy-canvas",
     "workshop",
     "indicators",
-    "clickhouse"
+    "clickhouse",
+    "focus"
   ],
   "skills": "./skills/",
   "mcpServers": "./.mcp.json",
@@ -38,7 +39,10 @@
       "Analizza e migliora le collaborazioni del mio Cluster.",
       "Guidami nel workshop dei report dei team del mio Cluster.",
       "Guidami nella review di un report già sottomesso.",
+      "Chiudiamo la giornata: prepara i check-in dalle Note delle mie iniziative.",
+      "Facciamo il weeklyRecap della mia settimana e puliamo la panchina.",
       "Aiutami ad affrontare un alert KPI del mio team.",
+      "Scegliamo le mie 3 iniziative in focus per oggi.",
       "Gestisci questa menzione o iniziativa come agente operativo LinkHub."
     ],
     "composerIcon": "./assets/logo.png",

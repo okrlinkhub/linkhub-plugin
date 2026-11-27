@@ -1,0 +1,8 @@
+interface:
+  display_name: "LinkHub Filtro impegni"
+  short_description: "Turn a new commitment into a KR initiative or a reasoned no"
+  default_prompt: "Use $filtro-impegni to decide whether this commitment becomes a LinkHub initiative or a no on my bench."
+  icon_small: "assets/icon.svg"
+  icon_large: "assets/icon.svg"
+policy:
+  allow_implicit_invocation: true

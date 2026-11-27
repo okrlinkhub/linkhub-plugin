@@ -1,0 +1,8 @@
+interface:
+  display_name: "LinkHub Focus"
+  short_description: "Choose up to 3 LinkHub initiatives to focus on today"
+  default_prompt: "Use $focus to choose my LinkHub initiatives in focus for today."
+  icon_small: "assets/icon.svg"
+  icon_large: "assets/icon.svg"
+policy:
+  allow_implicit_invocation: true

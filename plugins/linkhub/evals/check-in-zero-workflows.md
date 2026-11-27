@@ -134,3 +134,43 @@ sessioni a tempo. Le chiamate interne corrette restano parte della verifica.
 - Negativo: una domanda su un indicatore riceve solo la risposta, senza
   scritture; una richiesta del solo indicatore crea l’indicatore (con
   conferma) e si ferma, senza Objective, KR o milestone non richiesti.
+
+## Chiusura della giornata dalle Note (WZ-2188)
+
+### Casi positivi e contestuali
+
+- **Bozza dalle Note:** l'utente scrive "chiudo la giornata". Due iniziative in
+  focus hanno nelle Note un recap di oggi; una terza ha il check-in dovuto oggi.
+  Il coach elenca prima le due in focus e poi quella di oggi, legge le Note di
+  ciascuna e propone esito, Nota e data ricavati solo dalle voci di oggi. Chiede
+  "Confermi, sposti o chiudi?" e registra il check-in esatto solo dopo la scelta.
+- **Conferma della bozza:** l'utente risponde "confermo". Il coach registra il
+  rinvio con la Nota e la data della bozza, senza un'altra domanda, e passa
+  all'iniziativa successiva con il contatore aggiornato.
+- **Sposta:** l'utente sceglie Sposta. Il coach propone due date verificate e
+  registra con la Nota della bozza e la data scelta.
+- **Chiudi:** le Note dicono "consegnato il documento al cliente". La bozza
+  propone Completa; dopo "chiudi" il coach registra il completamento con quella
+  Nota e segue il seguito sullo stesso rischio.
+- **Correzione libera:** l'utente scrive "rimando, ma scrivi che manca la firma".
+  La Nota diventa quella dell'utente; la data resta quella della bozza.
+- **Arretrato separato:** 20 check-in in ritardo da prima di oggi, fuori dal
+  focus, non entrano nella chiusura; alla fine il coach ne indica il numero e
+  chiede se smaltirli ora con il flusso standard o un altro giorno.
+- **Fine giornata:** dopo l'ultima iniziativa il coach verifica che le iniziative
+  della giornata non siano più in sospeso, riepiloga chiuse e rinviate e, se domani ci sono più di 3 iniziative
+  dovute, ricorda che bastano 3 iniziative giuste al giorno.
+
+### Casi negativi
+
+- **Nessuna novità nelle Note:** per un'iniziativa senza voci di oggi il coach
+  non inventa una bozza: dice che nelle Note non trova novità e fa la domanda
+  standard "Rimandi, completi o completi e crei il next step?".
+- Il coach non chiede di incollare chat, non riassume conversazioni esterne e non
+  usa la memoria della chat corrente come fonte della Nota.
+- Una bozza non viene mai registrata senza la scelta dell'utente; la Nota
+  registrata è quella confermata, non una riformulazione.
+- Nella sfida /Agent resta il flusso standard: la chiusura della giornata non
+  allarga la lettura ad altre iniziative o al focus.
+- La richiesta "facciamo il recap della settimana" non attiva questa skill ma
+  `lh-weekly-recap`.

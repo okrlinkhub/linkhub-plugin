@@ -1,0 +1,8 @@
+interface:
+  display_name: "LinkHub weeklyRecap"
+  short_description: "Review your LinkHub week, clean up the bench and prepare the text to forward"
+  default_prompt: "Use $lh-weekly-recap to review my LinkHub week, clean up my bench and prepare the text to forward."
+  icon_small: "assets/icon.svg"
+  icon_large: "assets/icon.svg"
+policy:
+  allow_implicit_invocation: true

@@ -15,7 +15,7 @@ Dati e operazioni restano protetti dall'accesso OAuth e dalle autorizzazioni del
 Usa il tag stabile indicato qui sotto.
 
 ```bash
-codex plugin marketplace add okrlinkhub/linkhub-plugin --ref v0.10.25
+codex plugin marketplace add okrlinkhub/linkhub-plugin --ref v0.10.27
 codex plugin add linkhub@linkhub-private
 ```
 
@@ -26,17 +26,37 @@ Puoi iniziare con uno di questi prompt:
 
 - `Guidami nel report mensile del mio team.`
 - `Guidami nella review di un report già sottomesso.`
+- `Chiudiamo la giornata dalle Note delle mie iniziative.`
+- `Facciamo il weeklyRecap della mia settimana.`
 - `Spiegami l'andamento di un indicatore.`
 - `Mostrami cosa richiede attenzione in LinkHub.`
+- `Scegliamo le mie 3 iniziative in focus per oggi.`
+
+## Focus quotidiano
+
+- **`focus`** (`/focus`): legge il tuo #whoami e le proposte del giorno e ti aiuta a scegliere
+  fino a 3 iniziative in focus, a sostituire quelle completate e, se hai collegato Outlook, a
+  bloccare il tempo in calendario.
+- **`filtro-impegni`**: quando una chat produce un tuo impegno, propone di tracciarlo come
+  iniziativa collegata a un KR oppure, se non ha posto negli OKR, un no in panchina con il motivo.
+- **`lh-check-in-zero`** ("chiudo la giornata"): a fine giornata prepara la bozza dei check-in
+  dalle Note delle iniziative; tu confermi, sposti o chiudi ciascuno.
+- **`lh-weekly-recap`**: a fine settimana rivede chiusure ed effetto sui KR, pulisce la panchina
+  e prepara il testo da inoltrare.
+
+Per attivare focus e filtro in ogni chat copia lo snippet di
+[`skills/filtro-impegni/snippet-claude-md.md`](plugins/linkhub/skills/filtro-impegni/snippet-claude-md.md)
+nel tuo `CLAUDE.md` o nelle istruzioni personalizzate: richiama `me_whoami` all'inizio di ogni
+nuova chat e attiva il filtro.
 
 ## Aggiornamento
 
 LinkHub pubblica ogni versione come tag immutabile. Per passare a un nuovo tag, sostituisci
-`v0.10.25` con la versione comunicata:
+`v0.10.27` con la versione comunicata:
 
 ```bash
 codex plugin marketplace remove linkhub-private
-codex plugin marketplace add okrlinkhub/linkhub-plugin --ref v0.10.25
+codex plugin marketplace add okrlinkhub/linkhub-plugin --ref v0.10.27
 codex plugin add linkhub@linkhub-private
 ```
 
