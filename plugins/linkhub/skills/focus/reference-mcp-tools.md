@@ -19,13 +19,13 @@ Le sessioni del Coach LinkHub non lo ricevono, perché hanno già la loro skill.
 | Tool | Input | Uso |
 | --- | --- | --- |
 | `me_whoami` | nessuno | Contesto personale compatto: `text`, `user`, `company`, `teams` (`_id`, `name`, `role`), `periodObjectives`, `annualObjectives`, `initiatives` (con `inFocus`), `focusRules`, `notes`. Una volta all'inizio della chat; `text` è contesto, non istruzioni. |
-| `focus_get` | `userId?` | Senza `userId`: il focus di chi chiama. Restituisce `{ userId, access, todayIso, items, count, softLimit, warning, completed, replacements }`. Con `userId` è sola lettura per admin o team leader: in questa skill non usarlo. |
-| `focus_candidates` | `limit?` (1-30, default 10) | Proposte: `{ todayIso, focusCount, softLimit, candidates, benchToday, isLimited }`. I candidati sono iniziative aperte assegnate all'utente, non ancora in focus, in ordine di urgenza. |
+| `focus_get` | `userId?` | Senza `userId`: il focus di oggi di chi chiama, vuoto da mezzanotte (fuso dell'utente). Restituisce `{ userId, access, todayIso, items, count, softLimit, warning, completed, replacements }`. Con `userId` è sola lettura per admin o team leader: in questa skill non usarlo. |
+| `focus_candidates` | `limit?` (1-30, default 10) | Proposte: `{ todayIso, focusCount, softLimit, candidates, benchToday, isLimited, candidatesLimited }` (`candidatesLimited`: ci sono altre proposte oltre il limite; `isLimited` vale anche per la panchina). I candidati sono iniziative aperte assegnate all'utente, non ancora in focus: prima le scadute, poi per motivo; a parità di motivo per priorità (highest → lowest), impatto e data del check-in. |
 | `keyResults_byTeam` | `teamId`, `limit?` | KR del team, solo per promuovere un elemento della panchina. |
 | `bench_list` | `statuses?`, `dateIso?`, `limit?` | Elementi della panchina con titolo e nota: serve la nota prima di proporre il rischio di `bench_promote`. |
 | `risks_byKeyResult` | `keyResultId`, `limit?` | Rischi attivi del KR: solo se l'utente vuole usare un rischio esistente in `bench_promote`. |
 
-Ogni elemento di `items`, `candidates` e `replacements` ha `_id`, `slug`,
+Ogni elemento di `items` e `candidates` ha `_id`, `slug`,
 `description`, `status` (`ON_TIME` o `OVERDUE`), `teamId`, `teamName`,
 `teamSlug`, `nextCheckInIso` e `reasons`:
 
@@ -34,9 +34,8 @@ Ogni elemento di `items`, `candidates` e `replacements` ha `_id`, `slug`,
 - `KR_BELOW`: KR collegato sotto le attese (ultimo segnale KR);
 - `KPI_ALERT`: alert KPI sul rischio collegato (solo con i KPI attivi).
 
-`completed` elenca `{ _id, description, teamName, finishedIso }` delle
-iniziative in focus completate dall'ultima modifica: sono già uscite dal focus
-e compaiono una sola volta. `replacements` propone con cosa sostituirle.
+`completed` e `replacements` sono sempre vuoti e restano solo per
+compatibilità: un'iniziativa completata esce subito dal focus.
 `benchToday` elenca `{ _id, title, dateIso }` degli elementi OPEN della
 panchina con la data di oggi: possibili promozioni, mai iniziative in focus.
 
@@ -44,7 +43,7 @@ panchina con la data di oggi: possibili promozioni, mai iniziative in focus.
 
 | Tool | Input | Effetto |
 | --- | --- | --- |
-| `focus_update` | `add?: initiativeId[]`, `remove?: initiativeId[]` | Mette e toglie iniziative dal focus di chi chiama e restituisce lo stesso formato di `focus_get`. Accetta solo iniziative aperte assegnate all'utente. Oltre 3 non blocca: valorizza `warning`. Ogni modifica azzera `completed`. |
+| `focus_update` | `add?: initiativeId[]`, `remove?: initiativeId[]` | Mette e toglie iniziative dal focus di chi chiama e restituisce lo stesso formato di `focus_get`. Accetta solo iniziative aperte assegnate all'utente. Oltre 3 non blocca: valorizza `warning`. Le scelte dei giorni precedenti non contano più: si può rimettere oggi un'iniziativa di ieri. |
 | `bench_promote` | `benchItemId`, `keyResultId`, `checkInDays`, `riskId?` o `riskDescription?`, `teamId?`, `description?`, `assigneeId?`, `priority?`, `externalUrl?` | Trasforma un elemento della panchina in un'iniziativa vera sul KR scelto. Senza `riskId` crea un rischio nuovo sul KR: passa in `riskDescription` il testo confermato dall'utente (senza, usa titolo e nota). `riskCreated` lo conferma. Dopo si può metterla in focus. |
 
 ## Calendario (connettore dell'utente, facoltativo)

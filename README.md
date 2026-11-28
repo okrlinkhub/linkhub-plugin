@@ -15,7 +15,7 @@ Dati e operazioni restano protetti dall'accesso OAuth e dalle autorizzazioni del
 Usa il tag stabile indicato qui sotto.
 
 ```bash
-codex plugin marketplace add okrlinkhub/linkhub-plugin --ref v0.10.29
+codex plugin marketplace add okrlinkhub/linkhub-plugin --ref v0.10.30
 codex plugin add linkhub@linkhub-private
 ```
 
@@ -53,11 +53,11 @@ nel tuo `CLAUDE.md` o nelle istruzioni personalizzate.
 ## Aggiornamento
 
 LinkHub pubblica ogni versione come tag immutabile. Per passare a un nuovo tag, sostituisci
-`v0.10.29` con la versione comunicata:
+`v0.10.30` con la versione comunicata:
 
 ```bash
 codex plugin marketplace remove linkhub-private
-codex plugin marketplace add okrlinkhub/linkhub-plugin --ref v0.10.29
+codex plugin marketplace add okrlinkhub/linkhub-plugin --ref v0.10.30
 codex plugin add linkhub@linkhub-private
 ```
 

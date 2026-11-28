@@ -12,9 +12,12 @@
 - L'utente chiede una quarta iniziativa: la skill ricorda che 3 iniziative
   giuste al giorno sono quello che conta e propone quale togliere; se l'utente
   insiste rispetta la scelta e riporta il `warning` del server.
-- `focus_get` restituisce `completed` con un'iniziativa chiusa: la skill parte
-  da lì, propone la prima di `replacements` come sostituta e chiede conferma
-  prima di `focus_update`.
+- Al mattino `focus_get` è vuoto anche se ieri c'erano 3 iniziative: la skill
+  dice che il focus si è azzerato e fa scegliere da capo, anche le stesse di
+  ieri, senza dare per scontata la scelta del giorno prima (WZ-2201).
+- «Ho completato X, cosa metto al suo posto?»: X è già uscita dal focus; la
+  skill non cerca `completed` o `replacements` (sempre vuoti), propone la prima
+  proposta adatta e chiede conferma prima di `focus_update`.
 - Con il connettore Microsoft 365 disponibile offre di bloccare il tempo; crea
   eventi «Focus · …» solo dopo il sì agli orari esatti e riporta solo gli
   eventi creati.
